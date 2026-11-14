@@ -49,6 +49,9 @@ EE_PROJECT = ""
 SHARD: tuple[int, int] | None = (
     None  # (i, n) from --shard i/n: run only this machine's share of EE batches
 )
+MOD21_MIN_VALID = (
+    0.5  # min share of days with a valid MOD21 pixel (day AND night) before it joins the mean
+)
 THREADS = 4  # concurrent Earth Engine requests per machine (EE allows ~40 per user)
 FETCH_DIVINER = (
     True  # False: skip the 2.8 GB Diviner download; Moon thermal stays NaN outside reduced bands
@@ -245,7 +248,7 @@ EE_COLS = [c for c in EE_RAW if c not in ("z_mean", "z2_mean")] + ["relief_std_m
 
 
 def earth_remote(cells, batch=100):
-    """Earth Engine reducers per hex. Terrain fuses GLO-30 + NASADEM, thermal fuses MOD11A2 + MOD21A1D/N (mean where both exist). Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
+    """Earth Engine reducers per hex. Terrain fuses GLO-30 + NASADEM, thermal fuses MOD11A2 + MOD21A1D/N (mean where both exist, MOD21 only where >= MOD21_MIN_VALID of days are valid). Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
     import ee
     import h3  # imported here so the offline run needs no earthengine-api
 
@@ -283,6 +286,21 @@ def earth_remote(cells, batch=100):
     # shorten the window (record it in datasets.yaml). Aqua/VIIRS/ECOSTRESS/SMAP are NOT overpass-matched.
     d21 = ee.ImageCollection("MODIS/061/MOD21A1D").filterDate("2010-01-01", "2020-01-01")
     n21 = ee.ImageCollection("MODIS/061/MOD21A1N").filterDate("2010-01-01", "2020-01-01")
+    # Where MOD21's daily record is sparse (clouds / polar night: 5-9% of days at 70N) its mean is a
+    # clear-sky, mostly-summer average, far warmer than the near-complete 8-day MOD11A2. Probe 2026-11-14:
+    # 70N +4 K, Antarctica diurnal range 1.1 -> 13.9 K. So MOD21 is used only on pixels where BOTH its day and
+    # night collections have valid data on >= MOD21_MIN_VALID of days; elsewhere MOD11A2 stands alone.
+    ok21 = (
+        d21.select("LST_1KM")
+        .count()
+        .divide(d21.size())
+        .min(n21.select("LST_1KM").count().divide(n21.size()))
+        .gte(MOD21_MIN_VALID)
+    )
+    mask21 = lambda ic: ic.map(  # noqa: E731 - copyProperties keeps the timestamp calendarRange needs
+        lambda i: i.updateMask(ok21).copyProperties(i, ["system:time_start"])
+    )
+    d21, n21 = mask21(d21), mask21(n21)
 
     def fuse(a, b):
         """Mean where both images have a pixel, else the one that does (masked pixels are ignored)."""
@@ -319,11 +337,12 @@ def earth_remote(cells, batch=100):
             for m in range(1, 13)
         ]
     )
-    # share of valid samples < 0 C, averaged over the two products (MOD21 pools its day and night samples)
-    lt0 = lambda ic, b: ic.select(b).map(lambda i: i.lt(273.15)).mean().rename("f")
+    # share of valid overpass samples < 0 C: day and night samples counted separately and averaged (same
+    # definition for both products; the old MOD11A2 test used the day/night average and read 0 where nights freeze)
+    lt0 = lambda ic, b, k: ic.select(b).map(lambda i: i.multiply(k).lt(273.15)).mean().rename("f")
     below0 = fuse(
-        mean_.map(lambda i: i.lt(273.15)).mean().rename("f"),
-        fuse(lt0(d21, "LST_1KM"), lt0(n21, "LST_1KM")),
+        fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02)),
+        fuse(lt0(d21, "LST_1KM", 1), lt0(n21, "LST_1KM", 1)),
     )
     thermal = (
         day.add(night)

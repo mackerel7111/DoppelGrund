@@ -13,10 +13,10 @@ Order is fixed: index = column in every `*_features.f32` file and every feature 
 | 1 | slope_p90_deg | terrain | deg | none | same | same | same |
 | 2 | relief_std_m | terrain | m | log1p | std of elevation in footprint | same | same |
 | 3 | frac_slope_lt_10deg | terrain | fraction | none | share of pixels with slope < 10° | same | same |
-| 4 | lst_mean_K | thermal | K | none | mean of MOD11A2 and MOD21A1D/N day/night means (Terra, 10:30/22:30), 2010–2019; mean where both exist, else the one that does | Diviner mean of 10.5 h and 22.5 h bins | NaN (open item) |
+| 4 | lst_mean_K | thermal | K | none | mean of MOD11A2 and MOD21A1D/N day/night means (Terra, 10:30/22:30), 2010–2019; mean where both exist, else the one that does; MOD21 is used only on pixels where its day and night records are valid on ≥ 50% of days (otherwise MOD11A2 alone) | Diviner mean of 10.5 h and 22.5 h bins | NaN (open item) |
 | 5 | diurnal_range_K | thermal | K | none | same fusion of mean(day − night) | Diviner T(10.5 h) − T(22.5 h) | NaN |
 | 6 | annual_range_K | thermal | K | none | max − min of the fused monthly mean LST | NaN | NaN |
-| 7 | frac_below_0C | cold_ice | fraction | none | share of valid LST samples < 273.15 K, averaged over MOD11A2 and MOD21A1D/N | share of Diviner local-time bins < 273.15 K | NaN |
+| 7 | frac_below_0C | cold_ice | fraction | none | share of valid overpass samples < 273.15 K (day and night samples counted separately, then averaged), averaged over MOD11A2 and MOD21A1D/N under the same ≥ 50% MOD21 validity rule | share of Diviner local-time bins < 273.15 K | NaN |
 | 8 | permafrost_prob | cold_ice | fraction | none | Obu et al. 2018 (N. Hemisphere), else NaN | NaN | NaN |
 | 9 | aridity_index | cold_ice | ratio | log1p | TerraClimate P / PET | 0.0 by definition | 0.0 by definition |
 | 10 | pit_cave_density_per_1000km2 | subsurface | per_1000km2 | log1p | catalogued lava tubes / caves per 1000 km² of the hex; 0 only where a systematic survey covers the hex, else NaN | LROC lunar pit catalogue per 1000 km² of the disc; 0 only inside the survey coverage, else NaN | NaN (no catalogue) |
