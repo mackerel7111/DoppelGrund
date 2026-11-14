@@ -10,7 +10,7 @@ has studied, and states where each analogy fails.
 
 - Python 3.12+ (`python3`, or `python` on Windows)
 - Node.js LTS (22.x) and npm
-- GNU Make (on Windows: Git Bash, MSYS or WSL)
+- GNU Make (optional; on Windows: Git Bash, MSYS or WSL). Without it, use the plain commands below.
 
 ## Setup and everyday commands
 
@@ -26,6 +26,34 @@ make preview            # serve the production build
 ```
 
 Override the Python interpreter with `make setup SYS_PY=/path/to/python` if auto-detection picks the wrong one.
+
+### Without make (Windows PowerShell, from the repo root)
+
+On Linux/macOS use `.venv/bin/python` instead of `.venv\Scripts\python`.
+
+```powershell
+# setup (once)
+python -m venv .venv
+.venv\Scripts\python -m pip install --upgrade pip
+.venv\Scripts\python -m pip install -e "pipeline[dev]"      # add ,ee for Earth Engine: "pipeline[dev,ee]"
+cd web; npm ci; cd ..
+
+# synthetic bundle, then the app
+.venv\Scripts\python -m doppelgrund.fixtures.synthetic --bundle web/public/data --interim data/interim/synthetic --coverage land
+cd web; npm run dev
+
+# real feature tables -> data/interim/real (needs `earthengine authenticate`)
+.venv\Scripts\python -m doppelgrund.real --ee-project YOUR_GCP_PROJECT
+.venv\Scripts\python -m doppelgrund.real --no-ee --limit 200   # quick smoke test, no Earth Engine
+
+# checks
+.venv\Scripts\python -m ruff check pipeline
+.venv\Scripts\python -m pytest pipeline/tests -m "not ee and not slow" -q
+cd web; npm run lint; npm test -- --run
+cd web; npm run build            # production build into web/dist/
+```
+
+If `npm run` fails with odd path errors on Windows, run `node scripts/npm-run.mjs <script>` from `web/` instead.
 
 ## Layout
 
