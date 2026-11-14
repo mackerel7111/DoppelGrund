@@ -55,6 +55,11 @@ cd web; npm run build            # production build into web/dist/
 
 If `npm run` fails with odd path errors on Windows, run `node scripts/npm-run.mjs <script>` from `web/` instead.
 
+Notes:
+
+- Without a bundle in `web/public/data/` the app shows "manifest.json: invalid JSON". Run the synthetic bundle step first, or open `/?bundle=sample` to use the committed 500-hex sample.
+- Node 22 LTS is the supported version. Newer odd-numbered releases (for example 25) install with `EBADENGINE` warnings but the tests pass.
+
 ## Layout
 
 See `.kiro/steering/structure.md`. Planning lives in `.kiro/specs/`, status in `docs/STATUS.md`.
