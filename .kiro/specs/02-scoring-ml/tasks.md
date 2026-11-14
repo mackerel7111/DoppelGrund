@@ -2,21 +2,21 @@
 
 Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on synthetic interim tables (`data/interim/synthetic/`) until gate G1, then re-run on real data.
 
-- [ ] 2.1 [S] Harmonisation (Window H4–H6)
+- [x] 2.1 [S] Harmonisation (Window H4–H6)
   - Files: `pipeline/doppelgrund/harmonise.py`, `pipeline/tests/test_harmonise.py`
   - Tests: log1p applied only to listed features; NaN preserved; pooled MAD equals hand-computed value on a toy matrix; `s < 1e-6` → 1.0 with warning; JSON round-trip.
   - Acceptance: `make test-py`.
   - _Requirements: 1.1–1.4_
   - Depends on: 00/0.5, 00/0.7
 
-- [ ] 2.2 [S] Reference scorer (Window H5–H8)
+- [x] 2.2 [S] Reference scorer (Window H5–H8)
   - Files: `pipeline/doppelgrund/scoring.py`, `pipeline/tests/test_scoring.py`
   - Implement C4 exactly. Hypothesis properties from R2.2. Benchmark 85k synthetic rows < 1 s (log time).
   - Acceptance: `make test-py`; property tests pass with ≥ 200 examples.
   - _Requirements: 2.1–2.3_
   - Depends on: 2.1
 
-- [ ] 2.3 [S] Match cards (Window H7–H9)
+- [x] 2.3 [S] Match cards (Window H7–H9)
   - Files: `pipeline/doppelgrund/scoring.py` (add `select_cards`, `haversine_km`), `pipeline/tests/test_cards.py`
   - Tests: percentile uses linear interpolation; separation rule; tie-breaks; `no_eligible_match`; masked rows never chosen.
   - _Requirements: 3.1, 3.2_
