@@ -130,7 +130,7 @@ watch(
   },
   { immediate: true },
 );
-// clicking a card (or a hex) turns Earth to that place and marks it while the detail view is open
+// clicking a card (or a hex) turns Earth to that place and marks it while the briefing is open
 watch([scene, () => s.selectedRow], ([sc, row]) => {
   const ll = s.bundle?.latlng;
   const p = ll && row !== null ? { lat: ll[row * 2], lng: ll[row * 2 + 1] } : null;
@@ -164,30 +164,30 @@ defineExpose({ scene });
       :aria-label="`3D view: ${s.body === 'moon' ? 'Moon' : 'Mars'} (left) and Earth (right); target ${targetName}`"
     />
     <p class="hint meta" :class="{ gone: !hintVisible }">
-      Drag to turn · scroll to zoom · click anywhere on the left globe to pick a target · click
-      Earth for details
+      Drag to turn · scroll to zoom · click left globe for target · click Earth for details
     </p>
     <div class="legend" data-test="globe-legend">
       <div class="row">
-        <label class="meta pick"
-          >Colour
-          <select :value="s.colorBy" data-test="color-by" @change="onColor">
-            <option v-for="o in COLOR_OPTIONS" :key="o.id" :value="o.id">{{ o.label }}</option>
-          </select>
-        </label>
+        <select
+          :value="s.colorBy"
+          aria-label="Colour metric"
+          data-test="color-by"
+          @change="onColor"
+        >
+          <option v-for="o in COLOR_OPTIONS" :key="o.id" :value="o.id">{{ o.label }}</option>
+        </select>
         <span class="num meta">{{ meta.domain[0] }}</span>
         <span class="bar" :style="{ background: legendGradient() }" />
         <span class="num meta">{{ meta.domain[1] }}{{ meta.unit === 'km' ? ' km' : '' }}</span>
       </div>
-      <span class="meta"
-        >{{
+      <span class="meta">
+        {{
           s.colorBy === 'novelty'
             ? 'Brighter = farther from known sites'
             : 'Brighter = more similar'
         }}
-        · uncoloured = not compared · numbers = matches in the panel</span
-      >
-      <span class="meta">Smoothed for display — click a place for exact values</span>
+        · smoothed for display
+      </span>
     </div>
   </div>
 </template>
@@ -206,13 +206,13 @@ defineExpose({ scene });
 }
 .hint {
   position: absolute;
-  top: var(--s3);
-  left: calc(50% + var(--panel-w, 0px) / 2);
+  top: 66px;
+  left: 50%;
   transform: translateX(-50%);
   margin: 0;
   padding: var(--s1) var(--s3);
   border-radius: 999px;
-  background: rgba(4, 6, 11, 0.6);
+  background: rgba(4, 6, 11, 0.65);
   color: var(--text-muted);
   white-space: nowrap;
   pointer-events: none;
@@ -224,32 +224,58 @@ defineExpose({ scene });
 .legend {
   position: absolute;
   bottom: var(--s3);
-  left: calc(50% + var(--panel-w, 0px) / 2);
-  transform: translateX(-50%);
+  right: var(--s3);
+  left: auto;
+  width: 260px;
+  max-width: 260px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: var(--s2) var(--s3);
+  align-items: flex-end;
+  gap: 4px;
+  padding: 6px 10px;
   border-radius: var(--radius-card);
-  background: rgba(4, 6, 11, 0.65);
-  text-align: center;
+  background: rgba(11, 14, 19, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: right;
   pointer-events: none;
 }
 .row {
   display: flex;
   align-items: center;
-  gap: var(--s2);
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
 }
-.pick {
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
+.row select {
   pointer-events: auto;
+  max-width: 118px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  padding: 2px 5px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 .bar {
-  width: 160px;
-  height: 10px;
+  width: 64px;
+  flex-shrink: 0;
+  height: 8px;
   border-radius: 3px;
+}
+@media (max-width: 960px) {
+  .hint {
+    top: 106px;
+    max-width: calc(100vw - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .legend {
+    right: var(--s3);
+    bottom: var(--s2);
+  }
 }
 </style>
