@@ -7,7 +7,7 @@ name = "doppelgrund"
 version = "0.1.0"
 description = "Global Analogue Discovery Engine: offline pipeline (NASA Space Apps 2026)"
 license = { text = "MIT" }
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 # Exact pins chosen 2026-10-30 (current stable); do not upgrade during the hackathon.
 dependencies = [
     "numpy==2.5.4",

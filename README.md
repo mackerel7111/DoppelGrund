@@ -8,7 +8,7 @@ has studied, and states where each analogy fails.
 
 ## Requirements
 
-- Python 3.11+ (`python3`, or `python` on Windows)
+- Python 3.12+ (`python3`, or `python` on Windows)
 - Node.js LTS (22.x) and npm
 - GNU Make (on Windows: Git Bash, MSYS or WSL)
 
