@@ -22,7 +22,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 3.1, 3.2_
   - Depends on: 2.2
 
-- [ ] 2.4 [S] Parity vector generator (Window H8–H9) — **unblocks spec 03 task 3.3**
+- [x] 2.4 [S] Parity vector generator (Window H8–H9) — **unblocks spec 03 task 3.3**
   - Files: `pipeline/doppelgrund/export/parity.py`, `tests/parity/vectors.json` (generated), `pipeline/tests/test_parity_gen.py`
   - Acceptance: `python -m doppelgrund.export.parity --out tests/parity/vectors.json` writes all C7 required cases; `make test-py`.
   - _Requirements: 4.1, 4.2_

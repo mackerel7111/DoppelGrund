@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { applyTransforms } from '../src/engine/transforms';
 import { featureWeights, groupIndex, scoreAll } from '../src/engine/scoring';
 import { selectCards } from '../src/engine/cards';
-import { FEATURE_GROUPS, type GroupWeights, type Transform } from '../src/data/types';
+import { FEATURE_GROUPS, GROUP_IDS, type GroupWeights, type Transform } from '../src/data/types';
 
 const VECTORS = fileURLToPath(new URL('../../tests/parity/vectors.json', import.meta.url));
 
@@ -69,11 +69,11 @@ if (!existsSync(VECTORS)) {
         const { wNum, wLith } = featureWeights(c.lens_weights, feats);
         const lt = c.target_lith.map(nan);
         const r = scoreAll({
-          Xe: applyTransforms(c.earth_features.flat().map(nan), 10, c.transforms),
+          Xe: applyTransforms(c.earth_features.flat().map(nan), c.transforms.length, c.transforms),
           Le: Float32Array.from(c.earth_lith.flat().map(nan)),
           flags: Uint8Array.from(c.flags),
           n,
-          xt: applyTransforms(c.target_features.map(nan), 10, c.transforms),
+          xt: applyTransforms(c.target_features.map(nan), c.transforms.length, c.transforms),
           lt: lt.every(Number.isNaN) ? null : Float32Array.from(lt),
           median: Float64Array.from(c.median),
           s: Float64Array.from(c.s),
@@ -85,8 +85,8 @@ if (!existsSync(VECTORS)) {
         for (let i = 0; i < n; i++) {
           close(r.S[i], c.expected.S[i], `S[${i}]`);
           close(r.coverage[i], c.expected.coverage[i], `coverage[${i}]`);
-          for (let g = 0; g < 4; g++)
-            close(r.groups[i * 4 + g], c.expected.group[i][g], `group[${i}][${g}]`);
+          for (let g = 0; g < GROUP_IDS.length; g++)
+            close(r.groups[i * GROUP_IDS.length + g], c.expected.group[i][g], `group[${i}][${g}]`);
         }
         const cards = selectCards(
           r.S,
