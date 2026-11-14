@@ -28,7 +28,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 4.1, 4.2_
   - Depends on: 2.3
 
-- [ ] 2.5 [S] Bundle exporter + index map (Window H8–H11)
+- [x] 2.5 [S] Bundle exporter + index map (Window H8–H11)
   - Files: `pipeline/doppelgrund/export/bundle.py`, `pipeline/doppelgrund/export/index_map.py`, `pipeline/tests/test_bundle.py`; update `pipeline/doppelgrund/fixtures/synthetic.py` to call these writers
   - Tests: `validate_bundle` passes on synthetic; antimeridian hex pixels appear at both image edges; size budget check.
   - Acceptance: `make bundle-synthetic` now uses the real exporter; `make test-py`.
