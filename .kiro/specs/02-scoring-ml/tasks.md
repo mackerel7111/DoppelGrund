@@ -35,7 +35,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 12.1–12.4_
   - Depends on: 2.2
 
-- [ ] 2.6 [C] GeoJSON layers (Window H9–H11)
+- [x] 2.6 [C] GeoJSON layers (Window H9–H11)
   - Files: `pipeline/doppelgrund/export/layers.py`, `pipeline/tests/test_layers.py`
   - Inputs from config and downloaded files; each output a FeatureCollection of points with `name`, `source`, `kind`.
   - _Requirements: 12.1_
