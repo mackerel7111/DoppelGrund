@@ -46,6 +46,7 @@ const GROUP_LABEL: Record<string, string> = {
   thermal: 'Thermal similarity',
   cold_ice: 'Cold & ice similarity',
   composition: 'Composition similarity',
+  subsurface: 'Subsurface similarity',
 };
 
 /** Legend metadata; every legend states metric and unit. */

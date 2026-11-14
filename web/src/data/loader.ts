@@ -137,7 +137,8 @@ async function loadDiscs(baseUrl: string, m: Manifest, body: Body): Promise<Disc
     fetchArray(baseUrl, ll, Float32Array),
   ]);
   const n = features.length / N_FEATURES;
-  if (!Number.isInteger(n)) throw new BundleError(f, `length ${features.length} not M×10`);
+  if (!Number.isInteger(n))
+    throw new BundleError(f, `length ${features.length} not M×${N_FEATURES}`);
   if (lith.length !== n * N_LITH) throw new BundleError(l, `expected ${n * N_LITH} values`);
   if (latlon.length !== n * 2) throw new BundleError(ll, `expected ${n * 2} values`);
   return { n, features, lith, latlon };

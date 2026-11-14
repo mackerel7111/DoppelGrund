@@ -33,7 +33,7 @@ export interface RowInfo {
 
 /** Which trait groups have usable data on this body: finite values with spread (a constant is an assumption, not data). */
 export function groupAvailability(grid: DiscGrid | undefined): Record<GroupId, boolean> {
-  const out = { terrain: true, thermal: true, cold_ice: true, composition: true };
+  const out = { terrain: true, thermal: true, cold_ice: true, composition: true, subsurface: true };
   if (!grid) return out;
   const lo = new Array<number>(N_FEATURES).fill(Infinity);
   const hi = new Array<number>(N_FEATURES).fill(-Infinity);
@@ -80,13 +80,13 @@ export function formatLatLon(lat: number, lon: number): string {
 }
 
 export interface CardMarker {
-  n: number; // 1..5
+  n: number; // 1..6
   row: number;
   lat: number;
   lng: number;
 }
 
-/** Numbered markers for the non-empty cards (1 = overall … 5 = composition). */
+/** Numbered markers for the non-empty cards (1 = overall … 6 = subsurface). */
 export function cardMarkers(cards: Card[], latlng: Float32Array): CardMarker[] {
   const out: CardMarker[] = [];
   cards.forEach((c, i) => {

@@ -30,8 +30,11 @@ EXPECTED_FEATURES: tuple[str, ...] = (
     "frac_below_0C",
     "permafrost_prob",
     "aridity_index",
+    "pit_cave_density_per_1000km2",
 )
-EXPECTED_GROUPS: tuple[str, ...] = ("terrain", "thermal", "cold_ice", "composition")
+EXPECTED_GROUPS: tuple[str, ...] = ("terrain", "thermal", "cold_ice", "composition", "subsurface")
+# Groups made of numeric features; ``composition`` is the lithology vector.
+NUMERIC_GROUPS: tuple[str, ...] = tuple(g for g in EXPECTED_GROUPS if g != "composition")
 EXPECTED_LITH: tuple[str, ...] = (
     "mafic_volcanic",
     "felsic_feldspathic",
@@ -98,7 +101,7 @@ class Profiles:
     assumptions: tuple[str, ...]
 
     def feature_weights(self, lens: str | dict[str, float]) -> tuple[np.ndarray, float]:
-        """Return ``(w_numeric[10], w_lith)`` using the C3 weight rule ``w_f = W_g / n_g``.
+        """Return ``(w_numeric[11], w_lith)`` using the C3 weight rule ``w_f = W_g / n_g``.
 
         Parameters
         ----------
@@ -108,7 +111,7 @@ class Profiles:
         Returns
         -------
         w_numeric
-            float64 array of length 10, one weight per C1 numeric feature (dimensionless).
+            float64 array of length 11, one weight per C1 numeric feature (dimensionless).
         w_lith
             Weight of the single lithology feature in group ``composition``.
         """
@@ -164,7 +167,7 @@ def _validate_features(raw: Any) -> tuple[Feature, ...]:
     out: list[Feature] = []
     for i, f in enumerate(raw):
         group, unit, transform = f.get("group"), f.get("unit"), f.get("transform")
-        if group not in EXPECTED_GROUPS[:3]:
+        if group not in NUMERIC_GROUPS:
             raise ConfigError(f"features[{i}].group: '{group}' is not a numeric group")
         if transform not in ("none", "log1p"):
             raise ConfigError(f"features[{i}].transform: '{transform}' not in (none, log1p)")

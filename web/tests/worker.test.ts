@@ -9,7 +9,7 @@ import { TOP_N } from '../src/workers/protocol';
 
 const SAMPLE = fileURLToPath(new URL('../public/data/sample/', import.meta.url));
 const BASE = 'http://doppelgrund.test/data/sample/';
-const BAL = { terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25 };
+const BAL = { terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25, subsurface: 0 };
 
 async function sampleBundle(): Promise<Bundle> {
   vi.stubGlobal('fetch', async (url: string) => {
@@ -44,7 +44,7 @@ function replicate(b: Bundle, n: number): Bundle {
     ...b,
     manifest: { ...b.manifest, n_hex: n },
     h3: Array.from({ length: n }, (_, i) => b.h3[i % m]),
-    features: tile(b.features, 10),
+    features: tile(b.features, 11),
     lith: tile(b.lith, 6),
     latlng,
     novelty: tile(b.novelty, 2),
@@ -70,7 +70,7 @@ describe('EngineHost', () => {
     expect(out[0]).toEqual({ type: 'ready', nHex: bundle.manifest.n_hex, synthetic: true });
   });
 
-  it('rank returns transferred N-length buffers, five cards and ≤ 200 sorted top rows', async () => {
+  it('rank returns transferred N-length buffers, six cards and ≤ 200 sorted top rows', async () => {
     const out: [WorkerResponse, Transferable[]][] = [];
     const host = new EngineHost(
       (m, t) => out.push([m, t]),
@@ -83,13 +83,14 @@ describe('EngineHost', () => {
     const n = bundle.manifest.n_hex;
     expect(res.reqId).toBe(7);
     expect(res.S).toHaveLength(n);
-    expect(res.groups).toHaveLength(n * 4);
+    expect(res.groups).toHaveLength(n * 5);
     expect(res.cards.map((c) => c.kind)).toEqual([
       'overall',
       'terrain',
       'thermal',
       'cold_ice',
       'composition',
+      'subsurface',
     ]);
     expect(res.top.length).toBeLessThanOrEqual(TOP_N);
     for (let i = 1; i < res.top.length; i++)

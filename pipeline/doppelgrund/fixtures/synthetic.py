@@ -5,7 +5,7 @@ ids prefixed ``synthetic_`` and are never written into ``config/``. Real data re
 
 CLI::
 
-    python -m doppelgrund.fixtures.synthetic --bundle web/public/data --interim data/interim/synthetic
+    python -m doppelgrund.fixtures.synthetic --bundle DIR --interim DIR --coverage land
 """
 
 from __future__ import annotations
@@ -216,6 +216,10 @@ def earth_table(
     below0 = 1.0 / (1.0 + np.exp(-(273.15 - lst) / 8.0))
     perma = np.where(lat > 45.0, np.clip((lat - 45.0) / 30.0 + rng.normal(0, 0.1, n), 0, 1), np.nan)
     aridity = np.exp(rng.uniform(math.log(0.02), math.log(3.0), n))
+    # catalogued pits/caves per 1000 km2: only surveyed hexes (~8%) carry a value, NaN elsewhere
+    surveyed = rng.random(n) < 0.08
+    has_cave = rng.random(n) < np.where(regime == "volcanic", 0.7, 0.2)
+    cave = np.where(surveyed, np.where(has_cave, rng.lognormal(math.log(0.6), 0.7, n), 0.0), np.nan)
     if smooth:
         z = [_smooth_field(lat, lng, rng) for _ in range(14)]
         p50 = np.clip(2.5 * np.exp(0.8 * z[0]), 0.05, 60.0)
@@ -252,6 +256,7 @@ def earth_table(
         "frac_below_0C": below0,
         "permafrost_prob": perma,
         "aridity_index": aridity,
+        "pit_cave_density_per_1000km2": cave,
     }
     df = pd.DataFrame({"h3": list(cells)})
     for name in EXPECTED_FEATURES:
@@ -294,7 +299,15 @@ def disc_table(body: str, rng: np.random.Generator, n: int = N_DISCS) -> pd.Data
     lat, lon = fibonacci_lattice(n)
     alat = np.abs(lat)
     nan = np.full(n, np.nan)
+    cave = nan  # Mars: no catalogue, NaN
     if body == "moon":
+        # LROC-style pit catalogue: only discs in the surveyed part (~15%) carry a value
+        surveyed = rng.random(n) < 0.15
+        cave = np.where(
+            surveyed,
+            np.where(rng.random(n) < 0.25, rng.lognormal(math.log(0.4), 0.7, n), 0.0),
+            np.nan,
+        )
         mare = (rng.random(n) < 0.3) & (alat < 60)
         p50 = np.clip(rng.lognormal(np.log(np.where(mare, 2.0, 5.0)), 0.6), 0.1, 45)
         lst = np.clip(250.0 - 130.0 * (alat / 90.0) ** 4 + rng.normal(0, 8, n), 60, 330)
@@ -323,6 +336,7 @@ def disc_table(body: str, rng: np.random.Generator, n: int = N_DISCS) -> pd.Data
         "frac_below_0C": thermal[3],
         "permafrost_prob": nan,
         "aridity_index": np.zeros(n),  # 0.0 by definition (profiles.yaml assumption)
+        "pit_cave_density_per_1000km2": cave,
     }
     df = pd.DataFrame({"disc_id": np.arange(n, dtype=np.int32), "lat": lat, "lon": lon})
     for name in EXPECTED_FEATURES:
@@ -412,7 +426,8 @@ def make_synthetic(
     known = _points(rng, lat, lng, min(60, max(5, n_hex // 300)), "site", "known site")
     known["well_known"] = np.arange(len(known)) % 4 == 0
     known["dimension"] = [
-        ("terrain", "thermal", "cold_ice", "composition")[i % 4] for i in range(len(known))
+        ("terrain", "thermal", "cold_ice", "composition", "subsurface")[i % 5]
+        for i in range(len(known))
     ]
     volc = earth["tag_volcanic"].to_numpy()
     out = {
@@ -607,8 +622,9 @@ def write_synthetic_bundle(
 ) -> list[Path]:
     """Write a complete C6 bundle with ``"synthetic": true``.
 
-    Uses its own minimal writer (``doppelgrund.export.bundle`` does not exist yet). When ``sample`` is
-    true a ≤ 500-hex copy (always patches) is also written to ``out_dir/sample`` for CI.
+    Uses its own minimal writer (``doppelgrund.export.bundle`` does not exist yet). When
+    ``sample`` is true a ≤ 500-hex copy (always patches) is also written to ``out_dir/sample``
+    for CI.
     ``coverage="land"`` covers all land (see ``make_synthetic``).
     """
     out_dir = Path(out_dir)
@@ -751,7 +767,9 @@ def write_synthetic_bundle(
 
 def main(argv: Sequence[str] | None = None) -> int:
     """CLI: ``--bundle DIR --interim DIR --seed N --n-hex N``."""
-    parser = argparse.ArgumentParser(description="Write a synthetic DoppelGrund bundle and interim tables")
+    parser = argparse.ArgumentParser(
+        description="Write a synthetic DoppelGrund bundle and interim tables"
+    )
     parser.add_argument("--bundle", type=Path, help="web bundle directory (C6)")
     parser.add_argument("--interim", type=Path, help="interim Parquet directory (C2)")
     parser.add_argument("--seed", type=int, default=None, help="default: profiles params.seed")

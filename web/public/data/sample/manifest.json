@@ -10,72 +10,72 @@
    "group": "terrain",
    "unit": "deg",
    "transform": "none",
-   "median": 2.7847511768341064,
-   "s": 2.214325127148628
+   "median": 2.8180925846099854,
+   "s": 2.273876859641075
   },
   {
    "name": "slope_p90_deg",
    "group": "terrain",
    "unit": "deg",
    "transform": "none",
-   "median": 6.196618556976318,
-   "s": 4.988162345767021
+   "median": 6.212647914886475,
+   "s": 5.095175932073593
   },
   {
    "name": "relief_std_m",
    "group": "terrain",
    "unit": "m",
    "transform": "log1p",
-   "median": 4.89674329911848,
-   "s": 0.8146738610249412
+   "median": 4.89285210585197,
+   "s": 0.8036629531148153
   },
   {
    "name": "frac_slope_lt_10deg",
    "group": "terrain",
    "unit": "fraction",
    "transform": "none",
-   "median": 0.8143360614776611,
-   "s": 0.14760609848499298
+   "median": 0.8121695518493652,
+   "s": 0.1515040040373802
   },
   {
    "name": "lst_mean_K",
    "group": "thermal",
    "unit": "K",
    "transform": "none",
-   "median": 245.46815490722656,
-   "s": 13.29896905517578
+   "median": 245.6278839111328,
+   "s": 13.151141148376464
   },
   {
    "name": "diurnal_range_K",
    "group": "thermal",
    "unit": "K",
    "transform": "none",
-   "median": 224.50741577148438,
-   "s": 35.93659199981689
+   "median": 223.7957763671875,
+   "s": 36.89356532592773
   },
   {
    "name": "annual_range_K",
    "group": "thermal",
    "unit": "K",
    "transform": "none",
-   "median": 30.519062042236328,
-   "s": 17.91949604988098
+   "median": 30.04581069946289,
+   "s": 17.112867403793334
   },
   {
    "name": "frac_below_0C",
    "group": "cold_ice",
    "unit": "fraction",
    "transform": "none",
-   "median": 0.7200504839420319,
-   "s": 0.09495225108861922
+   "median": 0.7181919813156128,
+   "s": 0.09290622403621673
   },
   {
    "name": "permafrost_prob",
    "group": "cold_ice",
    "unit": "fraction",
    "transform": "none",
-   "median": 0.8637353181838989,
-   "s": 0.20202601726055144
+   "median": 0.8645943403244019,
+   "s": 0.2007524310350418
   },
   {
    "name": "aridity_index",
@@ -83,7 +83,15 @@
    "unit": "ratio",
    "transform": "log1p",
    "median": 0.0,
-   "s": 0.10520176396414843
+   "s": 0.10420583862512807
+  },
+  {
+   "name": "pit_cave_density_per_1000km2",
+   "group": "subsurface",
+   "unit": "per_1000km2",
+   "transform": "log1p",
+   "median": 0.0,
+   "s": 0.22678582211478282
   }
  ],
  "lith_classes": [
@@ -146,28 +154,32 @@
  ],
  "lenses": {
   "balanced": {
-   "terrain": 0.25,
-   "thermal": 0.25,
-   "cold_ice": 0.25,
-   "composition": 0.25
+   "terrain": 0.225,
+   "thermal": 0.225,
+   "cold_ice": 0.225,
+   "composition": 0.225,
+   "subsurface": 0.1
   },
   "landing_mobility": {
    "terrain": 0.7,
    "thermal": 0.15,
    "cold_ice": 0.0,
-   "composition": 0.15
+   "composition": 0.15,
+   "subsurface": 0.0
   },
   "cold_volatiles": {
    "terrain": 0.15,
    "thermal": 0.3,
    "cold_ice": 0.45,
-   "composition": 0.1
+   "composition": 0.1,
+   "subsurface": 0.0
   },
   "geology_minerals": {
    "terrain": 0.2,
    "thermal": 0.1,
    "cold_ice": 0.1,
-   "composition": 0.6
+   "composition": 0.55,
+   "subsurface": 0.05
   }
  },
  "params": {
@@ -385,6 +397,24 @@
   },
   {
    "feature": "aridity_index",
+   "body": "mars",
+   "dataset": "synthetic",
+   "version": "seed 20261114"
+  },
+  {
+   "feature": "pit_cave_density_per_1000km2",
+   "body": "earth",
+   "dataset": "synthetic",
+   "version": "seed 20261114"
+  },
+  {
+   "feature": "pit_cave_density_per_1000km2",
+   "body": "moon",
+   "dataset": "synthetic",
+   "version": "seed 20261114"
+  },
+  {
+   "feature": "pit_cave_density_per_1000km2",
    "body": "mars",
    "dataset": "synthetic",
    "version": "seed 20261114"

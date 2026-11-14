@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { computed, reactive, ref, shallowRef } from 'vue';
 import {
   GROUP_IDS,
+  N_FEATURES,
   type Body,
   type Bundle,
   type Card,
@@ -77,15 +78,39 @@ export type TextureId = 'earth' | Body;
 
 /** C3 lens presets; replaced by manifest.lenses once the bundle is loaded. */
 export const DEFAULT_LENSES: Record<LensId, GroupWeights> = {
-  balanced: { terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25 },
-  landing_mobility: { terrain: 0.7, thermal: 0.15, cold_ice: 0.0, composition: 0.15 },
-  cold_volatiles: { terrain: 0.15, thermal: 0.3, cold_ice: 0.45, composition: 0.1 },
-  geology_minerals: { terrain: 0.2, thermal: 0.1, cold_ice: 0.1, composition: 0.6 },
+  balanced: {
+    terrain: 0.225,
+    thermal: 0.225,
+    cold_ice: 0.225,
+    composition: 0.225,
+    subsurface: 0.1,
+  },
+  landing_mobility: {
+    terrain: 0.7,
+    thermal: 0.15,
+    cold_ice: 0.0,
+    composition: 0.15,
+    subsurface: 0.0,
+  },
+  cold_volatiles: {
+    terrain: 0.15,
+    thermal: 0.3,
+    cold_ice: 0.45,
+    composition: 0.1,
+    subsurface: 0.0,
+  },
+  geology_minerals: {
+    terrain: 0.2,
+    thermal: 0.1,
+    cold_ice: 0.1,
+    composition: 0.55,
+    subsurface: 0.05,
+  },
 };
 
 export const SLIDER_DEBOUNCE_MS = 50;
 
-/** Set group `g` to `value` and rescale the others proportionally so the four sum to 1. */
+/** Set group `g` to `value` and rescale the others proportionally so the five sum to 1. */
 export function renormalise(weights: GroupWeights, g: GroupId, value: number): GroupWeights {
   const v = Math.min(1, Math.max(0, Number.isFinite(value) ? value : 0));
   const others = GROUP_IDS.filter((k) => k !== g);
@@ -197,7 +222,7 @@ export const useSession = defineStore('session', () => {
     if (!grid || t.discIndex < 0 || t.discIndex >= grid.n) return null;
     const i = t.discIndex;
     return {
-      features: Array.from(grid.features.subarray(i * 10, i * 10 + 10)),
+      features: Array.from(grid.features.subarray(i * N_FEATURES, (i + 1) * N_FEATURES)),
       lith: Array.from(grid.lith.subarray(i * 6, i * 6 + 6)),
     };
   }
