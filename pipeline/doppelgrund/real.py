@@ -318,8 +318,17 @@ def earth_remote(cells, batch=25):
         )
     kx = ee.Kernel.fixed(3, 3, [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], normalize=False)
     ky = ee.Kernel.fixed(3, 3, [[-1, -2, -1], [0, 0, 0], [1, 2, 1]], normalize=False)
-    # ponytail: 'scale' is metres at the equator; EW shrink ignored, so poleward slopes are biased. Reproject for |lat|>60.
-    gx = z.convolve(kx).divide(8 * SCALE_M)
+    # z sits on a lat/lon grid whose pixel is SCALE_M at the equator; east-west ground spacing is SCALE_M * cos(lat).
+    # Floor 0.05 matches disc_terrain (|lat| > 87 deg). Evaluated in z's own projection so the latitude is per pixel.
+    coslat = (
+        ee.Image.pixelLonLat()
+        .select("latitude")
+        .multiply(np.pi / 180)
+        .cos()
+        .max(0.05)
+        .reproject(z.projection())
+    )
+    gx = z.convolve(kx).divide(coslat.multiply(8 * SCALE_M))
     gy = z.convolve(ky).divide(8 * SCALE_M)
     slope = gx.hypot(gy).atan().multiply(180 / np.pi).rename("slope")
     terrain = (
