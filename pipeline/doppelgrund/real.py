@@ -53,6 +53,12 @@ SHARD: tuple[int, int] | None = (
 MOD21_MIN_VALID = (
     0.5  # min share of days with a valid MOD21 pixel (day AND night) before it joins the mean
 )
+DIVINER_BANDS: set[str] = (
+    set()
+)  # --diviner-bands a,b: only these Diviner latitude bands (others NaN); empty = all 18
+DIVINER_THREADS = 4  # parallel Diviner band downloads
+FAST = False  # --fast: cheaper Earth Engine inputs (overview-level DEM, MOD11A2-only thermal)
+STRIDE = 1  # --stride K: keep every K-th land hex (subsample for a fast partial run)
 THREADS = 4  # concurrent Earth Engine requests per machine (EE allows ~40 per user)
 FETCH_DIVINER = (
     True  # False: skip the 2.8 GB Diviner download; Moon thermal stays NaN outside reduced bands
@@ -272,9 +278,12 @@ def earth_remote(cells, batch=100):
     glo = ee.ImageCollection("COPERNICUS/DEM/GLO30_2024_1").select("DEM").mosaic()
     nasadem = ee.Image("NASA/NASADEM_HGT/001").select("elevation").rename("DEM")
     dem = ee.ImageCollection([glo, nasadem]).mean().setDefaultProjection("EPSG:4326", None, 30)
-    z = dem.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(
-        "EPSG:4326", None, SCALE_M
-    )
+    if FAST:
+        z = dem  # sampled at SCALE_M by reduceRegions from EE's coarser overview levels (no full-res 30 m read)
+    else:
+        z = dem.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(
+            "EPSG:4326", None, SCALE_M
+        )
     kx = ee.Kernel.fixed(3, 3, [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], normalize=False)
     ky = ee.Kernel.fixed(3, 3, [[-1, -2, -1], [0, 0, 0], [1, 2, 1]], normalize=False)
     # ponytail: 'scale' is metres at the equator; EW shrink ignored, so poleward slopes are biased. Reproject for |lat|>60.
@@ -287,39 +296,11 @@ def earth_remote(cells, batch=100):
         .addBands(slope.lt(10).rename("frac_slope_lt_10deg"))
     )
     lst = ee.ImageCollection("MODIS/061/MOD11A2").filterDate("2010-01-01", "2020-01-01")
-    # MOD21A1D/N: Terra daily LST (K, scale already applied), same overpasses as MOD11A2, so science
-    # invariant 6 holds. ponytail: ~7,300 daily images; if reducers time out, aggregate monthly or
-    # shorten the window (record it in datasets.yaml). Aqua/VIIRS/ECOSTRESS/SMAP are NOT overpass-matched.
-    d21 = ee.ImageCollection("MODIS/061/MOD21A1D").filterDate("2010-01-01", "2020-01-01")
-    n21 = ee.ImageCollection("MODIS/061/MOD21A1N").filterDate("2010-01-01", "2020-01-01")
-    # Where MOD21's daily record is sparse (clouds / polar night: 5-9% of days at 70N) its mean is a
-    # clear-sky, mostly-summer average, far warmer than the near-complete 8-day MOD11A2. Probe 2026-11-14:
-    # 70N +4 K, Antarctica diurnal range 1.1 -> 13.9 K. So MOD21 is used only on pixels where BOTH its day and
-    # night collections have valid data on >= MOD21_MIN_VALID of days; elsewhere MOD11A2 stands alone.
-    ok21 = (
-        d21.select("LST_1KM")
-        .count()
-        .divide(d21.size())
-        .min(n21.select("LST_1KM").count().divide(n21.size()))
-        .gte(MOD21_MIN_VALID)
-    )
-    mask21 = lambda ic: ic.map(  # noqa: E731 - copyProperties keeps the timestamp calendarRange needs
-        lambda i: i.updateMask(ok21).copyProperties(i, ["system:time_start"])
-    )
-    d21, n21 = mask21(d21), mask21(n21)
 
     def fuse(a, b):
         """Mean where both images have a pixel, else the one that does (masked pixels are ignored)."""
         return ee.ImageCollection([a, b]).mean()
 
-    day = fuse(
-        lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST"),
-        d21.select("LST_1KM").mean().rename("LST"),
-    )
-    night = fuse(
-        lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST"),
-        n21.select("LST_1KM").mean().rename("LST"),
-    )
     mean_ = lst.map(
         lambda i: (
             i.select("LST_Day_1km")
@@ -329,27 +310,71 @@ def earth_remote(cells, batch=100):
             .copyProperties(i, ["system:time_start"])
         )  # map() drops the timestamp calendarRange needs
     )
-    months = ee.ImageCollection(
-        [
-            fuse(
-                mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST"),
-                d21.filter(ee.Filter.calendarRange(m, m, "month"))
-                .select("LST_1KM")
-                .mean()
-                .add(n21.filter(ee.Filter.calendarRange(m, m, "month")).select("LST_1KM").mean())
-                .divide(2)
-                .rename("LST"),
-            )
-            for m in range(1, 13)
-        ]
-    )
     # share of valid overpass samples < 0 C: day and night samples counted separately and averaged (same
     # definition for both products; the old MOD11A2 test used the day/night average and read 0 where nights freeze)
     lt0 = lambda ic, b, k: ic.select(b).map(lambda i: i.multiply(k).lt(273.15)).mean().rename("f")
-    below0 = fuse(
-        fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02)),
-        fuse(lt0(d21, "LST_1KM", 1), lt0(n21, "LST_1KM", 1)),
-    )
+
+    if FAST:
+        # MOD11A2 alone: ~460 8-day images instead of ~7,300 daily MOD21 images, so far cheaper; no fusion
+        day = lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST")
+        night = lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST")
+        months = ee.ImageCollection(
+            [
+                mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST")
+                for m in range(1, 13)
+            ]
+        )
+        below0 = fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02))
+    else:
+        # MOD21A1D/N: Terra daily LST (K, scale already applied), same overpasses as MOD11A2, so science
+        # invariant 6 holds. ponytail: ~7,300 daily images; if reducers time out, aggregate monthly or
+        # shorten the window (record it in datasets.yaml). Aqua/VIIRS/ECOSTRESS/SMAP are NOT overpass-matched.
+        d21 = ee.ImageCollection("MODIS/061/MOD21A1D").filterDate("2010-01-01", "2020-01-01")
+        n21 = ee.ImageCollection("MODIS/061/MOD21A1N").filterDate("2010-01-01", "2020-01-01")
+        # Where MOD21's daily record is sparse (clouds / polar night: 5-9% of days at 70N) its mean is a
+        # clear-sky, mostly-summer average, far warmer than the near-complete 8-day MOD11A2. Probe 2026-11-14:
+        # 70N +4 K, Antarctica diurnal range 1.1 -> 13.9 K. So MOD21 is used only on pixels where BOTH its day and
+        # night collections have valid data on >= MOD21_MIN_VALID of days; elsewhere MOD11A2 stands alone.
+        ok21 = (
+            d21.select("LST_1KM")
+            .count()
+            .divide(d21.size())
+            .min(n21.select("LST_1KM").count().divide(n21.size()))
+            .gte(MOD21_MIN_VALID)
+        )
+        mask21 = lambda ic: ic.map(  # noqa: E731 - copyProperties keeps the timestamp calendarRange needs
+            lambda i: i.updateMask(ok21).copyProperties(i, ["system:time_start"])
+        )
+        d21, n21 = mask21(d21), mask21(n21)
+
+        day = fuse(
+            lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST"),
+            d21.select("LST_1KM").mean().rename("LST"),
+        )
+        night = fuse(
+            lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST"),
+            n21.select("LST_1KM").mean().rename("LST"),
+        )
+        months = ee.ImageCollection(
+            [
+                fuse(
+                    mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST"),
+                    d21.filter(ee.Filter.calendarRange(m, m, "month"))
+                    .select("LST_1KM")
+                    .mean()
+                    .add(
+                        n21.filter(ee.Filter.calendarRange(m, m, "month")).select("LST_1KM").mean()
+                    )
+                    .divide(2)
+                    .rename("LST"),
+                )
+                for m in range(1, 13)
+            ]
+        )
+        below0 = fuse(
+            fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02)),
+            fuse(lt0(d21, "LST_1KM", 1), lt0(n21, "LST_1KM", 1)),
+        )
     thermal = (
         day.add(night)
         .divide(2)
@@ -437,7 +462,9 @@ def earth_remote(cells, batch=100):
     if miss:
         raise KeyError(f"Earth Engine reducer output lacks {miss}; got {list(probe.columns)}")
     print(finish(probe).T.round(3))
-    ck = OUT / "ee_batches"
+    ck = OUT / (
+        "ee_batches_fast" if FAST else "ee_batches"
+    )  # separate folder: fast batches must never mix with full ones
     ck.mkdir(exist_ok=True)
     nb = -(-len(cells) // batch)
     hxs = [list(cells[k : k + batch]) for k in range(0, len(cells), batch)]
@@ -635,20 +662,30 @@ def diviner_lt_grid():
     ck = OUT / "gcp_lt"
     ck.mkdir(exist_ok=True)
     grid = np.full((4, 360, 720), np.nan, np.float32)
-    for band in GCP_BANDS:
+    bands = [b for b in GCP_BANDS if not DIVINER_BANDS or b in DIVINER_BANDS]  # others stay NaN
+
+    def one(band):
         f = ck / f"{band}.npz"
-        if not f.exists():
-            if not FETCH_DIVINER:
-                warnings.warn(
-                    f"Diviner band {band} not reduced and FETCH_DIVINER is False: thermal NaN there"
-                )
-                continue
-            tab = fetch(f"gcp_{band}", GCP_URL.format(band), GCP_SHA[band], WORK / f"{band}.tab")
-            iy0, r = gcp_reduce(tab)
-            np.savez_compressed(f, iy0=iy0, r=r)
-            tab.unlink()
-        z = np.load(f)
-        grid[:, int(z["iy0"]) : int(z["iy0"]) + z["r"].shape[1]] = z["r"]
+        if f.exists():
+            return
+        if not FETCH_DIVINER:
+            warnings.warn(
+                f"Diviner band {band} not reduced and FETCH_DIVINER is False: thermal NaN there"
+            )
+            return
+        tab = fetch(f"gcp_{band}", GCP_URL.format(band), GCP_SHA[band], WORK / f"{band}.tab")
+        iy0, r = gcp_reduce(tab)
+        np.savez_compressed(f, iy0=iy0, r=r)
+        tab.unlink()
+
+    # the NASA server is slow per connection (~0.5 MB/s), several at once roughly doubles throughput
+    with ThreadPoolExecutor(DIVINER_THREADS) as ex:
+        list(ex.map(one, bands))
+    for band in bands:
+        f = ck / f"{band}.npz"
+        if f.exists():
+            z = np.load(f)
+            grid[:, int(z["iy0"]) : int(z["iy0"]) + z["r"].shape[1]] = z["r"]
     return grid
 
 
@@ -866,7 +903,7 @@ NEED = {
 def build_tables(limit: int | None = None, use_ee: bool = True) -> dict[str, pd.DataFrame]:
     """Real C2 tables. limit: smoke test on N evenly spaced hexes and discs. use_ee False: Earth EE columns stay NaN."""
     global earth_remote
-    cells = select_land_cells()
+    cells = select_land_cells()[::STRIDE]
     lat, lon = fibonacci_lattice(N_DISCS)
     ids = np.arange(N_DISCS)
     if limit:
@@ -904,7 +941,16 @@ def write_tables(tables: dict[str, pd.DataFrame], out: Path = OUT, source: str =
 
 
 def main(argv=None) -> int:
-    global EE_PROJECT, OUT, FETCH_DIVINER, SHARD, THREADS
+    global \
+        EE_PROJECT, \
+        OUT, \
+        FETCH_DIVINER, \
+        SHARD, \
+        THREADS, \
+        STRIDE, \
+        FAST, \
+        DIVINER_BANDS, \
+        DIVINER_THREADS
     p = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     p.add_argument(
         "--ee-project", default="", help="Google Cloud project with Earth Engine enabled"
@@ -922,10 +968,34 @@ def main(argv=None) -> int:
         help="I/N, e.g. 0/4: run only Earth Engine batches with index %% N == I, then stop",
     )
     p.add_argument("--threads", type=int, default=THREADS, help="concurrent Earth Engine requests")
+    p.add_argument(
+        "--stride",
+        type=int,
+        default=1,
+        help="use every K-th land hex only (e.g. 20 = ~4,000 hexes, 20x less Earth Engine work). EVERY machine and the final run must use the same K",
+    )
+    p.add_argument(
+        "--fast",
+        action="store_true",
+        help="cheaper Earth Engine inputs (overview-level DEM, MOD11A2-only thermal) (expected to be much faster; unmeasured), slightly smoother slopes. Every machine and the final run must agree",
+    )
+    p.add_argument(
+        "--diviner-bands",
+        default="",
+        help="comma list of Diviner latitude bands to fetch, e.g. 90s80s,80s70s (others stay NaN, tables marked real-partial); default all 18",
+    )
+    p.add_argument("--diviner-threads", type=int, default=DIVINER_THREADS)
     a = p.parse_args(argv)
+    bad = set(filter(None, a.diviner_bands.split(","))) - set(GCP_BANDS)
+    if bad:
+        p.error(f"unknown --diviner-bands {sorted(bad)}; choose from {GCP_BANDS}")
+    DIVINER_BANDS, DIVINER_THREADS = (
+        set(filter(None, a.diviner_bands.split(","))),
+        a.diviner_threads,
+    )
     if not a.no_ee and not a.ee_project:
         p.error("give --ee-project (and run `earthengine authenticate` once) or pass --no-ee")
-    THREADS = a.threads
+    THREADS, STRIDE, FAST = a.threads, max(1, a.stride), a.fast
     if a.shard:
         i, n = map(int, a.shard.split("/"))
         if not 0 <= i < n:
@@ -936,11 +1006,17 @@ def main(argv=None) -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     if SHARD:
         earth_remote(
-            select_land_cells()
+            select_land_cells()[::STRIDE]
         )  # batches only; Moon/Mars/final tables run later on one machine
         return 0
     tables = build_tables(a.limit, use_ee=not a.no_ee)
-    write_tables(tables, OUT, "real" if not (a.no_ee or a.limit) else "real-partial")
+    write_tables(
+        tables,
+        OUT,
+        "real"
+        if not (a.no_ee or a.limit or STRIDE > 1 or FAST or DIVINER_BANDS)
+        else "real-partial",
+    )
     for k, v in tables.items():
         print(f"{k}: {len(v)} rows")
     return 0
