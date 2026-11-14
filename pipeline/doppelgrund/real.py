@@ -799,7 +799,13 @@ def moon_discs_real(lat, lon, ids):
         np.clip(((90 - lat) / 0.5).astype(int), 0, 359),
         np.clip(((lon + 180) / 0.5).astype(int), 0, 719),
     ]
-    f["lst_mean_K"], f["diurnal_range_K"], f["frac_below_0C"] = g[2], g[0] - g[1], g[3]
+    # Day minus night can read slightly negative on a permanently shadowed floor (Haworth -3.3 K): both
+    # bands are noise around ~0, and a range cannot be negative, so floor at 0 (NaN stays NaN).
+    f["lst_mean_K"], f["diurnal_range_K"], f["frac_below_0C"] = (
+        g[2],
+        np.maximum(g[0] - g[1], 0),
+        g[3],
+    )
     # catalogued pits per 1000 km2, positive-only (NaN where none is catalogued, never 0; see caves.py)
     f["pit_cave_density_per_1000km2"] = caves.disc_density(
         lat, lon, *caves.load_lroc_pits(get("lroc_pits")), R_KM
