@@ -351,8 +351,9 @@ def earth_remote(cells, batch=100):
     )
     kx = ee.Kernel.fixed(3, 3, [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], normalize=False)
     ky = ee.Kernel.fixed(3, 3, [[-1, -2, -1], [0, 0, 0], [1, 2, 1]], normalize=False)
-    # z sits on a lat/lon grid whose pixel is SCALE_M at the equator; east-west ground spacing is SCALE_M * cos(lat).
-    # Floor 0.05 matches disc_terrain (|lat| > 87 deg). Evaluated in z's own projection so the latitude is per pixel.
+    # z is on a lat/lon grid whose pixel is SCALE_M at the equator, so the east-west ground
+    # spacing is SCALE_M * cos(lat). The 0.05 floor matches disc_terrain (|lat| > 87 deg).
+    # Reprojected to z's grid so the latitude is per pixel.
     coslat = (
         ee.Image.pixelLonLat()
         .select("latitude")
