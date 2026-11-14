@@ -14,12 +14,7 @@ const s = useSession();
         <button type="button" :aria-pressed="s.view === '3d'" @click="s.setView('3d')">3D</button>
         <button type="button" :aria-pressed="s.view === '2d'" @click="s.setView('2d')">2D</button>
       </div>
-      <button
-        v-if="s.aboutOpen"
-        type="button"
-        class="back-btn"
-        @click="s.aboutOpen = false"
-      >
+      <button v-if="s.aboutOpen" type="button" class="back-btn" @click="s.aboutOpen = false">
         &larr; Back to Explorer
       </button>
       <button v-else type="button" @click="s.aboutOpen = true">About</button>

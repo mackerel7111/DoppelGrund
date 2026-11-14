@@ -10,7 +10,7 @@ interface WheelSection {
 }
 
 const SECTIONS: WheelSection[] = [
-  { id: 'compared', label: 'What is compared', shortLabel: 'Compared', badge: '4 Physical Traits' },
+  { id: 'compared', label: 'What is compared', shortLabel: 'Compared', badge: '5 Physical Traits' },
   { id: 'scoring', label: 'How scoring works', shortLabel: 'Scoring', badge: 'Similarity Math' },
   { id: 'labelling', label: 'Honest labelling', shortLabel: 'Methods', badge: 'Transparency' },
   { id: 'validation', label: 'Validation', shortLabel: 'Validation', badge: 'Rediscovery' },
@@ -85,7 +85,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
           plainly where each match falls short.
         </p>
       </div>
-            <div class="hero-actions">
+      <div class="hero-actions">
         <button type="button" class="btn-replay" @click="replay">Replay intro</button>
       </div>
     </div>
@@ -139,8 +139,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 
         <div v-show="activeIndex === 0" class="section-body">
           <p class="lead">
-            We divide Earth into hexagons (about 1,770 km&sup2; each) and compare them against
-            47 km-wide circular zones (23.7 km radius) around Moon or Mars landmarks across four
+            We divide Earth into hexagons (about 1,770 km&sup2; each) and compare them against 47
+            km-wide circular zones (23.7 km radius) around Moon or Mars landmarks across five
             physical traits:
           </p>
           <div class="trait-grid">
@@ -170,6 +170,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               <p>
                 Six-class rock and ice vector (mafic volcanic, felsic/feldspathic, carbonate,
                 siliciclastic, evaporite, ice) mapped through a geologic crosswalk.
+              </p>
+            </article>
+            <article class="trait-card">
+              <h4>Subsurface</h4>
+              <p>
+                Catalogued pits and lava tubes per 1,000 km&sup2; (log scale). This is a prior taken
+                from catalogues, not a detection: places outside a catalogued area are "not
+                measured", never zero, and Mars has no catalogue yet.
               </p>
             </article>
           </div>
@@ -325,16 +333,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
             </li>
             <li>
               The 2D Earth map uses Web Mercator, which clips latitudes beyond about 85&deg;.
-              Antarctic matches remain in the cards and shortlist, and the 3D globe shows the
-              poles.
+              Antarctic matches remain in the cards and shortlist, and the 3D globe shows the poles.
             </li>
             <li>
-              A 1,770 km&sup2; hexagon can hide small, strong local matches. Finer stage-2 refinement
-              is future work.
+              A 1,770 km&sup2; hexagon can hide small, strong local matches. Finer stage-2
+              refinement is future work.
             </li>
             <li>
               Permafrost data covers the Northern Hemisphere only, Mars thermal data is an open
               item, and the lithology crosswalk is the weakest harmonised dimension.
+            </li>
+            <li>
+              Subsurface data is thin: only a few Earth lava tubes and 266 lunar pits are
+              catalogued, so most places show it as not measured. Karst caves are never treated as
+              lava-tube analogues.
             </li>
             <li>
               A high score means model-defined similarity on the listed features. It is not a claim
@@ -354,7 +366,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
   overflow-y: auto;
   scrollbar-gutter: stable;
   padding: var(--s5) clamp(16px, 4vw, 48px) var(--s6);
-  background: radial-gradient(circle at 22% 45%, rgba(79, 195, 247, 0.08), transparent 55%), var(--bg);
+  background:
+    radial-gradient(circle at 22% 45%, rgba(79, 195, 247, 0.08), transparent 55%), var(--bg);
   color: var(--text);
   pointer-events: auto;
   display: flex;
