@@ -34,6 +34,3 @@ Thumbs.db
 
 # Crash dumps
 *.stackdump
-
-# Kiro specs/steering markdown
-.kiro/**/*.md
