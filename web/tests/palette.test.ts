@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { GROUP_IDS } from '../src/data/types';
 import {
   MASKED_RGBA,
   HEAT_LUT,
@@ -46,14 +47,21 @@ describe('palette', () => {
   });
 
   it('reads group columns and novelty with the right stride', () => {
+    // two rows, one column per group: row r, group g holds 10 * (r * width + g + 1)
+    const width = GROUP_IDS.length;
     const res = {
       S: Float32Array.from([1, 2]),
-      groups: Float32Array.from([10, 20, 30, 40, 50, 60, 70, 80]),
+      groups: Float32Array.from({ length: 2 * width }, (_, k) => 10 * (k + 1)),
       eligible: Uint8Array.from([1, 1]),
     };
     const nov = Float32Array.from([123, 0.1, 456, 0.2]);
-    const thermal = sourceFor('thermal', res, nov, Uint8Array.from([1, 1]));
-    expect(thermal?.values[1 * (thermal?.stride ?? 0) + (thermal?.offset ?? 0)]).toBe(60);
+    for (const g of GROUP_IDS) {
+      const src = sourceFor(g, res, nov, Uint8Array.from([1, 1]));
+      for (const r of [0, 1]) {
+        const want = 10 * (r * width + GROUP_IDS.indexOf(g) + 1);
+        expect(src?.values[r * (src?.stride ?? 0) + (src?.offset ?? 0)]).toBe(want);
+      }
+    }
     const n = sourceFor('novelty', null, nov, Uint8Array.from([1, 0]));
     expect(n?.values[1 * 2 + 0]).toBe(456);
     expect(sourceFor('S', null, nov, Uint8Array.from([1, 1]))).toBeNull();

@@ -22,12 +22,12 @@ earth_permafrost: {id_or_url: "", access: download, version: "", licence: "", ci
 earth_volcanoes:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 # Added 2026-11-14 on the user's instruction (data fusion + subsurface feature); values come from the
 # Earth Engine / NSIDC catalogue pages read that day, all verified: false until a human confirms. Empty = TODO(verify).
-# NASADEM is fused with earth_dem (mean where both exist). MOD21A1D/N are fused with earth_lst_terra (Terra only, science-invariant 6).
+# NASADEM is fused with earth_dem (mean where both exist). MOD21A1D/N are fused with earth_lst_terra (Terra only, science-invariant 6), but only on pixels where MOD21 is valid on >= 50% of days (real.py MOD21_MIN_VALID); elsewhere MOD11A2 alone.
 earth_dem_nasadem:     {id_or_url: "NASA/NASADEM_HGT/001", access: ee, band: elevation, version: "001", licence: "NASA-produced data may be used for any purpose without prior permission (Earth Engine catalogue)", citation: "NASA JPL (2020). NASADEM Merged DEM Global 1 arc second V001. NASA EOSDIS Land Processes DAAC. doi:10.5067/MEaSUREs/NASADEM/NASADEM_HGT.001", verified: false}
 earth_lst_mod21_day:   {id_or_url: "MODIS/061/MOD21A1D", access: ee, band: LST_1KM, version: "061", licence: "No restrictions on use, sale or redistribution (LP DAAC, per the Earth Engine catalogue)", citation: "", verified: false}
 earth_lst_mod21_night: {id_or_url: "MODIS/061/MOD21A1N", access: ee, band: LST_1KM, version: "061", licence: "No restrictions on use, sale or redistribution (LP DAAC, per the Earth Engine catalogue)", citation: "", verified: false}
-# Optional cross-check only (not in Earth Engine; 6 h / 18 h overpass, so not fused without a human exception to science-invariant 6). Check the current version/resolution first (NSIDC lists V004).
-earth_smap_ft:         {id_or_url: "SPL3FTP_E (NSIDC DAAC, via NASA Earthdata)", access: download, version: "", licence: "", citation: "", verified: false}
+# Cross-check only (not in Earth Engine; 6 h / 18 h overpass, so never fused: science-invariant 6). V004 read 2026-11-14; used by doppelgrund.smap, which writes smap_crosscheck.parquet.
+earth_smap_ft:         {id_or_url: "SPL3FTP_E (NSIDC DAAC, via NASA Earthdata)", access: download, version: "004", licence: "Free Earthdata Login; the page requires citing the data set and names no licence (NSIDC Citation Policies)", citation: "Xu, X., Dunbar, R. S., Derksen, C., Colliander, A., Kim, Y. & Kimball, J. S. (2023). SMAP Enhanced L3 Radiometer Global and Northern Hemisphere Daily 9 km EASE-Grid Freeze/Thaw State (SPL3FTP_E, Version 4). NSIDC DAAC. doi:10.5067/NQLCDOZJYAKX", verified: false}
 # Catalogues behind pit_cave_density_per_1000km2. Human-supplied; also record the survey-coverage rule for each.
 earth_caves:           {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 mars_caves:            {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}

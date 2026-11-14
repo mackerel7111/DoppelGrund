@@ -86,7 +86,7 @@
    0.6593469381332397,
    null,
    0.0,
-   null
+   0.5
   ],
   "lith": [
    0.0,
@@ -101,8 +101,7 @@
   "coverage_notes": [
    "diurnal_range_K: not measured (synthetic)",
    "annual_range_K: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)",
-   "pit_cave_density_per_1000km2: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)"
   ]
  },
  {
