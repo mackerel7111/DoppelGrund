@@ -29,14 +29,14 @@ earth_lst_mod21_night: {id_or_url: "MODIS/061/MOD21A1N", access: ee, band: LST_1
 # Cross-check only (not in Earth Engine; 6 h / 18 h overpass, so never fused: science-invariant 6). V004 read 2026-11-14; used by doppelgrund.smap, which writes smap_crosscheck.parquet.
 earth_smap_ft:         {id_or_url: "SPL3FTP_E (NSIDC DAAC, via NASA Earthdata)", access: download, version: "004", licence: "Free Earthdata Login; the page requires citing the data set and names no licence (NSIDC Citation Policies)", citation: "Xu, X., Dunbar, R. S., Derksen, C., Colliander, A., Kim, Y. & Kimball, J. S. (2023). SMAP Enhanced L3 Radiometer Global and Northern Hemisphere Daily 9 km EASE-Grid Freeze/Thaw State (SPL3FTP_E, Version 4). NSIDC DAAC. doi:10.5067/NQLCDOZJYAKX", verified: false}
 # Catalogues behind pit_cave_density_per_1000km2. Human-supplied; also record the survey-coverage rule for each.
-earth_caves:           {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
-mars_caves:            {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+earth_caves:           {id_or_url: "config/earth_lava_tubes.csv", access: download, version: "hand-curated 2026-11-14", licence: "n/a (own list; coordinates read from Wikipedia)", citation: "", verified: false}  # 6 lava tubes only (no karst), a file in this repo (access allows only ee|download); coordinates unverified
+mars_caves:            {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}  # deliberately empty: Mars stays NaN (decision 2026-11-14; MGC3 false-positive caveat, unread)
 earth_land:       {id_or_url: "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson", access: download, version: "Natural Earth 1:110m Physical Vectors, land (coordinates rounded to 3 decimals in config/ne_land.geojson)", licence: "Public domain (Natural Earth terms of use: naturalearthdata.com/about/terms-of-use)", citation: "Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com.", verified: true}
 moon_dem_stage1:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 moon_dem_stage2:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 moon_diviner:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 moon_geology:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
-moon_pits:        {id_or_url: "https://data.lroc.im-ldi.com/lroc/view_rdr/SHAPEFILE_LUNAR_PIT_LOCATIONS", access: download, version: "", licence: "", citation: "", verified: false}
+moon_pits:        {id_or_url: "https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/EXTRAS/SHAPEFILE/LUNAR_PIT_LOCATIONS/LUNAR_PIT_LOCATIONS.CSV", access: download, version: "updated 2021-03-09 (278 pits; 266 after dropping 12 typed Uncertain)", licence: "not stated; citation required", citation: "Wagner and Robinson (2021), LPSC 52, abstract 2530", verified: false}
 mars_dem:         {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 mars_geology:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 mars_tes_ti:      {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
