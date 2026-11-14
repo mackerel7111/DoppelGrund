@@ -15,8 +15,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import time
 import warnings
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -44,6 +46,10 @@ DATA = REPO / "data/raw"
 OUT = REPO / "data/interim/real"
 WORK = REPO / "data/interim/_work"  # scratch: unzipped permafrost, Diviner tables in flight
 EE_PROJECT = ""
+SHARD: tuple[int, int] | None = (
+    None  # (i, n) from --shard i/n: run only this machine's share of EE batches
+)
+THREADS = 4  # concurrent Earth Engine requests per machine (EE allows ~40 per user)
 FETCH_DIVINER = (
     True  # False: skip the 2.8 GB Diviner download; Moon thermal stays NaN outside reduced bands
 )
@@ -238,7 +244,7 @@ EE_RAW = [
 EE_COLS = [c for c in EE_RAW if c not in ("z_mean", "z2_mean")] + ["relief_std_m"]
 
 
-def earth_remote(cells, batch=2000):
+def earth_remote(cells, batch=100):
     """Earth Engine reducers per hex. Terrain fuses GLO-30 + NASADEM, thermal fuses MOD11A2 + MOD21A1D/N (mean where both exist). Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
     import ee
     import h3  # imported here so the offline run needs no earthengine-api
@@ -379,14 +385,17 @@ def earth_remote(cells, batch=2000):
                 for c in hexes
             ]
         )
-        got = [
-            pd.DataFrame(
-                [f["properties"] for f in img.reduceRegions(fc, red, sc).getInfo()["features"]]
+        got = []
+        for i, (img, red, sc, ren) in enumerate(groups):
+            t = time.time()
+            feats = img.reduceRegions(fc, red, sc).getInfo()["features"]
+            print(
+                f"  group {i + 1}/{len(groups)} ({len(hexes)} hexes): {time.time() - t:.0f}s",
+                flush=True,
             )
-            .set_index("h3")
-            .rename(columns=ren)
-            for img, red, sc, ren in groups
-        ]
+            got.append(
+                pd.DataFrame([f["properties"] for f in feats]).set_index("h3").rename(columns=ren)
+            )
         return pd.concat(got, axis=1)
 
     def finish(df):
@@ -405,19 +414,25 @@ def earth_remote(cells, batch=2000):
     print(finish(probe).T.round(3))
     ck = OUT / "ee_batches"
     ck.mkdir(exist_ok=True)
-    parts = []
     nb = -(-len(cells) // batch)
-    for k in range(0, len(cells), batch):
-        f = ck / f"{k // batch:04d}.parquet"
-        hx = list(cells[k : k + batch])
-        if f.exists() and set(pd.read_parquet(f).index) == set(hx):
-            parts.append(pd.read_parquet(f))
-            continue  # finished before a disconnect
-        part = finish(reduce(hx)).reindex(hx)
-        part.to_parquet(f)
-        parts.append(part)
-        print(f"batch {k // batch + 1}/{nb} done")
-    return pd.concat(parts).rename_axis("h3").reset_index()
+    hxs = [list(cells[k : k + batch]) for k in range(0, len(cells), batch)]
+    fs = [ck / f"{i:04d}.parquet" for i in range(nb)]
+    done = lambda i: fs[i].exists() and set(pd.read_parquet(fs[i]).index) == set(hxs[i])  # noqa: E731
+
+    def run(i):
+        t0 = time.time()
+        finish(reduce(hxs[i])).reindex(hxs[i]).to_parquet(fs[i])
+        print(f"batch {i + 1}/{nb} done in {time.time() - t0:.0f}s", flush=True)
+
+    # SHARD=(i, n): this machine does only batches with index % n == i. Every machine must use the same
+    # batch size and the same code, so batch NNNN means the same hexes everywhere; merge the ee_batches/ folders after.
+    todo = [i for i in range(nb) if (not SHARD or i % SHARD[1] == SHARD[0]) and not done(i)]
+    print(f"{len(todo)} batches to run ({nb} total)", flush=True)
+    with ThreadPoolExecutor(THREADS) as ex:
+        list(ex.map(run, todo))  # list() re-raises any batch error
+    if SHARD:
+        return None
+    return pd.concat([pd.read_parquet(f) for f in fs]).rename_axis("h3").reset_index()
 
 
 O = ["mafic_volcanic", "felsic_feldspathic", "carbonate", "siliciclastic", "evaporite", "ice"]
@@ -853,7 +868,7 @@ def write_tables(tables: dict[str, pd.DataFrame], out: Path = OUT, source: str =
 
 
 def main(argv=None) -> int:
-    global EE_PROJECT, OUT, FETCH_DIVINER
+    global EE_PROJECT, OUT, FETCH_DIVINER, SHARD, THREADS
     p = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     p.add_argument(
         "--ee-project", default="", help="Google Cloud project with Earth Engine enabled"
@@ -866,12 +881,28 @@ def main(argv=None) -> int:
         "--no-diviner-fetch", action="store_true", help="do not download missing Diviner bands"
     )
     p.add_argument("--out", type=Path, default=OUT)
+    p.add_argument(
+        "--shard",
+        help="I/N, e.g. 0/4: run only Earth Engine batches with index %% N == I, then stop",
+    )
+    p.add_argument("--threads", type=int, default=THREADS, help="concurrent Earth Engine requests")
     a = p.parse_args(argv)
     if not a.no_ee and not a.ee_project:
         p.error("give --ee-project (and run `earthengine authenticate` once) or pass --no-ee")
+    THREADS = a.threads
+    if a.shard:
+        i, n = map(int, a.shard.split("/"))
+        if not 0 <= i < n:
+            p.error("--shard I/N needs 0 <= I < N")
+        SHARD = (i, n)
     EE_PROJECT, OUT, FETCH_DIVINER = a.ee_project, a.out, not a.no_diviner_fetch
     WORK.mkdir(parents=True, exist_ok=True)
     OUT.mkdir(parents=True, exist_ok=True)
+    if SHARD:
+        earth_remote(
+            select_land_cells()
+        )  # batches only; Moon/Mars/final tables run later on one machine
+        return 0
     tables = build_tables(a.limit, use_ee=not a.no_ee)
     write_tables(tables, OUT, "real" if not (a.no_ee or a.limit) else "real-partial")
     for k, v in tables.items():
