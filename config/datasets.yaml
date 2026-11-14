@@ -1,0 +1,39 @@
+# DoppelGrund datasets: every dataset the pipeline may use. HUMAN-OWNED (task 00/0.8).
+#
+# Schema per entry (keys below are the ones code looks up):
+#   id_or_url: str     Earth Engine asset ID or download URL / catalogue record
+#   access:    ee | download
+#   version:   str     product version or download date
+#   licence:   str
+#   citation:  str
+#   verified:  bool    true only after a human confirmed the entry against the challenge
+#                      Resources tab or the catalogue page
+# Optional per-entry keys (band, bands, scale, years, class codes) are added by humans.
+# Starting-point IDs are listed in .kiro/specs/00-foundation/design.md §2; they are NOT copied
+# here (override O2: agents never fill dataset values). Code warns when verified is false.
+earth_dem:        {id_or_url: "", access: ee, version: "", licence: "", citation: "", verified: false}
+earth_lst_terra:  {id_or_url: "", access: ee, version: "", licence: "", citation: "", verified: false}
+earth_landcover:  {id_or_url: "", access: ee, version: "", licence: "", citation: "", verified: false}
+earth_ndvi:       {id_or_url: "", access: ee, version: "", licence: "", citation: "", verified: false}
+earth_aster_ged:  {id_or_url: "", access: ee, version: "", licence: "", citation: "", verified: false}
+earth_climate:    {id_or_url: "", access: ee, version: "", licence: "", citation: "", verified: false}
+earth_glim:       {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+earth_permafrost: {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+earth_volcanoes:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+earth_land:       {id_or_url: "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson", access: download, version: "Natural Earth 1:110m Physical Vectors, land (coordinates rounded to 3 decimals in config/ne_land.geojson)", licence: "Public domain (Natural Earth terms of use: naturalearthdata.com/about/terms-of-use)", citation: "Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com.", verified: true}
+moon_dem_stage1:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+moon_dem_stage2:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+moon_diviner:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+moon_geology:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+moon_pits:        {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+mars_dem:         {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+mars_geology:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+mars_tes_ti:      {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+# textures has its own schema: one source per body.
+textures:
+  earth: "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73776/world.topo.bathy.200408.3x5400x2700.jpg"  # NASA Blue Marble Next Generation, August 2004, topography and bathymetry, 5400x2700 -> 4096x2048
+  moon: "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_2k.jpg"  # NASA SVS 4720 CGI Moon Kit, LROC WAC colour map (2025 version), 2048x1024, copied unmodified
+  mars: "https://astrogeology.usgs.gov/ckan/dataset/7131d503-cdc9-45a5-8f83-5126c0fd397e/resource/5ea881c6-01b3-41fa-a7af-42d2131b54f1/download/mars_viking_mdim21_clrmosaic_1km.jpg"  # USGS Mars Viking colorized global mosaic (MDIM 2.1), 1 km JPG 21339x10670 -> 4096x2048
+  licence: "Earth: NASA imagery, credit NASA Earth Observatory (generally not copyrighted, NASA media guidelines). Moon: NASA SVS, credit NASA's Scientific Visualization Studio (NASA reproduction guidelines; the page states no separate licence). Mars: USGS Astrogeology, public domain, no use constraints."
+  citation: "Blue Marble Next Generation: NASA Earth Observatory (Reto Stockli, NASA/GSFC). Moon: NASA's Scientific Visualization Studio; Ernie Wright (USRA), Noah Petro (NASA/GSFC); LROC WAC Color Mosaic by Arizona State University. Mars: USGS Astrogeology Science Center, NASA Ames, Mars Colorized Viking Mosaic, MDIM 2.1. Basemaps are for display only (not scientific input)."
+  verified: true

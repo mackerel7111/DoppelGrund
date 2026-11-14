@@ -1,0 +1,13 @@
+# DoppelGrund landmarks: preloaded Moon/Mars targets. HUMAN-OWNED (task 00/0.8).
+#
+# Schema: a list of entries
+#   - id:     lowercase slug (e.g. a site name in snake_case)
+#     name:   display name
+#     body:   moon | mars
+#     lat:    planetocentric latitude, degrees [-90, 90]
+#     lon:    longitude, degrees [-180, 180)
+#     source: URL of the authoritative source for the coordinates
+#     notes:  free text (optional)
+# Fill from authoritative sources only (NASA Artemis III candidate regions; Jezero; Gale).
+# Agents never add entries here (override O2).
+landmarks: []

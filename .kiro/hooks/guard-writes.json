@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Protect raw data, secrets, contracts and golden vectors",
+      "description": "Blocks agent file writes to data/raw, secret-like files, data-contracts.md, spec requirements/design files and tests/parity/vectors.json (regenerate vectors with make parity instead). Humans editing in the editor are not affected. Override for one session with DOPPELGRUND_ALLOW_PROTECTED=1.",
+      "trigger": "PreToolUse",
+      "matcher": "write",
+      "action": {
+        "type": "command",
+        "command": "python .kiro/hooks/scripts/guard_writes.py"
+      },
+      "timeout": 10
+    }
+  ]
+}

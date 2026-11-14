@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.f32 binary
+*.i16 binary
+*.u8 binary
+*.png binary
+*.jpg binary
+*.parquet binary

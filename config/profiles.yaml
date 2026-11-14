@@ -1,0 +1,40 @@
+# DoppelGrund profiles: single source of truth for features, lithology classes, compatibility matrix,
+# lenses and parameters. Copied verbatim from data-contracts.md C3 (humans change contracts).
+version: 1
+features:            # exactly C1, same order
+  - {name: slope_p50_deg, group: terrain, unit: deg, transform: none}
+  - {name: slope_p90_deg, group: terrain, unit: deg, transform: none}
+  - {name: relief_std_m, group: terrain, unit: m, transform: log1p}
+  - {name: frac_slope_lt_10deg, group: terrain, unit: fraction, transform: none}
+  - {name: lst_mean_K, group: thermal, unit: K, transform: none}
+  - {name: diurnal_range_K, group: thermal, unit: K, transform: none}
+  - {name: annual_range_K, group: thermal, unit: K, transform: none}
+  - {name: frac_below_0C, group: cold_ice, unit: fraction, transform: none}
+  - {name: permafrost_prob, group: cold_ice, unit: fraction, transform: none}
+  - {name: aridity_index, group: cold_ice, unit: ratio, transform: log1p}
+lith_classes: [mafic_volcanic, felsic_feldspathic, carbonate, siliciclastic, evaporite, ice]
+compat_matrix:       # 6x6, symmetric, diagonal 1.0, values in [0,1]; illustrative, set by humans
+  - [1.0, 0.2, 0.0, 0.1, 0.0, 0.0]
+  - [0.2, 1.0, 0.0, 0.2, 0.0, 0.0]
+  - [0.0, 0.0, 1.0, 0.2, 0.3, 0.0]
+  - [0.1, 0.2, 0.2, 1.0, 0.2, 0.0]
+  - [0.0, 0.0, 0.3, 0.2, 1.0, 0.0]
+  - [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+groups: [terrain, thermal, cold_ice, composition]
+lenses:
+  balanced:         {terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25}
+  landing_mobility: {terrain: 0.70, thermal: 0.15, cold_ice: 0.00, composition: 0.15}
+  cold_volatiles:   {terrain: 0.15, thermal: 0.30, cold_ice: 0.45, composition: 0.10}
+  geology_minerals: {terrain: 0.20, thermal: 0.10, cold_ice: 0.10, composition: 0.60}
+params:
+  seed: 20261114
+  footprint_radius_km: 23.7
+  land_frac_min: 0.3
+  coverage_floor: 0.6
+  card_overall_percentile: 95
+  card_min_separation_km: 300
+  novelty_gate_km: 300
+  mask: {barren_plus_ice_min: 0.5, ndvi_max: 0.2}   # keep hex if barren+ice >= 0.5 OR ndvi <= 0.2
+  stability: {draws: 500, draws_interactive: 100, dirichlet_concentration: 50, tol_log_sigma: 0.25, top_fraction: 0.01, store_top_k: 2000}
+assumptions:
+  - "Planetary aridity_index = 0.0 (no precipitation)."

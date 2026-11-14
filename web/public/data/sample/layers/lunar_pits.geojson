@@ -1,0 +1,325 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_01",
+    "name": "Synthetic lunar pit 1",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -2.30094,
+     81.14151
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_02",
+    "name": "Synthetic lunar pit 2",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -34.82714,
+     80.13049
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_03",
+    "name": "Synthetic lunar pit 3",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -72.11609,
+     73.5246
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_04",
+    "name": "Synthetic lunar pit 4",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     168.7606,
+     63.50832
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_05",
+    "name": "Synthetic lunar pit 5",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     74.23755,
+     58.07139
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_06",
+    "name": "Synthetic lunar pit 6",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -34.72356,
+     19.10538
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_07",
+    "name": "Synthetic lunar pit 7",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -83.16485,
+     11.29591
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_08",
+    "name": "Synthetic lunar pit 8",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -54.24628,
+     4.68825
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_09",
+    "name": "Synthetic lunar pit 9",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     178.67523,
+     1.68941
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_10",
+    "name": "Synthetic lunar pit 10",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     178.08078,
+     -7.12766
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_11",
+    "name": "Synthetic lunar pit 11",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -119.48855,
+     -19.494
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_12",
+    "name": "Synthetic lunar pit 12",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -19.16186,
+     -21.00274
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_13",
+    "name": "Synthetic lunar pit 13",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -101.32077,
+     -23.3957
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_14",
+    "name": "Synthetic lunar pit 14",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     27.86755,
+     -32.64744
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_15",
+    "name": "Synthetic lunar pit 15",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -74.21878,
+     -34.89637
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_16",
+    "name": "Synthetic lunar pit 16",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -176.22608,
+     -37.25166
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_17",
+    "name": "Synthetic lunar pit 17",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -160.98665,
+     -39.17416
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_18",
+    "name": "Synthetic lunar pit 18",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -138.69405,
+     -56.09018
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_19",
+    "name": "Synthetic lunar pit 19",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     129.89277,
+     -65.94738
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lunar_pit_20",
+    "name": "Synthetic lunar pit 20",
+    "body": "moon",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.23613,
+     -72.57372
+    ]
+   }
+  }
+ ]
+}

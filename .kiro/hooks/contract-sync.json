@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Contract sync check",
+      "description": "When exporter, TS types, worker protocol or profiles.yaml change, make sure both sides still match data-contracts.md and parity still passes.",
+      "trigger": "PostFileSave",
+      "matcher": "pipeline/doppelgrund/export/.*\\.py$|pipeline/doppelgrund/scoring\\.py$|web/src/data/types\\.ts$|web/src/workers/protocol\\.ts$|config/profiles\\.yaml$",
+      "action": {
+        "type": "agent",
+        "prompt": "A contract-adjacent file changed. Compare it with data-contracts.md (C1-C8). If the Python exporter, TypeScript types, worker protocol or profiles.yaml no longer match the contract, fix your change (do NOT edit data-contracts.md). Then run `make parity` and report the result."
+      }
+    }
+  ]
+}

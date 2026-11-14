@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doppelgrund"
+version = "0.1.0"
+description = "Global Analogue Discovery Engine: offline pipeline (NASA Space Apps 2026)"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+# Exact pins chosen 2026-10-30 (current stable); do not upgrade during the hackathon.
+dependencies = [
+    "numpy==2.5.4",
+    "pandas==3.1.0",
+    "pyarrow==26.0.0",
+    "scipy==1.18.1",
+    "scikit-learn==1.9.1",
+    "h3==4.5.0",
+    "rasterio==1.5.2",
+    "geopandas==1.2.0",
+    "shapely==2.2.0",
+    "pyproj==3.8.0",
+    "Pillow==13.0.0",
+    "pyyaml==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.2.0", "hypothesis==6.170.13", "ruff==0.17.3"]
+ee = ["earthengine-api==1.7.50"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["doppelgrund*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "NPY"]
+
+[tool.ruff.lint.per-file-ignores]
+# notebook-ported code: dense one-liners, kept verbatim so it matches notebooks/01
+"doppelgrund/real.py" = ["E501", "E402", "E731", "E741", "B028", "B905"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "ee: requires Earth Engine credentials (skipped by make test-py)",
+    "slow: long-running test (skipped by make test-py)",
+]

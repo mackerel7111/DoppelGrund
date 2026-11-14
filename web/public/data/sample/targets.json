@@ -1,0 +1,242 @@
+[
+ {
+  "id": "synthetic_moon_polar_a",
+  "name": "Synthetic Moon target A (polar)",
+  "body": "moon",
+  "lat": -88.520588,
+  "lon": 5.784386,
+  "features": [
+   4.342995643615723,
+   8.969339370727539,
+   284.7031555175781,
+   0.7104669809341431,
+   125.29330444335938,
+   28.15631675720215,
+   null,
+   0.9928150773048401,
+   null,
+   0.0
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 0,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "annual_range_K: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ },
+ {
+  "id": "synthetic_moon_polar_b",
+  "name": "Synthetic Moon target B (polar)",
+  "body": "moon",
+  "lat": -85.091982,
+  "lon": 38.245566,
+  "features": [
+   11.740793228149414,
+   33.343421936035156,
+   100.23664855957031,
+   0.21728047728538513,
+   139.02862548828125,
+   72.50921630859375,
+   null,
+   0.988690197467804,
+   null,
+   0.0
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 1,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "annual_range_K: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ },
+ {
+  "id": "synthetic_moon_mare_c",
+  "name": "Synthetic Moon target C (low latitude)",
+  "body": "moon",
+  "lat": 10.272696,
+  "lon": 29.56531,
+  "features": [
+   6.881709575653076,
+   11.767184257507324,
+   35.5531005859375,
+   0.5412193536758423,
+   258.7163391113281,
+   248.3514404296875,
+   null,
+   0.6180128455162048,
+   null,
+   0.0
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 2,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "annual_range_K: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ },
+ {
+  "id": "synthetic_moon_highland_d",
+  "name": "Synthetic Moon target D (mid latitude)",
+  "body": "moon",
+  "lat": -40.015887,
+  "lon": -120.869381,
+  "features": [
+   0.4813075065612793,
+   1.2970460653305054,
+   64.70259094238281,
+   0.9679128527641296,
+   232.48291015625,
+   222.0664520263672,
+   null,
+   0.7950387001037598,
+   null,
+   0.0
+  ],
+  "lith": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 0,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "annual_range_K: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ },
+ {
+  "id": "synthetic_mars_low_e",
+  "name": "Synthetic Mars target E (low latitude)",
+  "body": "mars",
+  "lat": 17.998976,
+  "lon": 78.043556,
+  "features": [
+   1.1826528310775757,
+   2.8030269145965576,
+   281.9057922363281,
+   0.9211564660072327,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0
+  ],
+  "lith": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 1,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "lst_mean_K: not measured (synthetic)",
+   "diurnal_range_K: not measured (synthetic)",
+   "annual_range_K: not measured (synthetic)",
+   "frac_below_0C: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ },
+ {
+  "id": "synthetic_mars_mid_f",
+  "name": "Synthetic Mars target F (mid latitude)",
+  "body": "mars",
+  "lat": -6.526726,
+  "lon": 137.965964,
+  "features": [
+   0.7921837568283081,
+   2.02184796333313,
+   54.33051681518555,
+   0.9471877217292786,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0
+  ],
+  "lith": [
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 2,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "lst_mean_K: not measured (synthetic)",
+   "diurnal_range_K: not measured (synthetic)",
+   "annual_range_K: not measured (synthetic)",
+   "frac_below_0C: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ },
+ {
+  "id": "synthetic_mars_polar_g",
+  "name": "Synthetic Mars target G (high latitude)",
+  "body": "mars",
+  "lat": 78.051292,
+  "lon": -99.75155,
+  "features": [
+   2.3259496688842773,
+   3.819976568222046,
+   128.9256591796875,
+   0.8449366688728333,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0
+  ],
+  "lith": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ],
+  "cluster": 0,
+  "notes": "Synthetic target generated for development; not a real landmark.",
+  "coverage_notes": [
+   "lst_mean_K: not measured (synthetic)",
+   "diurnal_range_K: not measured (synthetic)",
+   "annual_range_K: not measured (synthetic)",
+   "frac_below_0C: not measured (synthetic)",
+   "permafrost_prob: not measured (synthetic)"
+  ]
+ }
+]

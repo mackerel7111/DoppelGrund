@@ -1,0 +1,95 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_site_01",
+    "name": "Synthetic known site 1",
+    "body": "earth",
+    "synthetic": true,
+    "well_known": true,
+    "dimension": "terrain"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -70.39879,
+     -24.27233
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_site_02",
+    "name": "Synthetic known site 2",
+    "body": "earth",
+    "synthetic": true,
+    "well_known": false,
+    "dimension": "thermal"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -69.84149,
+     -25.62096
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_site_03",
+    "name": "Synthetic known site 3",
+    "body": "earth",
+    "synthetic": true,
+    "well_known": false,
+    "dimension": "cold_ice"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     128.12403,
+     -24.21814
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_site_04",
+    "name": "Synthetic known site 4",
+    "body": "earth",
+    "synthetic": true,
+    "well_known": false,
+    "dimension": "composition"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     161.48064,
+     -78.98273
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_site_05",
+    "name": "Synthetic known site 5",
+    "body": "earth",
+    "synthetic": true,
+    "well_known": true,
+    "dimension": "terrain"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     155.62698,
+     -79.25315
+    ]
+   }
+  }
+ ]
+}

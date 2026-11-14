@@ -1,0 +1,32 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Keep the tree green before a task starts",
+      "description": "Blocks a spec task from starting (exit 2) while make verify-quick is failing. Fix the build in a normal chat first. Set enabled to false to bypass in an emergency.",
+      "trigger": "PreTaskExec",
+      "action": {
+        "type": "command",
+        "command": "python .kiro/hooks/scripts/portable.py gate"
+      },
+      "timeout": 300,
+      "enabled": true
+    },
+    {
+      "name": "Task start checklist",
+      "trigger": "PreTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "Before writing code for this task: (1) read docs/STATUS.md; (2) read every requirement ID and the design section this task references; (3) list the exact files you will touch, which must match the task's 'Files' list; (4) restate the acceptance commands you will run. If anything needed is missing (data, config value, contract detail), stop and add a 'Blocked:' entry to docs/STATUS.md instead of guessing."
+      }
+    },
+    {
+      "name": "Task completion checklist",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "Before declaring this task done: (1) run every acceptance command listed in the task and `make verify-quick`, and show the result; (2) confirm no NaN was replaced by a number and no contract in data-contracts.md was changed; (3) append one log line to docs/STATUS.md in the format from agent-rules.md, including the model name; (4) tick the task checkbox only if everything passed, otherwise mark it partial and explain."
+      }
+    }
+  ]
+}

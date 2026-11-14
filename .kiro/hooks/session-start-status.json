@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Inject status board",
+      "description": "At session start, print the top of docs/STATUS.md so the agent knows the current wave, blockers and contract issues.",
+      "trigger": "SessionStart",
+      "action": {
+        "type": "command",
+        "command": "python .kiro/hooks/scripts/portable.py status"
+      },
+      "timeout": 10
+    }
+  ]
+}

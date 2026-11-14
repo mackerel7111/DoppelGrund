@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Science invariant review",
+      "description": "After the agent edits core science code, inject a short invariant checklist.",
+      "trigger": "PostFileSave",
+      "matcher": "pipeline/doppelgrund/(harmonise|scoring|localzonal)\\.py$|pipeline/doppelgrund/(earth|planetary|ml)/.*\\.py$|web/src/engine/.*\\.ts$",
+      "action": {
+        "type": "agent",
+        "prompt": "You just edited science-critical code. Check the diff against science-invariants.md and answer in at most 6 bullets: NaN handling (never filled with numbers outside clustering); units in names; pooled scaling (no per-body scaler); same slope algorithm and ~470 m baseline across bodies; unmatchable conditions not scored; seeds used for randomness. Fix any violation now and add or update a unit test that would catch it."
+      }
+    }
+  ]
+}

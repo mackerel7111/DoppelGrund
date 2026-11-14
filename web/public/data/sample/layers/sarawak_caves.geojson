@@ -1,0 +1,101 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_cave_01",
+    "name": "Synthetic cave 1",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.53235,
+     64.39699
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_cave_02",
+    "name": "Synthetic cave 2",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     104.66209,
+     44.47848
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_cave_03",
+    "name": "Synthetic cave 3",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     104.12789,
+     44.06721
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_cave_04",
+    "name": "Synthetic cave 4",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     47.16051,
+     24.66251
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_cave_05",
+    "name": "Synthetic cave 5",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.67022,
+     21.03805
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_cave_06",
+    "name": "Synthetic cave 6",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     128.14275,
+     -24.71311
+    ]
+   }
+  }
+ ]
+}

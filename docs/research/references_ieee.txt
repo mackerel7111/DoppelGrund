@@ -1,0 +1,508 @@
+DoppelGrund — references (IEEE style)
+Generated 2026-11-11
+All DOIs checked against Crossref/arXiv/publisher pages by research agents; entries marked (unverified) need a human check
+Novelty: no peer-reviewed study found that scores all of Earth's land against Moon/Mars targets on multi-group
+features with weights, stability analysis and rediscovery validation. Closest neighbours: Sanganeria (NHSJS 2026,
+image-texture ranking) and the Space Apps 2026 'terrestrial-analog-finder' entry (DEM-only, 558 windows). Existing
+catalogues (Preston & Dartnell 2014, ESA CAFE, USGS analogue sites) are curated, not scored.
+
+== Planetary analogues ==
+[1] R. Amils et al., "Extreme environments as Mars terrestrial analogs: The Rio Tinto case," Planetary and Space Science, vol. 55, no. 3, pp. 370–381, 2007, doi: 10.1016/j.pss.2006.02.006.
+    Use: Rio Tinto as Mars mineralogical analogue; a composition-driven analogue DoppelGrund's lithology group may miss.
+
+[2] D. Eppler et al., "Desert Research and Technology Studies (DRATS) 2010 science operations: Operational approaches and lessons learned for managing science during human planetary surface missions," Acta Astronautica, vol. 90, no. 2, pp. 224–241, 2013, doi: 10.1016/j.actaastro.2012.03.009.
+    Use: NASA Desert RATS 2010 science operations; analogue mission using Arizona lunar-like terrain.
+
+[3] F. Foucher et al., "Definition and use of functional analogues in planetary exploration," Planetary and Space Science, vol. 197, Art. no. 105162, 2021, doi: 10.1016/j.pss.2021.105162.
+    Use: Functional-analogue concept: pick analogues by the properties to imitate; DoppelGrund operationalises this as per-feature matching.
+
+[4] W. B. Garry and J. E. Bleacher, Analogs for Planetary Exploration. Geological Society of America, 2011, doi: 10.1130/spe483.
+    Use: Field-analogue compendium (GSA SP 483); qualitative site-by-site catalogue DoppelGrund's validation set can draw on.
+
+[5] H. Hargitai and A. Kereszturi, Encyclopedia of Planetary Landforms. Springer New York, 2015, doi: 10.1007/978-1-4614-3134-3.
+    Use: Encyclopedia of planetary landforms; Earth-planet landform equivalences, qualitative reference for features.
+
+[6] M. A. Hunter, "Known Terrestrial Analog Sites for Planetary Science." [Online]. Available: https://www.usgs.gov/data/known-terrestrial-analog-sites-planetary-science (accessed Nov. 2026).
+    Use: USGS point layer of known analogue sites; candidate source of DoppelGrund validation sites.
+
+[7] P. Lambert and W. U. Reimold, "Terrestrial impact sites as field analogs for planetary exploration," Frontiers in Astronomy and Space Sciences, vol. 10, 2023, doi: 10.3389/fspas.2023.1186173.
+    Use: Scores 11 impact sites on practical and geological criteria; site-level, qualitative, not global.
+
+[8] P. Lee and G. R. Osinski, "The Haughton-Mars Project: Overview of science investigations at the Haughton impact structure and surrounding terrains, and relevance to planetary studies," Meteoritics & Planetary Science, vol. 40, no. 12, pp. 1755–1758, 2005, doi: 10.1111/j.1945-5100.2005.tb00144.x.
+    Use: Haughton-Mars Project at Devon Island; canonical cold-polar impact analogue for validation.
+
+[9] D. R. Marchant and J. W. Head, "Antarctic dry valleys: Microclimate zonation, variable geomorphic processes, and implications for assessing climate change on Mars," Icarus, vol. 192, no. 1, pp. 187–222, 2007, doi: 10.1016/j.icarus.2007.06.018.
+    Use: Dry Valleys microclimate zones as Mars analogue; cold-dry-ice features DoppelGrund encodes quantitatively.
+
+[10] NASA Artemis III Science Definition Team, "Artemis III Science Definition Team Report (NASA/SP-20205009602)," NASA, 2020. [Online]. Available: https://science.nasa.gov/wp-content/uploads/2023/07/artemis-iii-science-definition-report-12042020c.pdf (unverified)
+    Use: Defines Artemis III science priorities (volatiles, geology) that motivate DoppelGrund's cold-region and geology lenses.
+
+[11] R. Navarro-González et al., "Mars-Like Soils in the Atacama Desert, Chile, and the Dry Limit of Microbial Life," Science, vol. 302, no. 5647, pp. 1018–1021, 2003, doi: 10.1126/science.1089143.
+    Use: Atacama hyperarid core as Mars-like soil analogue; validation site for aridity features.
+
+[12] L. J. Preston, S. J. Barber, and M. M. Grady, "Introducing a new on-line resource for planning scientific field investigations in planetary analogue environments: CAFE," in Proc. Astrobiology Science Conference 2012 (ESA CAFE study abstract), 2012. (unverified)
+    Use: ESA catalogue of planetary analogue sites (CAFE); closest existing catalogue, curated and non-quantitative.
+
+[13] L. J. Preston and L. R. Dartnell, "Planetary habitability: lessons learned from terrestrial analogues," International Journal of Astrobiology, vol. 13, no. 1, pp. 81–98, 2014, doi: 10.1017/s1473550413000396.
+    Use: Review of 33 analogue sites; explicitly calls for a global open analogue database.
+
+[14] F. Sauro et al., "Speleology as an analogue to space exploration: The ESA CAVES training programme," Acta Astronautica, vol. 184, pp. 150–166, 2021, doi: 10.1016/j.actaastro.2021.04.003.
+    Use: ESA CAVES speleology-based astronaut training; cave analogues relevant to DoppelGrund lava-tube lens.
+
+[15] F. Sauro et al., "Training astronauts for scientific exploration on planetary surfaces: The ESA PANGAEA programme," Acta Astronautica, vol. 204, pp. 222–238, 2023, doi: 10.1016/j.actaastro.2022.12.034.
+    Use: ESA PANGAEA geology training across analogue sites; consumers of analogue-site rankings.
+
+[16] W. Todd and M. Reagan, "The NEEMO Undersea Analog: Another Type of Deep Space Exploration," in Proc. Space 2005, 2005, doi: 10.2514/6.2005-6754.
+    Use: NEEMO undersea analogue mission; operational (not geological) analogue, outside DoppelGrund's terrain scope.
+
+== Data-driven analogue identification ==
+[17] G. Amatulli, D. McInerney, T. Sethi, P. Strobl, and S. Domisch, "Geomorpho90m, empirical evaluation and accuracy assessment of global high-resolution geomorphometric layers," Scientific Data, vol. 7, no. 1, 2020, doi: 10.1038/s41597-020-0479-6.
+    Use: Global 90 m geomorphometric layers on Earth; feasible input for terrain features.
+
+[18] J. F. Bastin et al., "Understanding climate change from a global analysis of city analogues," PLOS ONE, vol. 14, no. 7, Art. no. e0217592, 2019, doi: 10.1371/journal.pone.0217592.
+    Use: Global climate-analogue search matching cities to Earth locations; methodological parallel to cell-wise similarity.
+
+[19] Y. Cai and W. Fa, "Meter‐Scale Topographic Roughness of the Moon: The Effect of Small Impact Craters," Journal of Geophysical Research: Planets, vol. 125, no. 8, 2020, doi: 10.1029/2020je006429.
+    Use: Meter-scale lunar roughness compared with Earth and Mars volcanics; terrain-statistic comparison across bodies.
+
+[20] B. Demir and L. Bruzzone, "Hashing-Based Scalable Remote Sensing Image Search and Retrieval in Large Archives," IEEE Transactions on Geoscience and Remote Sensing, vol. 54, no. 2, pp. 892–904, 2016, doi: 10.1109/tgrs.2015.2469138.
+    Use: Hashing-based content-based remote-sensing image retrieval; generic similarity-search neighbour.
+
+[21] I. V. Florinsky, Global Morphometric Maps of Mars, Venus, and the Moon. Geospatial Vision (Lecture Notes in Geoinformation and Cartography), 2008, doi: 10.1007/978-3-540-70970-1_8.
+    Use: Global morphometric maps of Mars, Venus, Moon; within-planet morphometry, no cross-body Earth matching.
+
+[22] J. Iwahashi and R. J. Pike, "Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature," Geomorphology, vol. 86, no. 3-4, pp. 409–440, 2007, doi: 10.1016/j.geomorph.2006.09.012.
+    Use: Nested-means DEM terrain classes (slope, convexity, texture); basis for global geomorphometric typing.
+
+[23] J. Iwahashi, I. Kamiya, M. Matsuoka, and D. Yamazaki, "Global terrain classification using 280 m DEMs: segmentation, clustering, and reclassification," Progress in Earth and Planetary Science, vol. 5, no. 1, 2018, doi: 10.1186/s40645-017-0157-2.
+    Use: Global terrain classification from 280 m DEMs; Earth-only unsupervised geomorphometry, no planetary target.
+
+[24] D. Karagulle et al., "Modeling global Hammond landform regions from 250‐m elevation data," Transactions in GIS, vol. 21, no. 5, pp. 1040–1060, 2017, doi: 10.1111/tgis.12265.
+    Use: Global Hammond landform regions from 250 m DEMs; Earth-only landform stratification.
+
+[25] M. A. Kreslavsky and J. W. Head, "Kilometer‐scale roughness of Mars: Results from MOLA data analysis," Journal of Geophysical Research: Planets, vol. 105, no. E11, pp. 26695–26711, 2000, doi: 10.1029/2000je001259.
+    Use: Kilometer-scale roughness of Mars from MOLA; slope-statistic precedent for planetary terrain features.
+
+[26] D. Liu and W. Cheng, "Progress and prospects for research on Martian topographic features and typical landform identification," Frontiers in Astronomy and Space Sciences, vol. 10, 2023, doi: 10.3389/fspas.2023.1275516.
+    Use: Review of Martian landform identification; notes need for global landform classification systems.
+
+[27] C. R. Mahony, A. J. Cannon, T. Wang, and S. N. Aitken, "A closer look at novel climates: new methods and insights at continental to landscape scales," Global Change Biology, vol. 23, no. 9, pp. 3934–3955, 2017, doi: 10.1111/gcb.13645.
+    Use: Novel-climate analogue distance methods; parallels DoppelGrund's novelty and analogue-quality measures.
+
+[28] F. Meng et al., "Deep learning selection of analogues for Mars landing sites in the Qaidam Basin, Qinghai-Tibet Plateau," arXiv:2501.08584, 2025.
+    Use: CNN similarity between Earth and Mars imagery for one basin; regional, image-based, no multi-feature global scoring.
+
+[29] R. Pike, "Geomorphometry - diversity in quantitative surface analysis," Progress in Physical Geography, vol. 24, no. 1, pp. 1–20, 2000, doi: 10.1191/030913300674449511.
+    Use: Review of geomorphometry; justifies slope and relief descriptors as landscape signatures.
+
+[30] A. Pommerol, S. Chakraborty, and N. Thomas, "Comparative study of the surface roughness of the Moon, Mars and Mercury," Planetary and Space Science, vol. 73, no. 1, pp. 287–293, 2012, doi: 10.1016/j.pss.2012.08.020.
+    Use: Compares slope-based roughness of Moon, Mars, Mercury; cross-planet statistics without Earth analogue search.
+
+[31] C. Sanganeria, "Finding Earth's Best Testbeds for Moon and Mars Rovers: A Quantitative Terrain Comparison," National High School Journal of Science (NHSJS Reports), 2026.
+    Use: Closest neighbour: ranks Earth sites by image-texture distance to Moon/Mars centroids; student journal, no global tiling.
+
+[32] shishir-kuet (team ghostblood), "Terrestrial Analog Finder: ranks Earth locations by terrain similarity to Moon and Mars reference regions (NASA Space Apps Challenge 2026)." [Online]. Available: https://github.com/shishir-kuet/terrestrial-analog-finder (accessed Nov. 2026). (unverified)
+    Use: Concurrent DEM-based analogue ranking (558 Earth windows, terrain only); DoppelGrund adds thermal, ice, lithology, global tiling.
+
+[33] K. Wagstaff, Y. Lu, A. Stanboli, K. Grimes, T. Gowda, and J. Padams, "Deep Mars: CNN Classification of Mars Imagery for the PDS Imaging Atlas," in Proc. AAAI Conference on Artificial Intelligence, 2018, doi: 10.1609/aaai.v32i1.11404.
+    Use: Deep Mars: content-based search of Mars images, transfer learning from Earth; no Earth analogue scoring.
+
+[34] J. Wang, W. Cheng, C. Zhou, and X. Zheng, "Automatic mapping of lunar landforms using DEM-derived geomorphometric parameters," Journal of Geographical Sciences, vol. 27, no. 11, pp. 1413–1427, 2017, doi: 10.1007/s11442-017-1443-z.
+    Use: Unsupervised lunar landform mapping from DEM geomorphometry; Moon-only, no Earth matching.
+
+[35] Y. Wang et al., "Natural Language-Driven Global Mapping of Martian Landforms," arXiv:2601.15949, 2026.
+    Use: Vision-language global landform search on Mars only; shows global planetary search exists, without Earth analogues.
+
+== Site selection and MCDA ==
+[36] Y. Chen, J. Yu, and S. Khan, "Spatial sensitivity analysis of multi-criteria weights in GIS-based land suitability evaluation," Environmental Modelling & Software, vol. 25, no. 12, pp. 1582–1591, 2010, doi: 10.1016/j.envsoft.2010.06.001.
+    Use: Spatial sensitivity of MCDA weights in GIS; supports DoppelGrund's weight-stability analysis.
+
+[37] J. Flahaut et al., "Regions of interest (ROI) for future exploration missions to the lunar South Pole," Planetary and Space Science, vol. 180, Art. no. 104750, 2020, doi: 10.1016/j.pss.2019.104750.
+    Use: Eleven south-pole regions of interest balancing volatiles and geology; target-region context for DoppelGrund Moon targets.
+
+[38] M. P. Golombek et al., "Selection of the Mars Exploration Rover landing sites," Journal of Geophysical Research: Planets, vol. 108, no. E12, 2003, doi: 10.1029/2003JE002074.
+    Use: MER landing-site selection under slope, rock and thermal engineering constraints; hazard-criteria precedent.
+
+[39] M. Golombek, J. Grant, D. Kipp, and A. Vasavada, Selection of the Mars Science Laboratory Landing Site. Mars Science Laboratory, 2012, doi: 10.1007/978-1-4614-6339-9_18.
+    Use: MSL landing-site selection chapter; engineering-safety plus science criteria combined by workshops.
+
+[40] M. Golombek et al., "Selection of the InSight Landing Site," Space Science Reviews, vol. 211, no. 1-4, pp. 5–95, 2016, doi: 10.1007/s11214-016-0321-9.
+    Use: InSight site selection by safety criteria (slope, rocks, thermal inertia); landing-and-mobility lens precedent.
+
+[41] J. A. Grant, M. P. Golombek, S. A. Wilson, K. A. Farley, K. H. Williford, and A. Chen, "The science process for selecting the landing site for the 2020 Mars rover," Planetary and Space Science, vol. 164, pp. 106–126, 2018, doi: 10.1016/j.pss.2018.07.001.
+    Use: Mars 2020 landing-site science process; community scoring rather than quantitative weighting.
+
+[42] R. Lahdelma, J. Hokkanen, and P. Salminen, "SMAA - Stochastic multiobjective acceptability analysis," European Journal of Operational Research, vol. 106, no. 1, pp. 137–143, 1998, doi: 10.1016/s0377-2217(97)00163-x.
+    Use: SMAA samples weight space stochastically; direct precedent for Dirichlet weight sampling.
+
+[43] J. Malczewski, GIS and Multicriteria Decision Analysis. John Wiley & Sons, 1999. (unverified)
+    Use: Standard MCDA-in-GIS textbook; no DOI; existence confirmed via Crossref review (Murray 2002, 10.1111/j.1538-4632.2002.tb01077.x).
+
+[44] J. Malczewski, "On the Use of Weighted Linear Combination Method in GIS: Common and Best Practice Approaches," Transactions in GIS, vol. 4, no. 1, pp. 5–22, 2000, doi: 10.1111/1467-9671.00035.
+    Use: Weighted linear combination in GIS, best practice; relevant to lens-weighted score aggregation.
+
+[45] J. Malczewski, "GIS‐based multicriteria decision analysis: a survey of the literature," International Journal of Geographical Information Science, vol. 20, no. 7, pp. 703–726, 2006, doi: 10.1080/13658810600661508.
+    Use: Survey of GIS-based MCDA; DoppelGrund's lens weighting is a weighted linear combination variant.
+
+[46] E. Mazarico, G. Neumann, D. Smith, M. Zuber, and M. Torrence, "Illumination conditions of the lunar polar regions using LOLA topography," Icarus, vol. 211, no. 2, pp. 1066–1081, 2011, doi: 10.1016/j.icarus.2010.10.030.
+    Use: LOLA-based polar illumination maps; key lunar south-pole site criterion.
+
+[47] NASA, "NASA Identifies Candidate Regions for Landing Next Americans on Moon." [Online]. Available: https://www.nasa.gov/news-release/nasa-identifies-candidate-regions-for-landing-next-americans-on-Moon/ (accessed Nov. 2026).
+    Use: Thirteen Artemis III south-pole candidate regions chosen by slope, communications, illumination.
+
+[48] M. Ono et al., "Data-driven surface traversability analysis for Mars 2020 landing site selection," in Proc. 2016 IEEE Aerospace Conference, 2016, pp. 1–12, doi: 10.1109/aero.2016.7500597.
+    Use: Data-driven traversability scoring for Mars 2020 site selection; quantitative terrain criteria precedent.
+
+[49] E. J. Speyerer and M. S. Robinson, "Persistently illuminated regions at the lunar poles: Ideal sites for future exploration," Icarus, vol. 222, no. 1, pp. 122–136, 2013, doi: 10.1016/j.icarus.2012.10.010.
+    Use: Persistently illuminated polar sites; illumination-driven exploration-site selection.
+
+[50] E. Tomaskova, C. Orgel, A. Oetting, M. J. Losekamm, and C. H. van der Bogert, "GIS-Based Multi-Criteria Decision Analysis for Resource-Oriented Landing Site Selection on the Aristarchus Plateau," in Proc. EPSC Abstracts (EPSC2026-1011), 2026, doi: 10.5194/epsc2026-1011.
+    Use: Recent lunar GIS MCDA for site selection; Moon-only, site-scale, not Earth analogue scoring.
+
+[51] E. Triantaphyllou and A. Sánchez, "A Sensitivity Analysis Approach for Some Deterministic Multi‐Criteria Decision‐Making Methods*," Decision Sciences, vol. 28, no. 1, pp. 151–194, 1997, doi: 10.1111/j.1540-5915.1997.tb01306.x.
+    Use: Sensitivity analysis of MCDM rankings to weights; supports Monte-Carlo weight stability.
+
+== Discrete global grids ==
+[52] C. P. Birch, S. P. Oom, and J. A. Beecham, "Rectangular and hexagonal grids used for observation, experiment and simulation in ecology," Ecological Modelling, vol. 206, no. 3-4, pp. 347–359, 2007, doi: 10.1016/j.ecolmodel.2007.03.041.
+    Use: Hexagonal vs rectangular grids for ecology; hexagons give uniform neighbours and less edge bias.
+
+[53] J. Bousquin, "Discrete Global Grid Systems as scalable geospatial frameworks for characterizing coastal environments," Environmental Modelling & Software, vol. 146, Art. no. 105210, 2021, doi: 10.1016/j.envsoft.2021.105210.
+    Use: DGGS as scalable frameworks for environmental characterisation; H3-style cell aggregation precedent.
+
+[54] I. Brodsky, "H3: Uber's Hexagonal Hierarchical Spatial Index." [Online]. Available: https://www.uber.com/blog/h3/ (accessed Nov. 2026).
+    Use: Original public description of H3 design rationale.
+
+[55] J. A. Kimerling, K. Sahr, D. White, and L. Song, "Comparing Geometrical Properties of Global Grids," Cartography and Geographic Information Science, vol. 26, no. 4, pp. 271–288, 1999, doi: 10.1559/152304099782294186.
+    Use: Compares geometric properties of global grids; evidence for equal-area, compact cells.
+
+[56] A. Kmoch, I. Vasilyev, H. Virro, and E. Uuemaa, "Area and shape distortions in open-source discrete global grid systems," Big Earth Data, vol. 6, no. 3, pp. 256–275, 2022, doi: 10.1080/20964471.2022.2094926.
+    Use: Quantifies area and shape distortion of H3 and other open-source DGGS; informs H3 res-4 area caveat.
+
+[57] Open Geospatial Consortium, "OGC API - Discrete Global Grid Systems - Part 1: Core," OGC standard 21-038r1. doi: 10.62973/21-038r1.
+    Use: Standard for DGGS access; equal-area DGGS alternatives to H3.
+
+[58] M. B. J. Purss, R. Gibb, F. Samavati, P. Peterson, and J. Ben, "The OGC® Discrete Global Grid System core standard: A framework for rapid geospatial integration," in Proc. 2016 IEEE International Geoscience and Remote Sensing Symposium (IGARSS), 2016, pp. 3610–3613, doi: 10.1109/igarss.2016.7729935.
+    Use: OGC DGGS core standard; formal framework for grid-based geospatial integration.
+
+[59] K. Sahr, D. White, and A. J. Kimerling, "Geodesic Discrete Global Grid Systems," Cartography and Geographic Information Science, vol. 30, no. 2, pp. 121–134, 2003, doi: 10.1559/152304003100011090.
+    Use: Foundational geodesic DGGS paper; equal-area hierarchical tiling rationale for global analysis.
+
+[60] Uber Technologies, Inc., "H3: Hexagonal hierarchical geospatial indexing system (documentation; resolution 4 average cell area 1,770.35 km2)." [Online]. Available: https://h3geo.org/docs/ (accessed Nov. 2026).
+    Use: Documents H3 cells and the res-4 area (1,770 km2) that sets DoppelGrund's tile size.
+
+== Earth datasets ==
+[61] J. T. Abatzoglou, S. Z. Dobrowski, S. A. Parks, and K. C. Hegewisch, "TerraClimate, a high-resolution global dataset of monthly climate and climatic water balance from 1958-2015," Scientific Data, vol. 5, Art. no. 170191, 2018, doi: 10.1038/sdata.2017.191.
+    Use: Source of precipitation and PET for the aridity P/PET feature.
+
+[62] European Space Agency and Airbus, "Copernicus DEM - Global and European Digital Elevation Model (COP-DEM), GLO-30," ESA Copernicus DEM, 2022. doi: 10.5270/ESA-c5d3d65.
+    Use: Source of the 30 m Earth DEM for terrain features.
+
+[63] M. A. Friedl et al., "MODIS Collection 5 global land cover: Algorithm refinements and characterization of new datasets," Remote Sensing of Environment, vol. 114, no. 1, pp. 168–182, 2010, doi: 10.1016/j.rse.2009.08.016.
+    Use: Earlier MCD12Q1 algorithm reference (Friedl); IGBP class scheme.
+
+[64] Global Volcanism Program, "Volcanoes of the World, v. 5.3.1," Smithsonian Institution, 2025. doi: 10.5479/si.gvp.votw5-2025.5.3.
+    Use: Known volcanic analogue sites for rediscovery validation and volcanism context.
+
+[65] P. L. Guth et al., "Digital Elevation Models: Terminology and Definitions," Remote Sensing, vol. 13, no. 18, Art. no. 3581, 2021, doi: 10.3390/rs13183581.
+    Use: Defines DSM vs DTM, so GLO-30 is correctly labelled a surface model.
+
+[66] J. Hartmann and N. Moosdorf, "The new global lithological map database GLiM: A representation of rock properties at the Earth surface," Geochemistry, Geophysics, Geosystems, vol. 13, no. 12, Art. no. 2012GC004370, 2012, doi: 10.1029/2012gc004370.
+    Use: Earth lithology source; crosswalked to the six-class shared ontology.
+
+[67] L. Hawker et al., "A 30 m global map of elevation with forests and buildings removed (FABDEM)," Environmental Research Letters, vol. 17, no. 2, Art. no. 024016, 2022, doi: 10.1088/1748-9326/ac4d4f.
+    Use: Documents canopy/building bias in GLO-30 surface model; caveat for terrain features.
+
+[68] A. Huete, K. Didan, T. Miura, E. P. Rodriguez, X. Gao, and L. G. Ferreira, "Overview of the radiometric and biophysical performance of the MODIS vegetation indices," Remote Sensing of Environment, vol. 83, no. 1-2, pp. 195–213, 2002, doi: 10.1016/s0034-4257(02)00096-2.
+    Use: Canonical MOD13 NDVI/EVI reference; vegetation context layer.
+
+[69] G. C. Hulley, S. J. Hook, E. Abbott, N. Malakar, T. Islam, and M. Abrams, "The ASTER Global Emissivity Dataset (ASTER GED): Mapping Earth emissivity at 100 meter spatial scale," Geophysical Research Letters, vol. 42, no. 19, pp. 7966–7976, 2015, doi: 10.1002/2015gl065564.
+    Use: Continuous emissivity/silica-proxy index for Earth composition.
+
+[70] Natural Earth, "Natural Earth: free vector and raster map data." [Online]. Available: https://www.naturalearthdata.com/ (accessed Nov. 2026).
+    Use: Public-domain land polygons used to tile Earth land into H3 cells.
+
+[71] J. Obu et al., "Northern Hemisphere permafrost map based on TTOP modelling for 2000-2016 at 1 km2 scale," Earth-Science Reviews, vol. 193, pp. 299–316, 2019, doi: 10.1016/j.earscirev.2019.04.023.
+    Use: Permafrost probability feature (Northern Hemisphere only; southern cells lack coverage).
+
+[72] D. Sulla-Menashe, J. M. Gray, S. P. Abercrombie, and M. A. Friedl, "Hierarchical mapping of annual global land cover 2001 to present: The MODIS Collection 6 Land Cover product," Remote Sensing of Environment, vol. 222, pp. 183–194, 2019, doi: 10.1016/j.rse.2018.12.013.
+    Use: Canonical MCD12Q1 paper; land-cover masking of Earth cells.
+
+[73] Z. Wan, Y. Zhang, Q. Zhang, and Z.-L. Li, "Validation of the land-surface temperature products retrieved from Terra Moderate Resolution Imaging Spectroradiometer data," Remote Sensing of Environment, vol. 83, no. 1-2, pp. 163–180, 2002, doi: 10.1016/s0034-4257(02)00093-7.
+    Use: Terra MODIS LST validation; supports use of 10:30/22:30 overpasses.
+
+[74] Z. Wan, "New refinements and validation of the MODIS Land-Surface Temperature/Emissivity products," Remote Sensing of Environment, vol. 112, no. 1, pp. 59–74, 2008, doi: 10.1016/j.rse.2006.06.026.
+    Use: Collection-5 LST refinements and validation; error context for LST.
+
+[75] Z. Wan, "New refinements and validation of the collection-6 MODIS land-surface temperature/emissivity product," Remote Sensing of Environment, vol. 140, pp. 36–45, 2014, doi: 10.1016/j.rse.2013.08.027.
+    Use: Canonical MOD11 C6 LST paper; accuracy basis for Earth LST features.
+
+[76] R. J. Zomer, J. Xu, and A. Trabucco, "Version 3 of the Global Aridity Index and Potential Evapotranspiration Database," Scientific Data, vol. 9, Art. no. 409, 2022, doi: 10.1038/s41597-022-01493-1.
+    Use: Cross-check of P/PET aridity definition and class thresholds.
+
+== Moon datasets ==
+[77] M. K. Barker, E. Mazarico, G. A. Neumann, M. T. Zuber, J. Haruyama, and D. E. Smith, "A new lunar digital elevation model from the Lunar Orbiter Laser Altimeter and SELENE Terrain Camera," Icarus, vol. 273, pp. 346–355, 2016, doi: 10.1016/j.icarus.2015.07.039.
+    Use: LDEM merged product (LOLA+Kaguya TC) as lunar elevation source.
+
+[78] S. T. Crites and P. G. Lucey, "Revised mineral and Mg# maps of the Moon from integrating results from the Lunar Prospector neutron and gamma-ray spectrometers with Clementine spectroscopy," American Mineralogist, vol. 100, no. 4, pp. 973–982, 2015, doi: 10.2138/am-2015-4874.
+    Use: Mineral/Mg# context for Moon composition proxies (cited in notebook).
+
+[79] C. M. Fortezzo, P. D. Spudis, and S. L. Harrel, "Release of the digital Unified Global Geologic Map of the Moon at 1:5,000,000-scale (Unified Geologic Map of the Moon, 1:5M, 2020)," USGS Astrogeology Science Center; 51st Lunar and Planetary Science Conference, abstract 2760, 2020. [Online]. Available: https://astrogeology.usgs.gov/search/map/unified_geologic_map_of_the_moon_1_5m_2020
+    Use: Lunar geologic units crosswalked to the shared lithology ontology.
+
+[80] D. J. Lawrence et al., "Iron abundances on the lunar surface as measured by the Lunar Prospector gamma-ray and neutron spectrometers," Journal of Geophysical Research: Planets, vol. 107, no. E12, 2002, doi: 10.1029/2001je001530.
+    Use: Lunar Prospector FeO abundance calibration and uncertainty.
+
+[81] LROC Team (R. V. Wagner and M. S. Robinson), "LROC Pits Atlas," LROC, Arizona State University, 2026. [Online]. Available: https://lroc.im-ldi.com/atlases/pits
+    Use: Catalogue of lunar pits used as known-target set for rediscovery.
+
+[82] D. A. Paige et al., "The Lunar Reconnaissance Orbiter Diviner Lunar Radiometer Experiment," Space Science Reviews, vol. 150, no. 1-4, pp. 125–160, 2010, doi: 10.1007/s11214-009-9529-2.
+    Use: Canonical Diviner instrument paper; lunar thermal data.
+
+[83] T. H. Prettyman et al., "Elemental composition of the lunar surface: Analysis of gamma ray spectroscopy data from Lunar Prospector," Journal of Geophysical Research: Planets, vol. 111, no. E12, Art. no. 2005JE002656, 2006, doi: 10.1029/2005je002656.
+    Use: Lunar Prospector GRS elemental maps for lunar composition (FeO proxy).
+
+[84] D. E. Smith et al., "The Lunar Orbiter Laser Altimeter Investigation on the Lunar Reconnaissance Orbiter Mission," Space Science Reviews, vol. 150, no. 1-4, pp. 209–241, 2010, doi: 10.1007/s11214-009-9512-y.
+    Use: Canonical LOLA instrument paper; source of lunar topography.
+
+[85] D. E. Smith et al., "Summary of the results from the Lunar Orbiter Laser Altimeter after seven years in lunar orbit," Icarus, vol. 283, pp. 70–91, 2017, doi: 10.1016/j.icarus.2016.06.006.
+    Use: LOLA 7-year results; global DEM and slope/roughness products.
+
+[86] A. R. Vasavada et al., "Lunar equatorial surface temperatures and regolith properties from the Diviner Lunar Radiometer Experiment," Journal of Geophysical Research: Planets, vol. 117, no. E12, Art. no. 2011JE003987, 2012, doi: 10.1029/2011je003987.
+    Use: Lunar diurnal temperature behaviour and regolith thermophysics context.
+
+[87] D. E. Wilhelms, J. F. McCauley, and N. J. Trask, "The geologic history of the Moon," USGS Professional Paper 1348, 1987. doi: 10.3133/pp1348.
+    Use: Unit definitions underlying the unified lunar map; crosswalk source.
+
+[88] J.-P. Williams, D. A. Paige, B. T. Greenhagen, and E. Sefton-Nash, "The global surface temperatures of the Moon as measured by the Diviner Lunar Radiometer Experiment," Icarus, vol. 283, pp. 300–325, 2017, doi: 10.1016/j.icarus.2016.08.012.
+    Use: Diviner local-time-binned temperatures matched to MODIS Terra 10:30/22:30.
+
+== Mars datasets ==
+[89] J. L. Bandfield, V. E. Hamilton, and P. R. Christensen, "A global view of Martian surface compositions from MGS-TES," Science, vol. 287, no. 5458, pp. 1626–1630, 2000, doi: 10.1126/science.287.5458.1626.
+    Use: Global TES basaltic/andesitic surface-type maps for Mars composition.
+
+[90] P. R. Christensen et al., "Mars Global Surveyor Thermal Emission Spectrometer experiment: Investigation description and surface science results," Journal of Geophysical Research: Planets, vol. 106, no. E10, pp. 23823–23871, 2001, doi: 10.1029/2000je001370.
+    Use: TES albedo, temperature and mineralogy reference for Mars features.
+
+[91] M. T. Mellon, B. M. Jakosky, H. H. Kieffer, and P. R. Christensen, "High-resolution thermal inertia mapping from the Mars Global Surveyor Thermal Emission Spectrometer," Icarus, vol. 148, no. 2, pp. 437–455, 2000, doi: 10.1006/icar.2000.6503.
+    Use: TES thermal inertia mapping method and resolution.
+
+[92] N. E. Putzig, M. T. Mellon, K. A. Kretke, and R. E. Arvidson, "Global thermal inertia and surface properties of Mars from the MGS mapping mission," Icarus, vol. 173, no. 2, pp. 325–341, 2005, doi: 10.1016/j.icarus.2004.08.017.
+    Use: TES global thermal inertia map for Mars surface properties.
+
+[93] N. E. Putzig and M. T. Mellon, "Apparent thermal inertia and the surface heterogeneity of Mars," Icarus, vol. 191, no. 1, pp. 68–94, 2007, doi: 10.1016/j.icarus.2007.05.013.
+    Use: Apparent thermal inertia; justifies keeping TI Mars-only (cited in notebook).
+
+[94] S. W. Ruff and P. R. Christensen, "Bright and dark regions on Mars: Particle size and mineralogical characteristics based on Thermal Emission Spectrometer data," Journal of Geophysical Research: Planets, vol. 107, no. E12, 2002, doi: 10.1029/2001je001580.
+    Use: TES surface-type indices as Mars composition proxy (cited in notebook).
+
+[95] D. E. Smith et al., "Mars Orbiter Laser Altimeter: Experiment summary after the first year of global mapping of Mars," Journal of Geophysical Research: Planets, vol. 106, no. E10, pp. 23689–23722, 2001, doi: 10.1029/2000je001364.
+    Use: Canonical MOLA paper; Mars topography source.
+
+[96] K. L. Tanaka et al., "Geologic map of Mars," USGS Scientific Investigations Map 3292, 2014. doi: 10.3133/sim3292.
+    Use: Mars geologic units crosswalked to the shared lithology ontology.
+
+== Lunar pits and caves ==
+[97] L. Carrer, R. Pozzobon, F. Sauro, D. Castelletti, G. W. Patterson, and L. Bruzzone, "Radar evidence of an accessible cave conduit on the Moon below the Mare Tranquillitatis pit," Nature Astronomy, vol. 8, no. 9, pp. 1119–1126, 2024, doi: 10.1038/s41550-024-02302-y.
+    Use: Radar evidence of a cave conduit beneath the Mare Tranquillitatis pit.
+
+[98] L. Chappaz et al., "Evidence of large empty lava tubes on the Moon using GRAIL gravity," Geophysical Research Letters, vol. 44, no. 1, pp. 105–112, 2017, doi: 10.1002/2016GL071588.
+    Use: GRAIL gravity evidence for large empty lunar lava tubes.
+
+[99] G. Cushing, "Candidate cave entrances on Mars," Journal of Cave and Karst Studies, vol. 74, no. 1, pp. 33–47, 2012, doi: 10.4311/2010ex0167r.
+    Use: Candidate cave entrances on Mars from imagery; pit-detection precedent.
+
+[100] J. Haruyama et al., "Possible lunar lava tube skylight observed by SELENE cameras," Geophysical Research Letters, vol. 36, no. 21, 2009, doi: 10.1029/2009gl040635.
+    Use: Discovers Marius Hills skylight; first lunar lava-tube entrance.
+
+[101] T. Kaku et al., "Detection of Intact Lava Tubes at Marius Hills on the Moon by SELENE (Kaguya) Lunar Radar Sounder," Geophysical Research Letters, vol. 44, no. 20, 2017, doi: 10.1002/2017GL074998.
+    Use: Radar detection of intact lava tube at Marius Hills; evidence for accessible lunar tubes.
+
+[102] R. J. Léveillé and S. Datta, "Lava tubes and basaltic caves as astrobiological targets on Earth and Mars: A review," Planetary and Space Science, vol. 58, no. 4, pp. 592–598, 2010, doi: 10.1016/j.pss.2009.06.004.
+    Use: Lava tubes as astrobiological targets on Earth and Mars; analogue relevance of terrestrial tubes.
+
+[103] M. Robinson et al., "Confirmation of sublunarean voids and thin layering in mare deposits," Planetary and Space Science, vol. 69, no. 1, pp. 18–27, 2012, doi: 10.1016/j.pss.2012.05.008.
+    Use: Confirms sublunarean voids behind pits; supports pit and cave targets.
+
+[104] F. Sauro, R. Pozzobon, M. Massironi, P. De Berardinis, T. Santagata, and J. De Waele, "Lava tubes on Earth, Moon and Mars: A review on their size and morphology revealed by comparative planetology," Earth-Science Reviews, vol. 209, Art. no. 103288, 2020, doi: 10.1016/j.earscirev.2020.103288.
+    Use: Lava tubes on Earth, Moon, Mars compared by size and morphology; basis for tube analogues.
+
+[105] R. V. Wagner and M. S. Robinson, "Distribution, formation mechanisms, and significance of lunar pits," Icarus, vol. 237, pp. 52–60, 2014, doi: 10.1016/j.icarus.2014.04.002.
+    Use: Global lunar pit catalogue and formation mechanisms; source for pits target set.
+
+[106] R. V. Wagner and M. S. Robinson, "Lunar Pit Morphology: Implications for Exploration," Journal of Geophysical Research: Planets, vol. 127, no. 8, 2022, doi: 10.1029/2022je007328.
+    Use: Lunar pit morphology implications for exploration; pit atlas basis.
+
+== Harmonisation ==
+[107] J. Aitchison, "The statistical analysis of compositional data," Journal of the Royal Statistical Society: Series B, vol. 44, no. 2, pp. 139–160, 1982, doi: 10.1111/j.2517-6161.1982.tb01195.x.
+    Use: Foundation of compositional data analysis for lithology fractions.
+
+[108] L. Clarotto, D. Allard, and A. Menafoglio, "A new class of alpha-transformations for the spatial analysis of compositional data," arXiv:2110.07967, 2021.
+    Use: General compositional-data reference (spatial); not planetary precedent for Hellinger.
+
+[109] S.-B. Duan et al., "Estimation of diurnal cycle of land surface temperature at high temporal and spatial resolution from clear-sky MODIS data," Remote Sensing, vol. 6, no. 4, pp. 3247–3262, 2014, doi: 10.3390/rs6043247.
+    Use: Overpass-time effects on LST; supports stating the 10:30/22:30 pair.
+
+[110] J. Euzenat and P. Shvaiko, Ontology Matching (2nd ed.). Springer, 2013, doi: 10.1007/978-3-642-38721-0.
+    Use: Framework for crosswalks between classification schemes.
+
+[111] F.-M. Gottsche and F.-S. Olesen, "Modelling of diurnal cycles of brightness temperature extracted from METEOSAT data," Remote Sensing of Environment, vol. 76, no. 3, pp. 337–348, 2001, doi: 10.1016/s0034-4257(00)00214-5.
+    Use: Land-surface diurnal temperature cycle model; overpass-time sensitivity of range.
+
+[112] C. H. Grohmann, M. J. Smith, and C. Riccomini, "Multiscale analysis of topographic surface roughness in the Midland Valley, Scotland," IEEE Transactions on Geoscience and Remote Sensing, vol. 49, no. 4, pp. 1200–1213, 2011, doi: 10.1109/tgrs.2010.2053546.
+    Use: Scale dependence of roughness measures; justifies stated-baseline roughness.
+
+[113] C. H. Grohmann, "Effects of spatial resolution on slope and aspect derivation for regional-scale analysis," EarthArXiv preprint (not peer reviewed), 2017, doi: 10.31223/osf.io/6xc29.
+    Use: Slope depends on DEM resolution; supports matched baseline.
+
+[114] E. Hellinger, "Neue Begruendung der Theorie quadratischer Formen von unendlichvielen Veraenderlichen," Journal fuer die reine und angewandte Mathematik, vol. 136, pp. 210–271, 1909, doi: 10.1515/crll.1909.136.210.
+    Use: Original Hellinger distance between distributions.
+
+[115] B. K. P. Horn, "Hill shading and the reflectance map," Proceedings of the IEEE, vol. 69, no. 1, pp. 14–47, 1981, doi: 10.1109/proc.1981.11918.
+    Use: Horn 3x3 slope algorithm applied identically on all bodies.
+
+[116] T. Kailath, "The divergence and Bhattacharyya distance measures in signal selection," IEEE Transactions on Communications, vol. 15, no. 1, pp. 52–60, 1967, doi: 10.1109/tcom.1967.1089532.
+    Use: Relates Bhattacharyya coefficient to Hellinger distance.
+
+[117] M. A. Kreslavsky et al., "Lunar topographic roughness maps from Lunar Orbiter Laser Altimeter (LOLA) data: Scale dependence and correlation with geologic features and units," Icarus, vol. 226, no. 1, pp. 52–66, 2013, doi: 10.1016/j.icarus.2013.04.027.
+    Use: LOLA roughness maps across scales; compare with Earth roughness.
+
+[118] P. Legendre and E. D. Gallagher, "Ecologically meaningful transformations for ordination of species data," Oecologia, vol. 129, no. 2, pp. 271–280, 2001, doi: 10.1007/s004420100716.
+    Use: Hellinger transform and distance for proportion data with zeros.
+
+[119] V. Pawlowsky-Glahn and J. J. Egozcue, "Geometric approach to statistical analysis on the simplex," Stochastic Environmental Research and Risk Assessment, vol. 15, no. 5, pp. 384–398, 2001, doi: 10.1007/s004770100077.
+    Use: Simplex geometry; justifies a distance suited to lithology fractions.
+
+[120] J. C. Price, "Thermal inertia mapping: A new view of the Earth," Journal of Geophysical Research, vol. 82, no. 18, pp. 2582–2590, 1977, doi: 10.1029/jc082i018p02582.
+    Use: Day/night temperature difference as apparent thermal inertia proxy on Earth.
+
+[121] M. A. Rosenburg et al., "Global surface slopes and roughness of the Moon from the Lunar Orbiter Laser Altimeter," Journal of Geophysical Research, vol. 116, no. E2, Art. no. E02001, 2011, doi: 10.1029/2010je003716.
+    Use: Lunar slope varies strongly with baseline (17 m to 1 km).
+
+[122] M. Sen and T. Duffy, "GeoSciML: Development of a generic GeoScience Markup Language," Computers & Geosciences, vol. 31, no. 9, pp. 1095–1103, 2005, doi: 10.1016/j.cageo.2004.12.003.
+    Use: Standard geoscience vocabularies for harmonising lithology across maps.
+
+[123] M. K. Shepard, B. A. Campbell, M. H. Bulmer, T. G. Farr, L. R. Gaddis, and J. J. Plaut, "The roughness of natural terrain: A planetary and remote sensing perspective," Journal of Geophysical Research: Planets, vol. 106, no. E12, pp. 32777–32795, 2001, doi: 10.1029/2000je001429.
+    Use: Roughness metrics are scale-dependent; justifies reporting baseline.
+
+[124] Y. Wang and B. Wu, "Improved large-scale slope analysis on Mars based on correlation of slopes derived with different baselines," Int. Arch. Photogramm. Remote Sens. Spatial Inf. Sci., vol. XLII-3/W1, pp. 155–161, 2017, doi: 10.5194/isprs-archives-xlii-3-w1-155-2017.
+    Use: Slope baseline dependence on Mars; baseline-matching rationale (cited in notebook).
+
+[125] Q. Zhou and X. Liu, "Error analysis on grid-based slope and aspect algorithms," Photogrammetric Engineering & Remote Sensing, vol. 70, no. 8, pp. 957–962, 2004, doi: 10.14358/pers.70.8.957.
+    Use: Error behaviour of Horn-type slope algorithms vs DEM error and resolution.
+
+== Similarity and statistics ==
+[126] J. C. Gower, "A general coefficient of similarity and some of its properties," Biometrics, vol. 27, no. 4, pp. 857–871, 1971, doi: 10.2307/2528823.
+    Use: Per-feature similarity combined with missing-feature handling.
+
+[127] T. Hofmann, B. Scholkopf, and A. J. Smola, "Kernel methods in machine learning," The Annals of Statistics, vol. 36, no. 3, pp. 1171–1220, 2008, doi: 10.1214/009053607000000677.
+    Use: Background for kernel-style similarity with a tolerance bandwidth.
+
+[128] K. Jarvelin and J. Kekalainen, "Cumulated gain-based evaluation of IR techniques," ACM Transactions on Information Systems, vol. 20, no. 4, pp. 422–446, 2002, doi: 10.1145/582415.582418.
+    Use: nDCG for graded rediscovery evaluation of known analogues.
+
+[129] M. G. Kendall, "A new measure of rank correlation," Biometrika, vol. 30, no. 1-2, pp. 81–93, 1938, doi: 10.1093/biomet/30.1-2.81.
+    Use: Kendall tau to compare rankings across weight perturbations.
+
+[130] R. Lahdelma and P. Salminen, "SMAA-2: Stochastic multicriteria acceptability analysis for group decision making," Operations Research, vol. 49, no. 3, pp. 444–454, 2001, doi: 10.1287/opre.49.3.444.11220.
+    Use: Rank acceptability indices; basis for Dirichlet weight perturbation.
+
+[131] C. Leys, C. Ley, O. Klein, P. Bernard, and L. Licata, "Detecting outliers: Do not use standard deviation around the mean, use absolute deviation around the median," Journal of Experimental Social Psychology, vol. 49, no. 4, pp. 764–766, 2013, doi: 10.1016/j.jesp.2013.03.013.
+    Use: Practical justification for MAD over SD in scaling.
+
+[132] R. J. A. Little and D. B. Rubin, Statistical Analysis with Missing Data (3rd ed.). Wiley, 2019, doi: 10.1002/9781119482260.
+    Use: Handling missing features; coverage-floor reasoning.
+
+[133] C. D. Manning, P. Raghavan, and H. Schutze, Introduction to Information Retrieval. Cambridge University Press, 2008, doi: 10.1017/cbo9780511809071.
+    Use: Definitions of precision/recall@k for retrieval validation.
+
+[134] J. G. Moreno-Torres, T. Raeder, R. Alaiz-Rodriguez, N. V. Chawla, and F. Herrera, "A unifying view on dataset shift in classification," Pattern Recognition, vol. 45, no. 1, pp. 521–530, 2012, doi: 10.1016/j.patcog.2011.06.019.
+    Use: Taxonomy of covariate shift; frames Earth-vs-body domain gap.
+
+[135] B. Phipson and G. K. Smyth, "Permutation p-values should never be zero: Calculating exact p-values when permutations are randomly drawn," Statistical Applications in Genetics and Molecular Biology, vol. 9, no. 1, Art. no. 39, 2010, doi: 10.2202/1544-6115.1585.
+    Use: Add-one permutation p-value for the classifier two-sample test.
+
+[136] J. Quinonero-Candela, M. Sugiyama, A. Schwaighofer, and N. D. Lawrence, Dataset Shift in Machine Learning. MIT Press, 2009, doi: 10.7551/mitpress/9780262170055.001.0001.
+    Use: Reference text on covariate/dataset shift.
+
+[137] P. J. Rousseeuw and C. Croux, "Alternatives to the median absolute deviation," Journal of the American Statistical Association, vol. 88, no. 424, pp. 1273–1283, 1993, doi: 10.1080/01621459.1993.10476408.
+    Use: Median/MAD robust scale for pooled feature scaling.
+
+[138] D. B. Rubin, "Inference and missing data," Biometrika, vol. 63, no. 3, pp. 581–592, 1976, doi: 10.1093/biomet/63.3.581.
+    Use: Missingness mechanisms; basis for dropping no-data features per body.
+
+[139] D. B. Rubin, "The Bayesian bootstrap," The Annals of Statistics, vol. 9, no. 1, pp. 130–134, 1981, doi: 10.1214/aos/1176345338.
+    Use: Dirichlet-weighted resampling as the perturbation distribution.
+
+[140] M. Saisana, A. Saltelli, and S. Tarantola, "Uncertainty and sensitivity analysis techniques as tools for the quality assessment of composite indicators," Journal of the Royal Statistical Society: Series A, vol. 168, no. 2, pp. 307–323, 2005, doi: 10.1111/j.1467-985x.2005.00350.x.
+    Use: Rank-shift analysis for composite scores under weight uncertainty.
+
+[141] A. Saltelli et al., Global Sensitivity Analysis: The Primer. Wiley, 2008, doi: 10.1002/9780470725184.
+    Use: Framework for sensitivity analysis of ranking to weights.
+
+[142] A. Saltelli, P. Annoni, I. Azzini, F. Campolongo, M. Ratto, and S. Tarantola, "Variance based sensitivity analysis of model output. Design and estimator for the total sensitivity index," Computer Physics Communications, vol. 181, no. 2, pp. 259–270, 2010, doi: 10.1016/j.cpc.2009.09.018.
+    Use: Variance-based sensitivity indices if per-feature influence is quantified.
+
+[143] J. L. Schafer and J. W. Graham, "Missing data: Our view of the state of the art," Psychological Methods, vol. 7, no. 2, pp. 147–177, 2002, doi: 10.1037/1082-989x.7.2.147.
+    Use: Complete-case vs imputation trade-offs for sparse feature coverage.
+
+[144] T. Tervonen and R. Lahdelma, "Implementing stochastic multicriteria acceptability analysis," European Journal of Operational Research, vol. 178, no. 2, pp. 500–513, 2007, doi: 10.1016/j.ejor.2005.12.037.
+    Use: Sampling algorithms for SMAA weight spaces.
+
+[145] W. Webber, A. Moffat, and J. Zobel, "A similarity measure for indefinite rankings," ACM Transactions on Information Systems, vol. 28, no. 4, pp. 1–38, 2010, doi: 10.1145/1852102.1852106.
+    Use: Rank-biased overlap to compare top-k lists between runs.
+
+== Machine learning ==
+[146] S. Ben-David, J. Blitzer, K. Crammer, A. Kulesza, F. Pereira, and J. W. Vaughan, "A theory of learning from different domains," Machine Learning, vol. 79, no. 1-2, pp. 151–175, 2010, doi: 10.1007/s10994-009-5152-4.
+    Use: Proxy A-distance: classifier separability as a domain-divergence bound.
+
+[147] M. M. Breunig, H.-P. Kriegel, R. T. Ng, and J. Sander, "LOF: Identifying density-based local outliers," ACM SIGMOD Record, vol. 29, no. 2, pp. 93–104, 2000, doi: 10.1145/335191.335388.
+    Use: Local outlier factor as alternative novelty index.
+
+[148] R. J. G. B. Campello, D. Moulavi, and J. Sander, "Density-based clustering based on hierarchical density estimates," in Proc. Advances in Knowledge Discovery and Data Mining (PAKDD 2013), LNCS 7819, 2013, pp. 160–172, doi: 10.1007/978-3-642-37456-2_14.
+    Use: HDBSCAN algorithm for joint clustering without fixing k.
+
+[149] R. J. G. B. Campello, D. Moulavi, A. Zimek, and J. Sander, "Hierarchical density estimates for data clustering, visualization, and outlier detection," ACM Transactions on Knowledge Discovery from Data, vol. 10, no. 1, pp. 1–51, 2015, doi: 10.1145/2733381.
+    Use: GLOSH outlier scores from HDBSCAN hierarchy for novelty.
+
+[150] V. Chandola, A. Banerjee, and V. Kumar, "Anomaly detection: A survey," ACM Computing Surveys, vol. 41, no. 3, pp. 1–58, 2009, doi: 10.1145/1541880.1541882.
+    Use: Survey framing the novelty index as anomaly detection.
+
+[151] T. Cover and P. Hart, "Nearest neighbor pattern classification," IEEE Transactions on Information Theory, vol. 13, no. 1, pp. 21–27, 1967, doi: 10.1109/tit.1967.1053964.
+    Use: k-NN retrieval of Earth analogues for a body cell.
+
+[152] I. Kim, A. Ramdas, A. Singh, and L. Wasserman, "Classification accuracy as a proxy for two-sample testing," The Annals of Statistics, vol. 49, no. 1, pp. 411–434, 2021, doi: 10.1214/20-aos1962.
+    Use: Theory for classifier-based two-sample tests with permutation calibration.
+
+[153] F. T. Liu, K. M. Ting, and Z.-H. Zhou, "Isolation forest," in Proc. 2008 Eighth IEEE International Conference on Data Mining, 2008, pp. 413–422, doi: 10.1109/icdm.2008.17.
+    Use: Candidate novelty/outlier score for cells unlike any body.
+
+[154] D. Lopez-Paz and M. Oquab, "Revisiting classifier two-sample tests," in Proc. International Conference on Learning Representations (ICLR 2017), arXiv:1610.06545, 2017.
+    Use: Classifier two-sample test AUC as Earth-vs-body domain-gap measure.
+
+[155] L. McInnes, J. Healy, and S. Astels, "hdbscan: Hierarchical density based clustering," Journal of Open Source Software, vol. 2, no. 11, Art. no. 205, 2017, doi: 10.21105/joss.00205.
+    Use: Software reference for the HDBSCAN implementation.
+
+[156] L. McInnes, J. Healy, and J. Melville, "UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction," arXiv:1802.03426, 2018.
+    Use: Joint embedding of Earth cells and Moon/Mars discs.
+
+[157] S. Rabanser, S. Gunnemann, and Z. C. Lipton, "Failing loudly: An empirical study of methods for detecting dataset shift," in Proc. Advances in Neural Information Processing Systems 32 (NeurIPS 2019), arXiv:1810.11953, 2019.
+    Use: Per-feature univariate shift tests (KS) alongside classifier test.
+
+== Software and platforms ==
+[158] N. Gorelick, M. Hancher, M. Dixon, S. Ilyushchenko, D. Thau, and R. Moore, "Google Earth Engine: Planetary-scale geospatial analysis for everyone," Remote Sensing of Environment, vol. 202, pp. 18–27, 2017, doi: 10.1016/j.rse.2017.06.031.
+    Use: Platform used to extract and aggregate Earth rasters per H3 cell.
+
+[159] C. R. Harris et al., "Array programming with NumPy," Nature, vol. 585, no. 7825, pp. 357–362, 2020, doi: 10.1038/s41586-020-2649-2.
+    Use: Array computation across the pipeline.
+
+[160] S. Hoyer and J. Hamman, "xarray: N-D labeled arrays and datasets in Python," Journal of Open Research Software, vol. 5, no. 1, Art. no. 10, 2017, doi: 10.5334/jors.148.
+    Use: Raster/cube handling for gridded inputs.
+
+[161] W. McKinney, "Data structures for statistical computing in Python," in Proc. 9th Python in Science Conference, 2010, pp. 56–61, doi: 10.25080/majora-92bf1922-00a.
+    Use: Tabular handling of per-cell feature tables.
+
+[162] F. Pedregosa et al., "Scikit-learn: Machine learning in Python," Journal of Machine Learning Research, vol. 12, pp. 2825–2830, 2011.
+    Use: Classifier tests, scalers, k-NN and clustering implementations.
+
+[163] P. Virtanen et al., "SciPy 1.0: fundamental algorithms for scientific computing in Python," Nature Methods, vol. 17, no. 3, pp. 261–272, 2020, doi: 10.1038/s41592-019-0686-2.
+    Use: KS tests, distances and statistics used in validation.

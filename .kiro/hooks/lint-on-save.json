@@ -1,0 +1,27 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Python lint and format on save",
+      "description": "ruff check --fix + ruff format on every Python file the agent saves.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.py$",
+      "action": {
+        "type": "command",
+        "command": "python .kiro/hooks/scripts/portable.py lint \"{{filePath}}\""
+      },
+      "timeout": 60
+    },
+    {
+      "name": "Web lint and format on save",
+      "description": "eslint --fix + prettier on every TS/Vue file under web/ the agent saves.",
+      "trigger": "PostFileSave",
+      "matcher": "web/.*\\.(ts|vue)$",
+      "action": {
+        "type": "command",
+        "command": "python .kiro/hooks/scripts/portable.py lint \"{{filePath}}\""
+      },
+      "timeout": 90
+    }
+  ]
+}

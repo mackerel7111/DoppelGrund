@@ -1,0 +1,405 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_01",
+    "name": "Synthetic volcano 1",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -17.84963,
+     64.12369
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_02",
+    "name": "Synthetic volcano 2",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -18.98609,
+     63.48664
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_03",
+    "name": "Synthetic volcano 3",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -19.22143,
+     63.86568
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_04",
+    "name": "Synthetic volcano 4",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -18.40199,
+     63.71829
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_05",
+    "name": "Synthetic volcano 5",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -18.75378,
+     65.16502
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_06",
+    "name": "Synthetic volcano 6",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -19.49014,
+     64.21431
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_07",
+    "name": "Synthetic volcano 7",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.48031,
+     64.40453
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_08",
+    "name": "Synthetic volcano 8",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.3054,
+     65.06625
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_09",
+    "name": "Synthetic volcano 9",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.74593,
+     64.728
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_10",
+    "name": "Synthetic volcano 10",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -15.75273,
+     64.32263
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_11",
+    "name": "Synthetic volcano 11",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -17.39287,
+     65.51927
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_12",
+    "name": "Synthetic volcano 12",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.82156,
+     65.82694
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_13",
+    "name": "Synthetic volcano 13",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     46.06752,
+     24.86968
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_14",
+    "name": "Synthetic volcano 14",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.10861,
+     24.6239
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_15",
+    "name": "Synthetic volcano 15",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.81726,
+     20.07288
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_16",
+    "name": "Synthetic volcano 16",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.81176,
+     20.50176
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_17",
+    "name": "Synthetic volcano 17",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -156.1332,
+     20.30656
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_18",
+    "name": "Synthetic volcano 18",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.4965,
+     18.96464
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_19",
+    "name": "Synthetic volcano 19",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.02656,
+     18.62684
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_20",
+    "name": "Synthetic volcano 20",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.48704,
+     18.51029
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_21",
+    "name": "Synthetic volcano 21",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -156.46765,
+     21.07955
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_22",
+    "name": "Synthetic volcano 22",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -154.89182,
+     20.83641
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_23",
+    "name": "Synthetic volcano 23",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -154.70362,
+     21.1589
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_24",
+    "name": "Synthetic volcano 24",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -157.39099,
+     20.25104
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_volcano_25",
+    "name": "Synthetic volcano 25",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -156.9531,
+     20.02304
+    ]
+   }
+  }
+ ]
+}

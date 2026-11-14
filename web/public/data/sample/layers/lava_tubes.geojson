@@ -1,0 +1,133 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_01",
+    "name": "Synthetic lava tube 1",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -19.54165,
+     65.30078
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_02",
+    "name": "Synthetic lava tube 2",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -20.15628,
+     64.94377
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_03",
+    "name": "Synthetic lava tube 3",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -15.41166,
+     64.93046
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_04",
+    "name": "Synthetic lava tube 4",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -17.10338,
+     64.14664
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_05",
+    "name": "Synthetic lava tube 5",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.00728,
+     63.71314
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_06",
+    "name": "Synthetic lava tube 6",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -154.94871,
+     19.56112
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_07",
+    "name": "Synthetic lava tube 7",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.91303,
+     18.83396
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "synthetic_lava_tube_08",
+    "name": "Synthetic lava tube 8",
+    "body": "earth",
+    "synthetic": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.22087,
+     20.62123
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Forbid neural-network dependencies",
+      "description": "Flags torch/tensorflow/keras/jax/onnxruntime if they appear in dependency files. The project is classical-ML only.",
+      "trigger": "PostFileSave",
+      "matcher": "(pyproject\\.toml|requirements[^/]*\\.txt|package\\.json)$",
+      "action": {
+        "type": "command",
+        "command": "python .kiro/hooks/scripts/portable.py nonn \"{{filePath}}\""
+      },
+      "timeout": 10
+    }
+  ]
+}

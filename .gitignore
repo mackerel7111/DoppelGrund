@@ -1,0 +1,39 @@
+# Data (never in git); anchored so web/src/data and web/public/data are not caught
+/data/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.ipynb_checkpoints/
+
+# Web
+web/node_modules/
+web/dist/
+web/coverage/
+*.tsbuildinfo
+
+# Generated bundle: everything under web/public/data/ except the tiny committed sample
+web/public/data/*
+!web/public/data/.gitkeep
+!web/public/data/sample/
+web/public/data/*.f32
+web/public/data/*.i16
+web/public/data/*.u8
+web/public/data/*.png
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Crash dumps
+*.stackdump
+
+# Kiro specs/steering markdown
+.kiro/**/*.md

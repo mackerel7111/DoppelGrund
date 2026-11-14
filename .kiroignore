@@ -1,0 +1,16 @@
+# Keep large or generated files out of agent context (gitignore-style patterns)
+data/
+web/public/data/*.f32
+web/public/data/*.i16
+web/public/data/*.u8
+web/public/data/*.png
+web/public/data/textures/
+web/public/data/stability/
+web/node_modules/
+web/dist/
+**/*.parquet
+**/*.tif
+**/*.tiff
+**/*.IMG
+**/*.img
+**/.ipynb_checkpoints/
