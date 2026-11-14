@@ -259,7 +259,39 @@ EE_RAW = [
 EE_COLS = [c for c in EE_RAW if c not in ("z_mean", "z2_mean")] + ["relief_std_m"]
 
 
-def earth_remote(cells, batch=100):
+TRANSIENT = ("too many", "429", "quota", "internal error", "unavailable", "deadline", "reset")
+
+
+def reduce_with_retry(fn, hexes, tries=5, sleep=time.sleep, log=print):
+    """Call ``fn(hexes)`` (a DataFrame indexed by h3). On "Computation timed out" split the hexes in
+    half and run each half; on a transient error (quota, 429, internal, reset) wait and retry.
+
+    A single hex that still times out is raised: nothing smaller is left to try.
+    """
+    for attempt in range(tries):
+        try:
+            return fn(hexes)
+        except Exception as e:  # the ee exceptions are plain EEException subclasses of Exception
+            msg = str(e).lower()
+            if "timed out" in msg and len(hexes) > 1:
+                half = len(hexes) // 2
+                log(f"  timed out on {len(hexes)} hexes: retrying as {half} + {len(hexes) - half}")
+                return pd.concat(
+                    [
+                        reduce_with_retry(fn, hexes[:half], tries, sleep, log),
+                        reduce_with_retry(fn, hexes[half:], tries, sleep, log),
+                    ]
+                )
+            if any(k in msg for k in TRANSIENT) and attempt < tries - 1:
+                wait = min(120, 10 * 2**attempt)
+                log(f"  transient Earth Engine error ({msg[:80]}); retry in {wait}s")
+                sleep(wait)
+                continue
+            raise
+    raise RuntimeError("unreachable")
+
+
+def earth_remote(cells, batch=25):
     """Earth Engine reducers per hex. Terrain fuses GLO-30 + NASADEM, thermal fuses MOD11A2 + MOD21A1D/N (mean where both exist, MOD21 only where >= MOD21_MIN_VALID of days are valid). Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
     import ee
     import h3  # imported here so the offline run needs no earthengine-api
@@ -426,7 +458,7 @@ def earth_remote(cells, batch=100):
         (arid, ee.Reducer.mean(), 4638, {"mean": "aridity_index"}),
     ]
 
-    def reduce(hexes):
+    def _reduce(hexes):
         fc = ee.FeatureCollection(
             [
                 ee.Feature(
@@ -447,6 +479,9 @@ def earth_remote(cells, batch=100):
                 pd.DataFrame([f["properties"] for f in feats]).set_index("h3").rename(columns=ren)
             )
         return pd.concat(got, axis=1)
+
+    def reduce(hexes):
+        return reduce_with_retry(_reduce, hexes)
 
     def finish(df):
         df = df.copy()

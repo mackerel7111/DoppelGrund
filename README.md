@@ -62,7 +62,7 @@ Notes:
 
 ## Sharing the Earth Engine extraction (4 people)
 
-The Earth Engine step is slow (about 818 batches of 100 hexes). Split it: each person runs one shard (`0/4`, `1/4`, `2/4` or `3/4`), then one person merges. Everyone must be on the same code (`dev-branch`) and leave the batch size alone, or the batches will not line up.
+The Earth Engine step is slow (about 3,271 batches of 25 hexes; a batch that times out is split in half and retried automatically). Split it: each person runs one shard (`0/4`, `1/4`, `2/4` or `3/4`), then one person merges. Everyone must be on the same code (`dev-branch`) and leave the batch size alone, or the batches will not line up.
 
 You need a Google account with Earth Engine access and a Google Cloud project registered for Earth Engine (free for non-commercial use: <https://code.earthengine.google.com/register>). The project ID is `YOUR_GCP_PROJECT` below.
 
