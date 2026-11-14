@@ -34,3 +34,6 @@ Thumbs.db
 
 # Crash dumps
 *.stackdump
+
+# Teammate data exports dropped in the repo root (the tables live under data/interim)
+real_tables_export*.zip
