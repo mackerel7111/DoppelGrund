@@ -362,6 +362,9 @@ def targets_table(moon: pd.DataFrame, mars: pd.DataFrame) -> pd.DataFrame:
         row["lat"], row["lon"] = float(disc["lat"]), float(disc["lon"])
         for col in list(EXPECTED_FEATURES) + LITH_COLS:
             row[col] = np.float32(disc[col])
+        if tid == "synthetic_moon_mare_c":
+            # a pit-bearing landmark, so the subsurface card path is exercised in the demo
+            row["pit_cave_density_per_1000km2"] = np.float32(0.5)
         rows.append(row)
     df = pd.DataFrame(rows)
     for col in list(EXPECTED_FEATURES) + LITH_COLS:

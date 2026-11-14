@@ -114,7 +114,7 @@ export function sourceFor(
   if (colorBy === 'S') return { values: result.S, stride: 1, offset: 0, eligible: result.eligible };
   return {
     values: result.groups,
-    stride: 4,
+    stride: GROUP_IDS.length, // width of one row of `groups`
     offset: GROUP_IDS.indexOf(colorBy),
     eligible: result.eligible,
   };

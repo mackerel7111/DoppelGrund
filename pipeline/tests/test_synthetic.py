@@ -170,6 +170,7 @@ def test_targets(tables: dict[str, pd.DataFrame], bundle: Path) -> None:
     assert t["lat"].min() < -88.5  # a near-pole target exercises the polar path
     targets = json.loads((bundle / "targets.json").read_text(encoding="utf-8"))
     assert all(len(x["features"]) == 11 and len(x["lith"]) == 6 for x in targets)
+    assert any(x["features"][10] is not None for x in targets)  # a pit-bearing target exists
     mars = next(x for x in targets if x["body"] == "mars")
     assert mars["features"][4] is None  # NaN written as null
 
