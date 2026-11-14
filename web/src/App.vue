@@ -53,7 +53,7 @@ watch(
 );
 function onGlobeFallback(reason: string): void {
   s.setView('2d');
-  s.notice = `3D view unavailable (${reason}) — showing the 2D view.`;
+  s.notice = `3D view unavailable (${reason}), showing the 2D view.`;
 }
 const progressPct = computed(() =>
   s.loading.total > 0 ? Math.round((100 * s.loading.done) / s.loading.total) : 0,
@@ -68,13 +68,14 @@ const progressPct = computed(() =>
       <button type="button" aria-label="Dismiss notice" @click="s.notice = null">✕</button>
     </div>
 
-    <main v-if="s.loading.phase === 'error'" class="state" role="alert">
+    <AboutDialog v-if="s.aboutOpen" />
+    <main v-else-if="s.loading.phase === 'error'" class="state" role="alert">
       <h2>Could not load the data bundle</h2>
       <p class="num">{{ s.loading.error }}</p>
       <p class="meta">Check the data bundle and reload.</p>
     </main>
     <main v-else-if="s.loading.phase !== 'ready'" class="state">
-      <h2>Loading Earth data…</h2>
+      <h2>Loading Earth data...</h2>
       <progress :value="s.loading.done" :max="Math.max(1, s.loading.total)" aria-label="Loading">
         {{ progressPct }}%
       </progress>
@@ -100,7 +101,6 @@ const progressPct = computed(() =>
       </aside>
     </template>
 
-    <AboutDialog />
     <Transition name="intro-out">
       <StoryIntro v-if="s.introOpen" @done="onIntroDone" />
     </Transition>

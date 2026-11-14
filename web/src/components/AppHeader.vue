@@ -10,11 +10,19 @@ const s = useSession();
     <h1 class="title" title="Global Analogue Discovery Engine">DoppelGrund</h1>
     <span v-if="s.synthetic === true" class="pill" role="note">{{ SYNTHETIC_BANNER }}</span>
     <div class="controls">
-      <div class="seg" role="group" aria-label="View">
+      <div v-if="!s.aboutOpen" class="seg" role="group" aria-label="View">
         <button type="button" :aria-pressed="s.view === '3d'" @click="s.setView('3d')">3D</button>
         <button type="button" :aria-pressed="s.view === '2d'" @click="s.setView('2d')">2D</button>
       </div>
-      <button type="button" @click="s.aboutOpen = true">About</button>
+      <button
+        v-if="s.aboutOpen"
+        type="button"
+        class="back-btn"
+        @click="s.aboutOpen = false"
+      >
+        &larr; Back to Explorer
+      </button>
+      <button v-else type="button" @click="s.aboutOpen = true">About</button>
     </div>
   </header>
 </template>
@@ -25,7 +33,7 @@ const s = useSession();
   align-items: center;
   gap: var(--s4);
   padding: var(--s2) var(--s4);
-  pointer-events: none; /* empty bar space passes drags to the globe */
+  pointer-events: none;
 }
 .title {
   font-size: var(--fs-section);
@@ -46,5 +54,9 @@ const s = useSession();
   gap: var(--s3);
   margin-left: auto;
   pointer-events: auto;
+}
+.back-btn {
+  border-color: var(--accent-earth);
+  color: var(--accent-earth);
 }
 </style>
