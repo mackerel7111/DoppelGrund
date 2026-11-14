@@ -425,6 +425,8 @@ def build_bundle(
         n: json.loads((interim / "layers" / f"{n}.geojson").read_text(encoding="utf-8"))
         for n in LAYER_NAMES
     }
+    reg_file = interim / "target_regimes.json"  # written by doppelgrund.ml.pipeline when it ran
+    regimes = json.loads(reg_file.read_text(encoding="utf-8")) if reg_file.is_file() else None
     return write_bundle(
         Path(out),
         prof=prof,
@@ -437,7 +439,7 @@ def build_bundle(
         cluster=clu["hdb_label"].reindex(keys).fillna(-1).to_numpy(np.int16),
         flags=earth_flags(earth, prof.params, nov["known_site_flag"].fillna(False).to_numpy(bool)),
         discs=discs,
-        targets=targets_json(pd.read_parquet(interim / "targets.parquet")),
+        targets=targets_json(pd.read_parquet(interim / "targets.parquet"), regimes),
         stability=stability,
         layers=layers,
         textures={b: p.read_bytes() for b, p in textures.items()},

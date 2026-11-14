@@ -41,7 +41,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 12.1_
   - Depends on: 00/0.8
 
-- [ ] 2.7 [S] Domain-gap diagnostic (Window H14–H16, real data after G1; synthetic before)
+- [x] 2.7 [S] Domain-gap diagnostic (Window H14–H16, real data after G1; synthetic before)
   - Files: `pipeline/doppelgrund/ml/domain_gap.py`, `pipeline/tests/test_domain_gap.py`, `notebooks/06_domain_clusters.ipynb`
   - Tests: perfectly separable toy data → AUC ≈ 1 and feature flagged; identical distributions → AUC ≈ 0.5.
   - Acceptance: report written to `data/interim/ml/domain_gap.json`; separating features logged in STATUS.md.
@@ -60,7 +60,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 7.1, 7.2_
   - Depends on: 2.8
 
-- [ ] 2.10 [S] Novelty (Window H15–H17)
+- [x] 2.10 [S] Novelty (Window H15–H17)
   - Files: `pipeline/doppelgrund/ml/novelty.py`, `pipeline/tests/test_novelty.py`
   - Tests: distance to a site at a known offset; ring-1 flag; NaN features ignored in feat_novelty.
   - _Requirements: 9.1–9.3_
@@ -79,7 +79,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 8.1–8.3_
   - Depends on: 2.11
 
-- [ ] 2.13 [S] Ranking stability (Window H20–H24)
+- [x] 2.13 [S] Ranking stability (Window H20–H24)
   - Files: `pipeline/doppelgrund/ml/stability.py`, `pipeline/tests/test_stability.py`, `notebooks/08_novelty_stability.ipynb`
   - Tests: with zero jitter, stability is 1 for the top 1% and 0 elsewhere; seeds reproduce.
   - Acceptance: stability files for every target × lens.
