@@ -14,15 +14,21 @@ const s = useSession();
         <button type="button" :aria-pressed="s.view === '3d'" @click="s.setView('3d')">3D</button>
         <button type="button" :aria-pressed="s.view === '2d'" @click="s.setView('2d')">2D</button>
       </div>
-      <button
-        v-if="s.aboutOpen"
-        type="button"
-        class="back-btn"
-        @click="s.aboutOpen = false"
-      >
-        &larr; Back to Explorer
+      <button v-if="s.aboutOpen" type="button" class="back-btn" @click="s.aboutOpen = false">
+        ← Back to Explorer
       </button>
-      <button v-else type="button" @click="s.aboutOpen = true">About</button>
+      <template v-else>
+        <button
+          id="explorer-back"
+          aria-label="Back to introduction"
+          type="button"
+          :disabled="s.introOpen"
+          @click="s.introOpen = true"
+        >
+          ← Back
+        </button>
+        <button type="button" @click="s.aboutOpen = true">About</button>
+      </template>
     </div>
   </header>
 </template>
@@ -31,6 +37,7 @@ const s = useSession();
 .header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--s4);
   padding: var(--s2) var(--s4);
   pointer-events: none;

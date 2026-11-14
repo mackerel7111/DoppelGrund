@@ -6,6 +6,7 @@ import { FOOTPRINT_SHORT, GROUP_NAMES, LENS_NAMES, LENS_SHORT, TERMS } from '../
 import { formatLatLon } from '../stores/selectors';
 import LensControls from './LensControls.vue';
 
+defineProps<{ tutorialActive?: boolean }>();
 const s = useSession();
 const landmarks = computed(() => (s.bundle?.targets ?? []).filter((t) => t.body === s.body));
 const selectedId = computed(() => (s.target?.kind === 'landmark' ? s.target.id : ''));
@@ -46,6 +47,7 @@ function onLandmark(ev: Event): void {
           :value="customPoint ? 'custom' : selectedId"
           :aria-label="TERMS.landmark"
           data-test="landmark-select"
+          :class="{ 'tutorial-highlight': tutorialActive }"
           @change="onLandmark"
         >
           <option v-if="customPoint" value="custom" disabled>{{ customPoint }}</option>
@@ -78,6 +80,11 @@ function onLandmark(ev: Event): void {
 </template>
 
 <style scoped>
+.tutorial-highlight {
+  outline: 2px solid var(--accent-earth);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(79, 195, 247, 0.12);
+}
 .controls {
   display: grid;
   gap: var(--s4);

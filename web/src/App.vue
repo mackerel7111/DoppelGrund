@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, watch } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import AppHeader from './components/AppHeader.vue';
 import StatusBar from './components/StatusBar.vue';
 import ControlPanel from './components/ControlPanel.vue';
 import ResultsPanel from './components/ResultsPanel.vue';
 import AboutDialog from './components/AboutDialog.vue';
 import StoryIntro from './components/StoryIntro.vue';
+import ExplorerTutorial from './components/ExplorerTutorial.vue';
 import { useSession } from './stores/session';
 import type { Body } from './data/types';
 
@@ -19,26 +20,33 @@ if (s.view === '3d') void loadGlobe(); // fetch the 3D chunk while the data load
 const nHex = computed(() => s.bundle?.manifest.n_hex ?? null);
 const debug = new URLSearchParams(window.location.search).has('debug');
 
-function introWanted(): boolean {
-  if (new URLSearchParams(window.location.search).has('intro')) return true;
+// Always begin with the welcome page, including returning visits and refreshes.
+s.introOpen = true;
+function tutorialWanted(): boolean {
   try {
-    return localStorage.getItem('doppelgrund.introSeen') !== '1';
+    return localStorage.getItem('doppelgrund.tutorialSeen') !== '1';
   } catch {
     return true;
   }
 }
-s.introOpen = introWanted();
+const tutorialRequested = ref(tutorialWanted());
+const tutorialVisible = computed(
+  () => tutorialRequested.value && s.loading.phase === 'ready' && !s.introOpen && !s.aboutOpen,
+);
+function closeTutorial(): void {
+  tutorialRequested.value = false;
+  try {
+    localStorage.setItem('doppelgrund.tutorialSeen', '1');
+  } catch {
+    /* The tutorial remains one-time for this visit in private mode. */
+  }
+}
 // open on a result, not an empty globe: first landmark of the current body
 function selectFirstLandmark(): void {
   const first = s.bundle?.targets.find((t) => t.body === s.body);
   if (!s.target && first) s.selectLandmark(first.id);
 }
 function onIntroDone(world: Body): void {
-  try {
-    localStorage.setItem('doppelgrund.introSeen', '1');
-  } catch {
-    /* private mode: the intro just shows again next time */
-  }
   s.introOpen = false;
   s.selectBody(world);
   selectFirstLandmark(); // no-op until the bundle is ready; the watch below covers that order
@@ -96,11 +104,12 @@ const progressPct = computed(() =>
         </section>
       </div>
       <aside class="side">
-        <ControlPanel />
+        <ControlPanel :tutorial-active="tutorialVisible" />
         <ResultsPanel />
       </aside>
     </template>
 
+    <ExplorerTutorial v-if="tutorialVisible" :body="s.body" @close="closeTutorial" />
     <Transition name="intro-out">
       <StoryIntro v-if="s.introOpen" @done="onIntroDone" />
     </Transition>
