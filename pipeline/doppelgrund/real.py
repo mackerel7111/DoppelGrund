@@ -24,6 +24,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from doppelgrund import caves
 from doppelgrund.config import (
     EXPECTED_FEATURES,
     REPO,
@@ -104,6 +105,11 @@ FILES = {  # key: (url, sha256, path under DATA)
         "https://planetarymaps.usgs.gov/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif",
         "38a4eb0b4452855b8dabfac40a367b458555ab4c01b31235807ad0a53c031f4c",
         "mars_dem/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif",
+    ),
+    "lroc_pits": (  # LROC lunar pit catalogue, Wagner & Robinson (2021); cp1252 CSV, licence not stated
+        "https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/EXTRAS/SHAPEFILE/LUNAR_PIT_LOCATIONS/LUNAR_PIT_LOCATIONS.CSV",
+        "c0842294ec453abd711c0f33b3bde93ba4928cd14fdedd3dff5adb116b5ee86a",
+        "moon_pits/LUNAR_PIT_LOCATIONS.CSV",
     ),
     "tes_ti": (
         "http://tes.asu.edu/mineral_map/ti_nmap2003.bin",
@@ -749,6 +755,10 @@ def moon_discs_real(lat, lon, ids):
         np.clip(((lon + 180) / 0.5).astype(int), 0, 719),
     ]
     f["lst_mean_K"], f["diurnal_range_K"], f["frac_below_0C"] = g[2], g[0] - g[1], g[3]
+    # catalogued pits per 1000 km2, positive-only (NaN where none is catalogued, never 0; see caves.py)
+    f["pit_cave_density_per_1000km2"] = caves.disc_density(
+        lat, lon, *caves.load_lroc_pits(get("lroc_pits")), R_KM
+    )
     # LP GRS FeO (equal-area pixels, nearest pixel centre; ~5 deg true resolution). Columns: 1-4 = min/max lat/lon, 12 = W_FEO (g/g)
     p = pd.read_csv(get("lpgrs"), sep=r"\s+", header=None, usecols=list(range(13)))
     from scipy.spatial import cKDTree
@@ -808,6 +818,7 @@ def targets_real(moon, mars):
             name="PLACEHOLDER (nearest real disc) " + t["name"].str.replace("Synthetic ", ""),
         )
     cols = [*EXPECTED_FEATURES, *LITH_COLS]
+    pits = caves.load_lroc_pits(get("lroc_pits"))
     rows = []
     for r in lm.itertuples():
         d = moon if r.body == "moon" else mars
@@ -822,6 +833,13 @@ def targets_real(moon, mars):
                 "lat": r.lat,
                 "lon": r.lon,
                 **{c: disc[c] for c in cols},
+                # pits are point data, so count them at the landmark itself, not at the nearest disc
+                # (up to ~60 km away); Mars has no catalogue (NaN)
+                "pit_cave_density_per_1000km2": (
+                    caves.disc_density(np.array([r.lat]), np.array([r.lon]), *pits, R_KM)[0]
+                    if r.body == "moon"
+                    else np.nan
+                ),
             }
         )
     return pd.DataFrame(rows).astype({c: np.float32 for c in cols})
@@ -829,10 +847,9 @@ def targets_real(moon, mars):
 
 def earth_table_real(cells):
     e = earth_remote(cells).merge(earth_local(cells), on="h3", how="left")
-    if "pit_cave_density_per_1000km2" not in e:
-        # TODO(verify): catalogue ingestion needs earth_caves + a survey-coverage rule (datasets.yaml).
-        # NaN means "not catalogued / not surveyed", never 0 (science-invariant 1).
-        e["pit_cave_density_per_1000km2"] = np.nan
+    # catalogued lava tubes per 1000 km2, positive-only: NaN outside the 5 listed tubes, never 0 (caves.py)
+    tubes = caves.load_earth_lava_tubes(REPO / "config/earth_lava_tubes.csv")
+    e["pit_cave_density_per_1000km2"] = caves.hex_density(*tubes, e["h3"].tolist())
     e["vf_dem"] = e["slope_p50_deg"].notna()
     e["vf_lst"] = e["lst_mean_K"].notna()
     e["vf_lith"] = e["lith_mafic_volcanic"].notna()

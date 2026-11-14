@@ -28,12 +28,15 @@ from shapely.geometry import shape
 from shapely.ops import unary_union
 
 from doppelgrund.config import EXPECTED_FEATURES, EXPECTED_LITH, REPO, Profiles, load_profiles
+from doppelgrund.export.bundle import null_list as _null_list
+from doppelgrund.export.bundle import write_bundle
+from doppelgrund.export.index_map import rasterise_index as index_map  # noqa: F401 (re-export)
+from doppelgrund.export.index_map import unwrap as _unwrap
 
 logger = logging.getLogger(__name__)
 
 # Fixed so that output bytes are identical across runs (R4.4).
 SYNTHETIC_CREATED_UTC = "2026-01-01T00:00:00Z"
-INDEX_W, INDEX_H = 4096, 2048
 TEXTURE_W, TEXTURE_H = 2048, 1024
 SAMPLE_N_HEX = 500
 LAND_GEOJSON = REPO / "config/ne_land.geojson"  # Natural Earth 1:110m land, public domain
@@ -475,32 +478,6 @@ def flags(earth: pd.DataFrame, known: pd.DataFrame) -> np.ndarray:
     return f
 
 
-def _unwrap(lngs: list[float]) -> list[float]:
-    if max(lngs) - min(lngs) > 180.0:
-        return [x + 360.0 if x < 0 else x for x in lngs]
-    return lngs
-
-
-def index_map(cells: Sequence[str]) -> Image.Image:
-    """Rasterise cells onto a 4096x2048 equirectangular RGB image; value = row + 1 (C6)."""
-    img = Image.new("RGB", (INDEX_W, INDEX_H), (0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    sx, sy = INDEX_W / 360.0, INDEX_H / 180.0
-    for row, cell in enumerate(cells):
-        v = row + 1
-        colour = ((v >> 16) & 255, (v >> 8) & 255, v & 255)
-        boundary = h3.cell_to_boundary(cell)
-        lats = [p[0] for p in boundary]
-        lngs = _unwrap([p[1] for p in boundary])
-        shifts = [0.0, -360.0] if max(lngs) > 180.0 else [0.0]
-        for shift in shifts:
-            pts = [
-                ((x + shift + 180.0) * sx, (90.0 - y) * sy) for x, y in zip(lngs, lats, strict=True)
-            ]
-            draw.polygon(pts, fill=colour)
-    return img
-
-
 def _texture(body: str) -> Image.Image:  # placeholder when config/textures/<body>.jpg is absent
     grey = {"earth": 46, "moon": 120, "mars": 110}[body]
     tint = {"earth": (0, 4, 10), "moon": (0, 0, 0), "mars": (25, 0, -15)}[body]
@@ -521,16 +498,6 @@ def _jpeg_bytes(img: Image.Image) -> bytes:
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=85, optimize=False)
     return buf.getvalue()
-
-
-def _png_bytes(img: Image.Image) -> bytes:
-    buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=False, compress_level=6)
-    return buf.getvalue()
-
-
-def _null_list(values: Any) -> list[float | None]:
-    return [None if not np.isfinite(v) else float(v) for v in np.asarray(values, np.float64)]
 
 
 def _points_geojson(df: pd.DataFrame, extra: Sequence[str] = (), body: str = "earth") -> dict:
@@ -587,10 +554,6 @@ def _write(path: Path, data: bytes, overwrite: bool, written: list[Path]) -> Non
     written.append(path)
 
 
-def _json_bytes(obj: Any) -> bytes:
-    return (json.dumps(obj, indent=1, allow_nan=False, ensure_ascii=False) + "\n").encode("utf-8")
-
-
 # --------------------------------------------------------------------------------------------
 # Writers
 # --------------------------------------------------------------------------------------------
@@ -625,7 +588,7 @@ def write_synthetic_bundle(
 ) -> list[Path]:
     """Write a complete C6 bundle with ``"synthetic": true``.
 
-    Uses its own minimal writer (``doppelgrund.export.bundle`` does not exist yet). When
+    Written by ``doppelgrund.export.bundle.write_bundle`` (which also validates it). When
     ``sample`` is true a ≤ 500-hex copy (always patches) is also written to ``out_dir/sample``
     for CI.
     ``coverage="land"`` covers all land (see ``make_synthetic``).
@@ -638,29 +601,21 @@ def write_synthetic_bundle(
     targets = tables["targets"]
     cells = earth["h3"].tolist()
     scaler = fit_scaler([earth, moon, mars], prof)
-    written: list[Path] = []
-
-    def arr(df: pd.DataFrame, cols: Sequence[str]) -> bytes:
-        return np.ascontiguousarray(df[list(cols)].to_numpy(np.float32)).astype("<f4").tobytes()
-
-    _write(out_dir / "earth_h3.txt", ("\n".join(cells) + "\n").encode(), overwrite, written)
-    _write(out_dir / "earth_features.f32", arr(earth, EXPECTED_FEATURES), overwrite, written)
-    _write(out_dir / "earth_lith.f32", arr(earth, LITH_COLS), overwrite, written)
-    _write(out_dir / "earth_latlng.f32", arr(earth, ["lat", "lng"]), overwrite, written)
     nov = novelty(earth, tables["known_sites"], rng)
-    _write(out_dir / "earth_novelty.f32", nov.astype("<f4").tobytes(), overwrite, written)
     regimes = _regime_of(earth["lat"].to_numpy(), earth["lng"].to_numpy())
     cluster = np.array([{"desert": 0, "volcanic": 1, "polar": 2}[r] for r in regimes], np.int16)
     cluster = np.where(
         rng.random(len(cluster)) < 0.1, -1, cluster * 2 + (rng.random(len(cluster)) < 0.5)
     ).astype("<i2")
-    _write(out_dir / "earth_cluster.i16", cluster.tobytes(), overwrite, written)
     fl = flags(earth, tables["known_sites"])
-    _write(out_dir / "earth_flags.u8", fl.tobytes(), overwrite, written)
-    for body, df in (("moon", moon), ("mars", mars)):
-        _write(out_dir / f"{body}_features.f32", arr(df, EXPECTED_FEATURES), overwrite, written)
-        _write(out_dir / f"{body}_lith.f32", arr(df, LITH_COLS), overwrite, written)
-        _write(out_dir / f"{body}_latlon.f32", arr(df, ["lat", "lon"]), overwrite, written)
+    discs = {
+        body: (
+            df[list(EXPECTED_FEATURES)].to_numpy(np.float32),
+            df[LITH_COLS].to_numpy(np.float32),
+            df[["lat", "lon"]].to_numpy(np.float32),
+        )
+        for body, df in (("moon", moon), ("mars", mars))
+    }
 
     tjson = []
     for i, t in targets.iterrows():
@@ -680,26 +635,19 @@ def write_synthetic_bundle(
                 "coverage_notes": [f"{n}: not measured (synthetic)" for n in missing],
             }
         )
-    _write(out_dir / "targets.json", _json_bytes(tjson), overwrite, written)
 
     k = int(prof.params["stability"]["store_top_k"])
     draws = int(prof.params["stability"]["draws"])
-    for t in tjson:
-        for lens in prof.lenses:
-            st = {
-                "target": t["id"],
-                "lens": lens,
-                "draws": draws,
-                "rows": _stability_rows(rng, len(cells), min(k, len(cells) // 3)),
-            }
-            _write(
-                out_dir / "stability" / f"{t['id']}__{lens}.json",
-                _json_bytes(st),
-                overwrite,
-                written,
-            )
-
-    _write(out_dir / "earth_index_4096x2048.png", _png_bytes(index_map(cells)), overwrite, written)
+    stability = [
+        {
+            "target": t["id"],
+            "lens": lens,
+            "draws": draws,
+            "rows": _stability_rows(rng, len(cells), min(k, len(cells) // 3)),
+        }
+        for t in tjson
+        for lens in prof.lenses
+    ]
     layers = {
         "land": _real_land_geojson() if coverage == "land" else _land_geojson(cells),
         "known_sites": _points_geojson(tables["known_sites"], ("well_known", "dimension")),
@@ -708,58 +656,35 @@ def write_synthetic_bundle(
         "sarawak_caves": _points_geojson(tables["sarawak_caves"]),
         "lunar_pits": _points_geojson(tables["lunar_pits"], body="moon"),
     }
-    for name, gj in layers.items():
-        _write(out_dir / "layers" / f"{name}.geojson", _json_bytes(gj), overwrite, written)
+    textures = {}
     for body in ("earth", "moon", "mars"):
         real = TEXTURE_DIR / f"{body}.jpg"
-        data = real.read_bytes() if real.is_file() else _jpeg_bytes(_texture(body))
-        _write(out_dir / "textures" / f"{body}.jpg", data, overwrite, written)
-
-    files = {
-        "h3": "earth_h3.txt",
-        "features": "earth_features.f32",
-        "lith": "earth_lith.f32",
-        "latlng": "earth_latlng.f32",
-        "novelty": "earth_novelty.f32",
-        "cluster": "earth_cluster.i16",
-        "flags": "earth_flags.u8",
-        "targets": "targets.json",
-        "index_map": "earth_index_4096x2048.png",
-    }
-    for body in ("moon", "mars"):
-        files[f"{body}_features"] = f"{body}_features.f32"
-        files[f"{body}_lith"] = f"{body}_lith.f32"
-        files[f"{body}_latlon"] = f"{body}_latlon.f32"
-    features_meta = [
-        {
-            "name": f.name,
-            "group": f.group,
-            "unit": f.unit,
-            "transform": f.transform,
-            "median": sc["median"],
-            "s": sc["s"],
-        }
-        for f, sc in zip(prof.features, scaler, strict=True)
-    ]
-    manifest = {
-        "contract": "doppelgrund-bundle/1",
-        "created_utc": SYNTHETIC_CREATED_UTC,
-        "synthetic": True,
-        "h3_res": 4,
-        "n_hex": len(cells),
-        "features": features_meta,
-        "lith_classes": list(prof.lith_classes),
-        "compat_matrix": prof.compat_matrix.tolist(),
-        "lenses": prof.lenses,
-        "params": prof.params,
-        "files": files,
-        "sources": [
+        textures[body] = real.read_bytes() if real.is_file() else _jpeg_bytes(_texture(body))
+    written = write_bundle(
+        out_dir,
+        prof=prof,
+        scaler=scaler,
+        cells=cells,
+        earth_features=earth[list(EXPECTED_FEATURES)].to_numpy(np.float32),
+        earth_lith=earth[LITH_COLS].to_numpy(np.float32),
+        earth_latlng=earth[["lat", "lng"]].to_numpy(np.float32),
+        novelty=nov,
+        cluster=cluster,
+        flags=fl,
+        discs=discs,
+        targets=tjson,
+        stability=stability,
+        layers=layers,
+        textures=textures,
+        sources=[
             {"feature": name, "body": b, "dataset": "synthetic", "version": f"seed {seed}"}
             for name in [*(f.name for f in prof.features), "lith"]
             for b in ("earth", "moon", "mars")
         ],
-    }
-    _write(out_dir / "manifest.json", _json_bytes(manifest), overwrite, written)
+        synthetic=True,
+        created_utc=SYNTHETIC_CREATED_UTC,
+        overwrite=overwrite,
+    )
     if sample and n_hex > SAMPLE_N_HEX:
         written += write_synthetic_bundle(
             out_dir / "sample", seed, SAMPLE_N_HEX, overwrite, sample=False
