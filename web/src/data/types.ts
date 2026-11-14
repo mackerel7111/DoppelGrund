@@ -13,9 +13,10 @@ export const FEATURE_NAMES = [
   'frac_below_0C',
   'permafrost_prob',
   'aridity_index',
+  'pit_cave_density_per_1000km2',
 ] as const;
 export type FeatureName = (typeof FEATURE_NAMES)[number];
-export const N_FEATURES = FEATURE_NAMES.length; // 10
+export const N_FEATURES = FEATURE_NAMES.length; // 11
 
 /** C1 lithology classes in vector order. */
 export const LITH_CLASSES = [
@@ -30,7 +31,7 @@ export type LithClass = (typeof LITH_CLASSES)[number];
 export const N_LITH = LITH_CLASSES.length; // 6
 
 /** Group ids in C5 card order. */
-export const GROUP_IDS = ['terrain', 'thermal', 'cold_ice', 'composition'] as const;
+export const GROUP_IDS = ['terrain', 'thermal', 'cold_ice', 'composition', 'subsurface'] as const;
 export type GroupId = (typeof GROUP_IDS)[number];
 export type NumericGroupId = Exclude<GroupId, 'composition'>;
 
@@ -46,6 +47,7 @@ export const FEATURE_GROUPS: readonly NumericGroupId[] = [
   'cold_ice',
   'cold_ice',
   'cold_ice',
+  'subsurface',
 ];
 
 export const LENS_IDS = [
@@ -161,7 +163,7 @@ export interface Target {
   body: Body;
   lat: number;
   lon: number;
-  features: Float64Array; // 10, raw (untransformed)
+  features: Float64Array; // 11, raw (untransformed)
   lith: Float64Array; // 6
   cluster: number | null;
   notes: string;
@@ -171,7 +173,7 @@ export interface Target {
 /** Optional per-body disc grid (M discs). */
 export interface DiscGrid {
   n: number;
-  features: Float32Array; // M×10 raw
+  features: Float32Array; // M×11 raw
   lith: Float32Array; // M×6
   latlon: Float32Array; // M×2 [lat, lon]
 }
@@ -187,7 +189,7 @@ export const FLAG_KNOWN_SITE = 16;
 export interface Bundle {
   manifest: Manifest;
   h3: string[];
-  features: Float32Array; // N×10 raw
+  features: Float32Array; // N×11 raw
   lith: Float32Array; // N×6
   latlng: Float32Array; // N×2 [lat, lng]
   novelty: Float32Array; // N×2 [geo_novelty_km, feat_novelty]
@@ -229,7 +231,7 @@ export interface Palette {
 }
 
 export interface RankTarget {
-  features: number[]; // 10 raw values, NaN = missing
+  features: number[]; // 11 raw values, NaN = missing
   lith: number[]; // 6
 }
 

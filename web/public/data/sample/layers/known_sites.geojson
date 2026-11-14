@@ -14,8 +14,8 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     -70.39879,
-     -24.27233
+     124.78918,
+     70.72635
     ]
    }
   },
@@ -32,8 +32,8 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     -69.84149,
-     -25.62096
+     47.78451,
+     23.41515
     ]
    }
   },
@@ -50,8 +50,8 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     128.12403,
-     -24.21814
+     46.32058,
+     22.23461
     ]
    }
   },
@@ -68,8 +68,8 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     161.48064,
-     -78.98273
+     8.79926,
+     22.76049
     ]
    }
   },
@@ -81,13 +81,13 @@
     "body": "earth",
     "synthetic": true,
     "well_known": true,
-    "dimension": "terrain"
+    "dimension": "subsurface"
    },
    "geometry": {
     "type": "Point",
     "coordinates": [
-     155.62698,
-     -79.25315
+     127.44128,
+     -24.80787
     ]
    }
   }

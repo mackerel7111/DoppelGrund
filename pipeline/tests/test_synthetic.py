@@ -110,7 +110,7 @@ def test_array_lengths_match_n_hex(bundle: Path) -> None:
     assert len(h3_lines) == n
     assert all(h3.get_resolution(c) == 4 for c in h3_lines)
     sizes = {
-        "earth_features.f32": n * 10 * 4,
+        "earth_features.f32": n * 11 * 4,
         "earth_lith.f32": n * 6 * 4,
         "earth_latlng.f32": n * 2 * 4,
         "earth_novelty.f32": n * 2 * 4,
@@ -120,8 +120,8 @@ def test_array_lengths_match_n_hex(bundle: Path) -> None:
     for name, size in sizes.items():
         assert (bundle / name).stat().st_size == size, name
     moon = np.fromfile(bundle / "moon_features.f32", dtype="<f4")
-    assert moon.size % 10 == 0
-    assert np.fromfile(bundle / "moon_latlon.f32", dtype="<f4").size == moon.size // 5
+    assert moon.size % 11 == 0
+    assert np.fromfile(bundle / "moon_latlon.f32", dtype="<f4").size == moon.size // 11 * 2
 
 
 def test_nan_fraction_per_feature(tables: dict[str, pd.DataFrame]) -> None:
@@ -131,6 +131,9 @@ def test_nan_fraction_per_feature(tables: dict[str, pd.DataFrame]) -> None:
         if name == "permafrost_prob":  # defined only north of 45°N (design §5)
             x = x[earth["lat"].to_numpy() > 45.0]
         frac = float(np.isnan(x).mean())
+        if name == "pit_cave_density_per_1000km2":  # only surveyed hexes carry a value
+            assert 0.80 <= frac <= 0.97, (name, frac)
+            continue
         assert 0.05 <= frac <= 0.15, (name, frac)
     feats = earth[list(EXPECTED_FEATURES)].to_numpy()
     assert np.isnan(feats).all(axis=1).sum() > 0  # some all-NaN rows
@@ -148,6 +151,12 @@ def test_value_ranges_and_definitions(tables: dict[str, pd.DataFrame]) -> None:
         assert discs["permafrost_prob"].isna().all()
         assert ((discs["lon"] >= -180) & (discs["lon"] < 180)).all()
     assert mars["lst_mean_K"].isna().all()
+    cave = "pit_cave_density_per_1000km2"
+    assert mars[cave].isna().all()  # no Mars catalogue
+    for df in (earth, moon):
+        x = df[cave].to_numpy()
+        assert np.nanmin(x) == 0.0 and np.isnan(x).any() and (x[np.isfinite(x)] >= 0).all()
+        assert (x[np.isfinite(x)] > 0).any()  # some catalogued hits
     lith = earth[[f"lith_{c}" for c in EXPECTED_LITH]].to_numpy()
     ok = ~np.isnan(lith).any(axis=1)
     np.testing.assert_allclose(lith[ok].sum(axis=1), 1.0, atol=1e-5)
@@ -160,7 +169,7 @@ def test_targets(tables: dict[str, pd.DataFrame], bundle: Path) -> None:
     assert all(i.startswith("synthetic_") for i in t["target_id"])
     assert t["lat"].min() < -88.5  # a near-pole target exercises the polar path
     targets = json.loads((bundle / "targets.json").read_text(encoding="utf-8"))
-    assert all(len(x["features"]) == 10 and len(x["lith"]) == 6 for x in targets)
+    assert all(len(x["features"]) == 11 and len(x["lith"]) == 6 for x in targets)
     mars = next(x for x in targets if x["body"] == "mars")
     assert mars["features"][4] is None  # NaN written as null
 

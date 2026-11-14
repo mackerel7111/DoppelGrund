@@ -1,17 +1,18 @@
 # About & methods
 
-DoppelGrund (Global Analogue Discovery Engine) scores every Earth land hexagon against a Moon or Mars landmark, shows the best Earth match for each dimension (terrain, thermal, cold & ice, composition) plus the best overall, flags places nobody has studied, and states plainly where each analogy fails.
+DoppelGrund (Global Analogue Discovery Engine) scores every Earth land hexagon against a Moon or Mars landmark, shows the best Earth match for each dimension (terrain, thermal, cold & ice, composition, subsurface) plus the best overall, flags places nobody has studied, and states plainly where each analogy fails.
 
 ## What is compared
 
 Every place becomes a fingerprint of physical, unit-bearing features. Earth uses H3 resolution-4 hexagons (about 1,770 km² each). The Moon and Mars use discs of the same area (radius 23.7 km), so a landmark match compares its ~47 km-wide surroundings, not the landmark alone.
 
-The four groups below are the traits shown in the app.
+The five groups below are the traits shown in the app.
 
-- Terrain: median and 90th-percentile slope (degrees), relief as elevation standard deviation (m), share of the footprint with slope below 10°.
-- Thermal: mean surface temperature, day–night range and annual range (K). Earth uses MODIS Terra overpass times; the Moon uses Diviner local-time bins at the same hours. Mars thermal is not measured yet.
+- Terrain: median and 90th-percentile slope (degrees), relief as elevation standard deviation (m), share of the footprint with slope below 10°. Earth elevation averages Copernicus GLO-30 and NASADEM where both exist.
+- Thermal: mean surface temperature, day–night range and annual range (K). Earth averages MODIS MOD11A2 and MOD21A1D/N, both Terra overpasses at about 10:30 and 22:30; the Moon uses Diviner local-time bins at the same hours. Mars thermal is not measured yet.
 - Cold & ice: share of samples below 0 °C, permafrost extent (Northern Hemisphere only), aridity index (P/PET; 0 by definition on the Moon and Mars).
 - Composition: a six-class lithology vector (mafic volcanic, felsic/feldspathic, carbonate, siliciclastic, evaporite, ice) from geologic maps through a crosswalk.
+- Subsurface: catalogued pits, lava tubes and caves per 1,000 km² (log scale). This is a prior taken from catalogues, not a detection: places outside a surveyed area are "not measured", never zero, and Mars has no catalogue yet.
 
 Missing data stays missing. It is shown as "not measured" and reduces coverage; it is never filled with zero or an average. Barren-ground filtering on Earth is a mask applied before ranking, never a scored feature.
 
@@ -19,7 +20,7 @@ Missing data stays missing. It is shown as "not measured" and reduces coverage; 
 
 Each feature is compared with a tolerance kernel on a pooled scale: similarity = exp(−0.5·z²), where z is the gap divided by a tolerance fitted on Earth, Moon and Mars together. Lithology is compared as one minus the Hellinger distance between smoothed class vectors. Group scores and the overall score S (0–100) are weighted averages over the features that are measured on both sides; coverage is the share of weight that could be compared. A hexagon is ranked only when coverage is at least the configured floor.
 
-Mission focus presets (Balanced, Landing & mobility, Cold regions & volatiles, Geology & minerals) change only how much each of the four traits counts. Moving a slider renormalises the four weights and re-ranks every hexagon in your browser.
+Mission focus presets (Balanced, Landing & mobility, Cold regions & volatiles, Geology & minerals) change only how much each of the five traits counts. Moving a slider renormalises the five weights and re-ranks every hexagon in your browser.
 
 Stability is the share of perturbed runs (random lens weights around the chosen lens and jittered tolerances, with a fixed seed) in which a hexagon stays in the top 1%. Novelty is the distance in km to the nearest documented analogue site.
 
@@ -31,7 +32,7 @@ Stability is the share of perturbed runs (random lens weights around the chosen 
 | PCA, GMM, HDBSCAN clustering                     | Unsupervised machine learning                  |
 | Weight calibration on known site pairs           | Weakly supervised learning on a very small set |
 | Novelty, stability                               | Statistical analysis built on the scores       |
-| Neural networks                                  | None are used anywhere in DoppelGrund                 |
+| Neural networks                                  | None are used anywhere in DoppelGrund          |
 
 ## Validation
 

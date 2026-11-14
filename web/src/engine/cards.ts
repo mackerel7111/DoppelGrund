@@ -2,6 +2,7 @@
 import { GROUP_IDS, type Card } from '../data/types';
 import { haversineKm } from './geo';
 import { percentileLinear } from './percentile';
+import { N_GROUPS } from './scoring';
 
 export interface CardParams {
   coverage_floor: number;
@@ -53,10 +54,10 @@ export function selectCards(
     if (Number.isFinite(thr)) {
       for (let i = 0; i < n; i++) {
         if (!eligible[i] || !(S[i] >= thr)) continue;
-        const sg = groups[i * 4 + gi];
+        const sg = groups[i * N_GROUPS + gi];
         if (!Number.isFinite(sg)) continue;
         if (pick >= 0) {
-          const sp = groups[pick * 4 + gi];
+          const sp = groups[pick * N_GROUPS + gi];
           if (sg < sp || (sg === sp && S[i] <= S[pick])) continue; // ties → higher S, lower row
         }
         let far = true;
@@ -76,7 +77,7 @@ export function selectCards(
         kind: g,
         row: pick,
         S: S[pick],
-        S_g: groups[pick * 4 + gi],
+        S_g: groups[pick * N_GROUPS + gi],
         coverage: cov[pick],
       });
     } else {

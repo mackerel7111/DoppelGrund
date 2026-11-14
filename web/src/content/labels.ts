@@ -57,6 +57,7 @@ export const GROUP_NAMES: Record<GroupId, string> = {
   thermal: 'Thermal',
   cold_ice: 'Cold & ice',
   composition: 'Composition',
+  subsurface: 'Subsurface',
 };
 
 /** Lower-case dimension names used inside sentences. */
@@ -65,6 +66,7 @@ export const DIMENSION_WORDS: Record<GroupId, string> = {
   thermal: 'thermal',
   cold_ice: 'cold & ice',
   composition: 'composition',
+  subsurface: 'subsurface',
 };
 
 export const CARD_TITLES: Record<CardKind, string> = {
@@ -73,6 +75,7 @@ export const CARD_TITLES: Record<CardKind, string> = {
   thermal: 'Best thermal match',
   cold_ice: 'Best cold & ice match',
   composition: 'Best composition match',
+  subsurface: 'Best subsurface match',
 };
 
 export function emptyCardText(kind: CardKind): string {
@@ -91,6 +94,7 @@ export const FEATURE_LABELS: Record<string, string> = {
   frac_below_0C: 'Share of samples < 0 °C',
   permafrost_prob: 'Permafrost extent (fraction)',
   aridity_index: 'Aridity index (P/PET)',
+  pit_cave_density_per_1000km2: 'Catalogued pits/caves per 1000 km²',
 };
 
 export const LITH_LABELS: Record<string, string> = {
@@ -119,5 +123,6 @@ export const COLOR_OPTIONS: { id: ColorBy; label: string }[] = [
   { id: 'thermal', label: 'Thermal' },
   { id: 'cold_ice', label: 'Cold & ice' },
   { id: 'composition', label: 'Composition' },
+  { id: 'subsurface', label: 'Subsurface' },
   { id: 'novelty', label: 'Distance from known sites' },
 ];

@@ -20,12 +20,23 @@ earth_climate:    {id_or_url: "", access: ee, version: "", licence: "", citation
 earth_glim:       {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 earth_permafrost: {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 earth_volcanoes:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+# Added 2026-11-14 on the user's instruction (data fusion + subsurface feature); values come from the
+# Earth Engine / NSIDC catalogue pages read that day, all verified: false until a human confirms. Empty = TODO(verify).
+# NASADEM is fused with earth_dem (mean where both exist). MOD21A1D/N are fused with earth_lst_terra (Terra only, science-invariant 6).
+earth_dem_nasadem:     {id_or_url: "NASA/NASADEM_HGT/001", access: ee, band: elevation, version: "001", licence: "NASA-produced data may be used for any purpose without prior permission (Earth Engine catalogue)", citation: "NASA JPL (2020). NASADEM Merged DEM Global 1 arc second V001. NASA EOSDIS Land Processes DAAC. doi:10.5067/MEaSUREs/NASADEM/NASADEM_HGT.001", verified: false}
+earth_lst_mod21_day:   {id_or_url: "MODIS/061/MOD21A1D", access: ee, band: LST_1KM, version: "061", licence: "No restrictions on use, sale or redistribution (LP DAAC, per the Earth Engine catalogue)", citation: "", verified: false}
+earth_lst_mod21_night: {id_or_url: "MODIS/061/MOD21A1N", access: ee, band: LST_1KM, version: "061", licence: "No restrictions on use, sale or redistribution (LP DAAC, per the Earth Engine catalogue)", citation: "", verified: false}
+# Optional cross-check only (not in Earth Engine; 6 h / 18 h overpass, so not fused without a human exception to science-invariant 6). Check the current version/resolution first (NSIDC lists V004).
+earth_smap_ft:         {id_or_url: "SPL3FTP_E (NSIDC DAAC, via NASA Earthdata)", access: download, version: "", licence: "", citation: "", verified: false}
+# Catalogues behind pit_cave_density_per_1000km2. Human-supplied; also record the survey-coverage rule for each.
+earth_caves:           {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+mars_caves:            {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 earth_land:       {id_or_url: "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson", access: download, version: "Natural Earth 1:110m Physical Vectors, land (coordinates rounded to 3 decimals in config/ne_land.geojson)", licence: "Public domain (Natural Earth terms of use: naturalearthdata.com/about/terms-of-use)", citation: "Made with Natural Earth. Free vector and raster map data @ naturalearthdata.com.", verified: true}
 moon_dem_stage1:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 moon_dem_stage2:  {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 moon_diviner:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 moon_geology:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
-moon_pits:        {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
+moon_pits:        {id_or_url: "https://data.lroc.im-ldi.com/lroc/view_rdr/SHAPEFILE_LUNAR_PIT_LOCATIONS", access: download, version: "", licence: "", citation: "", verified: false}
 mars_dem:         {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 mars_geology:     {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}
 mars_tes_ti:      {id_or_url: "", access: download, version: "", licence: "", citation: "", verified: false}

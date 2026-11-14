@@ -239,7 +239,7 @@ EE_COLS = [c for c in EE_RAW if c not in ("z_mean", "z2_mean")] + ["relief_std_m
 
 
 def earth_remote(cells, batch=2000):
-    """Earth Engine reducers per hex. Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
+    """Earth Engine reducers per hex. Terrain fuses GLO-30 + NASADEM, thermal fuses MOD11A2 + MOD21A1D/N (mean where both exist). Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
     import ee
     import h3  # imported here so the offline run needs no earthengine-api
 
@@ -252,12 +252,11 @@ def earth_remote(cells, batch=2000):
     except Exception:
         ee.Authenticate()
         ee.Initialize(project=EE_PROJECT)
-    dem = (
-        ee.ImageCollection("COPERNICUS/DEM/GLO30_2024_1")
-        .select("DEM")
-        .mosaic()
-        .setDefaultProjection("EPSG:4326", None, 30)
-    )
+    # Mean where both DEMs have a pixel, else whichever has one (ImageCollection.mean ignores masked pixels).
+    # NASADEM (SRTM, 2000) stops near +-60 deg, so poleward the DEM is GLO-30 alone (TODO(verify) the limit).
+    glo = ee.ImageCollection("COPERNICUS/DEM/GLO30_2024_1").select("DEM").mosaic()
+    nasadem = ee.Image("NASA/NASADEM_HGT/001").select("elevation").rename("DEM")
+    dem = ee.ImageCollection([glo, nasadem]).mean().setDefaultProjection("EPSG:4326", None, 30)
     z = dem.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(
         "EPSG:4326", None, SCALE_M
     )
@@ -273,17 +272,52 @@ def earth_remote(cells, batch=2000):
         .addBands(slope.lt(10).rename("frac_slope_lt_10deg"))
     )
     lst = ee.ImageCollection("MODIS/061/MOD11A2").filterDate("2010-01-01", "2020-01-01")
-    day = lst.select("LST_Day_1km").mean().multiply(0.02)
-    night = lst.select("LST_Night_1km").mean().multiply(0.02)
+    # MOD21A1D/N: Terra daily LST (K, scale already applied), same overpasses as MOD11A2, so science
+    # invariant 6 holds. ponytail: ~7,300 daily images; if reducers time out, aggregate monthly or
+    # shorten the window (record it in datasets.yaml). Aqua/VIIRS/ECOSTRESS/SMAP are NOT overpass-matched.
+    d21 = ee.ImageCollection("MODIS/061/MOD21A1D").filterDate("2010-01-01", "2020-01-01")
+    n21 = ee.ImageCollection("MODIS/061/MOD21A1N").filterDate("2010-01-01", "2020-01-01")
+
+    def fuse(a, b):
+        """Mean where both images have a pixel, else the one that does (masked pixels are ignored)."""
+        return ee.ImageCollection([a, b]).mean()
+
+    day = fuse(
+        lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST"),
+        d21.select("LST_1KM").mean().rename("LST"),
+    )
+    night = fuse(
+        lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST"),
+        n21.select("LST_1KM").mean().rename("LST"),
+    )
     mean_ = lst.map(
-        lambda i: i.select("LST_Day_1km")
-        .add(i.select("LST_Night_1km"))
-        .multiply(0.01)
-        .rename("m")
-        .copyProperties(i, ["system:time_start"])  # map() drops the timestamp calendarRange needs
+        lambda i: (
+            i.select("LST_Day_1km")
+            .add(i.select("LST_Night_1km"))
+            .multiply(0.01)
+            .rename("m")
+            .copyProperties(i, ["system:time_start"])
+        )  # map() drops the timestamp calendarRange needs
     )
     months = ee.ImageCollection(
-        [mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean() for m in range(1, 13)]
+        [
+            fuse(
+                mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST"),
+                d21.filter(ee.Filter.calendarRange(m, m, "month"))
+                .select("LST_1KM")
+                .mean()
+                .add(n21.filter(ee.Filter.calendarRange(m, m, "month")).select("LST_1KM").mean())
+                .divide(2)
+                .rename("LST"),
+            )
+            for m in range(1, 13)
+        ]
+    )
+    # share of valid samples < 0 C, averaged over the two products (MOD21 pools its day and night samples)
+    lt0 = lambda ic, b: ic.select(b).map(lambda i: i.lt(273.15)).mean().rename("f")
+    below0 = fuse(
+        mean_.map(lambda i: i.lt(273.15)).mean().rename("f"),
+        fuse(lt0(d21, "LST_1KM"), lt0(n21, "LST_1KM")),
     )
     thermal = (
         day.add(night)
@@ -291,7 +325,7 @@ def earth_remote(cells, batch=2000):
         .rename("lst_mean_K")
         .addBands(day.subtract(night).rename("diurnal_range_K"))
         .addBands(months.max().subtract(months.min()).rename("annual_range_K"))
-        .addBands(mean_.map(lambda i: i.lt(273.15)).mean().rename("frac_below_0C"))
+        .addBands(below0.rename("frac_below_0C"))
     )
     lc = (
         ee.ImageCollection("MODIS/061/MCD12Q1")
@@ -724,6 +758,10 @@ def targets_real(moon, mars):
 
 def earth_table_real(cells):
     e = earth_remote(cells).merge(earth_local(cells), on="h3", how="left")
+    if "pit_cave_density_per_1000km2" not in e:
+        # TODO(verify): catalogue ingestion needs earth_caves + a survey-coverage rule (datasets.yaml).
+        # NaN means "not catalogued / not surveyed", never 0 (science-invariant 1).
+        e["pit_cave_density_per_1000km2"] = np.nan
     e["vf_dem"] = e["slope_p50_deg"].notna()
     e["vf_lst"] = e["lst_mean_K"].notna()
     e["vf_lith"] = e["lith_mafic_volcanic"].notna()

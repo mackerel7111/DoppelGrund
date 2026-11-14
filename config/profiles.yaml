@@ -1,7 +1,7 @@
 # DoppelGrund profiles: single source of truth for features, lithology classes, compatibility matrix,
 # lenses and parameters. Copied verbatim from data-contracts.md C3 (humans change contracts).
 version: 1
-features:            # exactly C1, same order
+features:            # exactly C1, same order (11)
   - {name: slope_p50_deg, group: terrain, unit: deg, transform: none}
   - {name: slope_p90_deg, group: terrain, unit: deg, transform: none}
   - {name: relief_std_m, group: terrain, unit: m, transform: log1p}
@@ -12,6 +12,7 @@ features:            # exactly C1, same order
   - {name: frac_below_0C, group: cold_ice, unit: fraction, transform: none}
   - {name: permafrost_prob, group: cold_ice, unit: fraction, transform: none}
   - {name: aridity_index, group: cold_ice, unit: ratio, transform: log1p}
+  - {name: pit_cave_density_per_1000km2, group: subsurface, unit: per_1000km2, transform: log1p}
 lith_classes: [mafic_volcanic, felsic_feldspathic, carbonate, siliciclastic, evaporite, ice]
 compat_matrix:       # 6x6, symmetric, diagonal 1.0, values in [0,1]; illustrative, set by humans
   - [1.0, 0.2, 0.0, 0.1, 0.0, 0.0]
@@ -20,12 +21,12 @@ compat_matrix:       # 6x6, symmetric, diagonal 1.0, values in [0,1]; illustrati
   - [0.1, 0.2, 0.2, 1.0, 0.2, 0.0]
   - [0.0, 0.0, 0.3, 0.2, 1.0, 0.0]
   - [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
-groups: [terrain, thermal, cold_ice, composition]
+groups: [terrain, thermal, cold_ice, composition, subsurface]
 lenses:
-  balanced:         {terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25}
-  landing_mobility: {terrain: 0.70, thermal: 0.15, cold_ice: 0.00, composition: 0.15}
-  cold_volatiles:   {terrain: 0.15, thermal: 0.30, cold_ice: 0.45, composition: 0.10}
-  geology_minerals: {terrain: 0.20, thermal: 0.10, cold_ice: 0.10, composition: 0.60}
+  balanced:         {terrain: 0.225, thermal: 0.225, cold_ice: 0.225, composition: 0.225, subsurface: 0.10}
+  landing_mobility: {terrain: 0.70, thermal: 0.15, cold_ice: 0.00, composition: 0.15, subsurface: 0.00}
+  cold_volatiles:   {terrain: 0.15, thermal: 0.30, cold_ice: 0.45, composition: 0.10, subsurface: 0.00}
+  geology_minerals: {terrain: 0.20, thermal: 0.10, cold_ice: 0.10, composition: 0.55, subsurface: 0.05}
 params:
   seed: 20261114
   footprint_radius_km: 23.7

@@ -33,3 +33,4 @@ No neural networks are used inside DoppelGrund itself; this log covers the AI co
 | 03/3.15 | Claude Opus 5.5 | 2026-10-30 | | globe scene |
 | 03/3.16 | Claude Opus 5.5 | 2026-10-30 | | globe picking and arcs |
 | 03/3.17 | Claude Opus 5.5 | 2026-10-30 | | About & methods (O4: validation "Pending validation") |
+| fusion+subsurface/step1 | Claude Sonnet 5.5 | 2026-11-14 | | contracts C1/C3-C8, product.md, science-invariants, datasets.yaml: Earth DEM/LST fusion sources and `pit_cave_density_per_1000km2` (user-approved plan) |
