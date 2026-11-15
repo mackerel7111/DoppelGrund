@@ -18,6 +18,7 @@ import {
   type FeatureRow,
 } from '../stores/selectors';
 import { FLAG_MASKED, GROUP_IDS } from '../data/types';
+import { heatCss } from '../map/palette';
 
 const props = defineProps<{ row: number }>();
 const emit = defineEmits<{
@@ -101,6 +102,7 @@ const traitPredictions = computed(() => {
       id: g,
       label: GROUP_NAMES[g],
       score: Number.isFinite(val) ? val.toFixed(0) : null,
+      bar: Number.isFinite(val) ? { '--v': val / 100, '--c': heatCss(val) } : undefined,
       weight: Math.round(s.effective[g] * 100),
     };
   }).filter((t) => t.score !== null || t.weight > 0);
@@ -143,22 +145,22 @@ const weakCount = computed(() => {
 <template>
   <aside
     v-if="info"
-    class="briefing-card"
+    class="briefing-card hud"
     aria-label="Earth site briefing"
     data-test="site-briefing"
   >
-    <div class="brief-top">
+    <header class="brief-top">
       <div class="title-block">
         <div class="title-row">
           <h2 class="site-title">{{ headline }}</h2>
-          <span v-if="info.knownSite" class="badge known">{{ TERMS.knownSite }}</span>
+          <span v-if="info.knownSite" class="tag">{{ TERMS.knownSite }}</span>
           <span
             v-else-if="
               Number.isFinite(info.noveltyKm) &&
               s.bundle &&
               info.noveltyKm >= s.bundle.manifest.params.novelty_gate_km
             "
-            class="badge novel"
+            class="tag earth"
           >
             {{ TERMS.novel }}
           </span>
@@ -170,113 +172,121 @@ const weakCount = computed(() => {
         </p>
       </div>
 
-      <div class="score-pill" :title="GLOSSARY.S">
-        <span class="score-num num">{{ overall ?? 'Excluded' }}</span>
-        <span v-if="overall !== null" class="score-den">/ 100</span>
+      <div v-if="overall !== null" class="score" :title="GLOSSARY.S">
+        <span class="score-num num">{{ overall }}</span>
+        <span class="score-den">/ 100</span>
       </div>
-    </div>
+      <span v-else class="tag" :title="GLOSSARY.S">Excluded</span>
+    </header>
 
-    <div v-if="!isEligible || isMasked" class="excluded-box">
-      <p class="excluded-text">
-        <template v-if="isMasked">
-          This Earth cell is masked (vegetated, urban, ice, or water), so the model does not rank it
-          as an ideal location.
-        </template>
-        <template v-else>
-          Coverage is below the {{ coverageFloorPct }}% minimum floor, so this cell is excluded from
-          ranked predictions.
-        </template>
-      </p>
-      <button
-        v-if="bestOverallCard && bestOverallCard.row !== null && bestOverallCard.row !== props.row"
-        type="button"
-        class="jump-best-btn"
-        data-test="jump-best-overall"
-        @click="s.selectRow(bestOverallCard.row)"
-      >
-        Jump to #1 Best overall ({{ bestOverallCard.S.toFixed(1) }}) &rarr;
-      </button>
-    </div>
-
-    <div v-else class="pred-block">
-      <div class="pred-head">Model trait predictions</div>
-      <div class="pred-grid">
-        <div v-for="tp in traitPredictions" :key="tp.id" class="pred-chip">
-          <span class="pred-k">{{ tp.label }}</span>
-          <span class="pred-v num">{{ tp.score ?? '--' }}</span>
-        </div>
+    <div class="brief-body">
+      <div v-if="!isEligible || isMasked" class="excluded-box">
+        <p class="excluded-text">
+          <template v-if="isMasked">
+            This Earth cell is masked (vegetated, urban, ice, or water), so the model does not rank
+            it as an ideal location.
+          </template>
+          <template v-else>
+            Coverage is below the {{ coverageFloorPct }}% minimum floor, so this cell is excluded
+            from ranked predictions.
+          </template>
+        </p>
+        <button
+          v-if="
+            bestOverallCard && bestOverallCard.row !== null && bestOverallCard.row !== props.row
+          "
+          type="button"
+          class="tab jump-best-btn"
+          data-test="jump-best-overall"
+          @click="s.selectRow(bestOverallCard.row)"
+        >
+          Jump to #1 Best overall ({{ bestOverallCard.S.toFixed(1) }}) &rarr;
+        </button>
       </div>
-      <p v-if="info.stability !== null" class="stab-note">
-        {{ stabilityText(info.stabilityAvailable, info.stability) }}
+
+      <section v-else class="pred-block" aria-label="Model trait predictions">
+        <h3 class="pred-head">Model trait predictions</h3>
+        <ul class="traits">
+          <li v-for="tp in traitPredictions" :key="tp.id">
+            <span class="trait-k">{{ tp.label }}</span>
+            <span class="score-bar" :class="{ none: !tp.bar }" :style="tp.bar" />
+            <span class="trait-v num">{{ tp.score ?? '--' }}</span>
+          </li>
+        </ul>
+        <p v-if="info.stability !== null" class="stab-note">
+          {{ stabilityText(info.stabilityAvailable, info.stability) }}
+        </p>
+      </section>
+
+      <div class="stats-row">
+        <span v-for="chip in quickChips" :key="chip.label" class="stat">
+          {{ chip.label }} <b>{{ chip.value }}</b>
+        </span>
+      </div>
+
+      <p class="warn-strip" role="note">
+        <span class="warn-main">{{ unmatchableSummary }}</span>
+        <span v-if="weakCount > 0" class="warn-weak">
+          &middot; {{ weakCount }} weak feature {{ weakCount === 1 ? 'match' : 'matches' }}
+        </span>
       </p>
     </div>
 
-    <div class="chips-row">
-      <span v-for="chip in quickChips" :key="chip.label" class="metric-chip">
-        <span class="chip-k">{{ chip.label }}:</span>
-        <span class="chip-v num">{{ chip.value }}</span>
-      </span>
-    </div>
-
-    <div class="warn-strip">
-      <span class="warn-main">{{ unmatchableSummary }}</span>
-      <span v-if="weakCount > 0" class="warn-weak">
-        &middot; {{ weakCount }} weak feature {{ weakCount === 1 ? 'match' : 'matches' }}
-      </span>
-    </div>
-
-    <div class="brief-actions">
+    <footer class="brief-actions">
       <button
         type="button"
-        class="dismiss-btn"
+        class="tab"
         aria-label="Close site briefing"
+        data-test="dismiss-briefing"
         @click="emit('close')"
       >
         Dismiss
       </button>
       <button
         type="button"
-        class="details-btn"
+        class="tab details-btn"
         data-test="open-details"
         @click="emit('viewDetails')"
       >
         View details &rarr;
       </button>
-    </div>
+    </footer>
   </aside>
 </template>
 
 <style scoped>
+/*
+ * facePoint yaws the selected Earth site toward the camera, then pitches it about the world x-axis:
+ * its sideways offset grows with latitude (up to ~130px at the pole at 1920), but it rests within
+ * ~25px of the canvas's vertical centre line (measured at 89°S). Ending the card at 50vh - 48px keeps
+ * it off the site at every width and latitude; the Moon target is at 26.5% of the width.
+ * ponytail: holds at rest only; the idle spin (15 s after the last input) and drags move the site.
+ * Upgrade: project the site with GlobeScene.worldPoint each frame and flip the card to the left.
+ */
 .briefing-card {
   position: fixed;
+  top: 72px; /* header bottom (64) + 8 */
   right: var(--s4);
-  top: 50%;
-  transform: translateY(-50%);
   z-index: 16;
   pointer-events: auto;
   width: min(364px, calc(100vw - 32px));
-  max-height: calc(100vh - 196px);
-  overflow-y: auto;
-  display: grid;
-  gap: 10px;
-  padding: 14px 16px;
-  background: rgba(11, 14, 19, 0.88);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(102, 217, 239, 0.28);
-  border-radius: 14px;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
+  max-height: calc(50vh - 120px); /* top 72, bottom 50vh - 48: above the site's row */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .brief-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--s3);
+  padding: var(--s4) var(--s4) var(--s2);
 }
 
 .title-block {
   display: grid;
-  gap: 4px;
+  gap: var(--s1);
   min-width: 0;
 }
 
@@ -284,179 +294,140 @@ const weakCount = computed(() => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--s2);
 }
 
 .site-title {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.badge {
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--fs-card);
   font-weight: 500;
-}
-
-.badge.novel {
-  color: var(--accent-earth);
-  background: rgba(102, 217, 239, 0.14);
-  border: 1px solid rgba(102, 217, 239, 0.35);
-}
-
-.badge.known {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s1); /* Vue drops the spaces between these spans */
   margin: 0;
-  font-size: 12px;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.4;
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
 }
 
-.score-pill {
+.score {
   flex-shrink: 0;
   display: inline-flex;
   align-items: baseline;
-  gap: 3px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(242, 169, 59, 0.1);
-  border: 1px solid rgba(242, 169, 59, 0.35);
+  gap: var(--s1);
 }
 
 .score-num {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent-warn);
+  font-size: var(--fs-section);
+  font-weight: 500;
+  color: var(--text);
 }
 
 .score-den {
-  font-size: 11px;
-  color: var(--text-muted, #94a3b8);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
+}
+
+.brief-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: var(--s3);
+  padding: 0 var(--s4) var(--s2);
 }
 
 .excluded-box {
-  padding: 9px 11px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.14);
   display: grid;
-  gap: 8px;
+  gap: var(--s2);
+  padding: var(--s3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
 }
 
 .excluded-text {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--text-muted, #94a3b8);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
 }
 
 .jump-best-btn {
   justify-self: start;
-  padding: 5px 11px;
-  border-radius: 999px;
-  background: rgba(102, 217, 239, 0.16);
-  border: 1px solid var(--accent-earth);
+  border-color: var(--border);
   color: var(--accent-earth);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.jump-best-btn:hover {
-  background: rgba(102, 217, 239, 0.26);
 }
 
 .pred-block {
   display: grid;
-  gap: 6px;
+  gap: var(--s2);
 }
 
 .pred-head {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted, #94a3b8);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
-.pred-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+.traits {
+  display: grid;
+  gap: var(--s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.pred-chip {
-  display: inline-flex;
+.traits li {
+  display: grid;
+  grid-template-columns: 112px 1fr 28px;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
-  border-radius: 8px;
-  background: rgba(102, 217, 239, 0.08);
-  border: 1px solid rgba(102, 217, 239, 0.22);
-  font-size: 11.5px;
+  gap: var(--s3);
+  font-size: var(--fs-meta);
 }
 
-.pred-k {
-  color: var(--text-muted, #94a3b8);
+.trait-k {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.pred-v {
-  color: var(--accent-earth);
-  font-weight: 600;
+.trait-v {
+  text-align: right;
+  color: var(--text);
 }
 
 .stab-note {
   margin: 0;
-  font-size: 11.5px;
-  color: var(--text-muted, #94a3b8);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
 }
 
-.chips-row {
+.stats-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--s1) var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--border);
 }
 
-.metric-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  font-size: 12px;
-}
-
-.chip-k {
-  color: var(--text-muted, #94a3b8);
-}
-
-.chip-v {
-  color: var(--text);
-  font-weight: 500;
-}
-
+/* the one amber block on the card: what Earth can never reproduce */
 .warn-strip {
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(242, 169, 59, 0.1);
-  border: 1px solid rgba(242, 169, 59, 0.38);
-  font-size: 12px;
-  line-height: 1.4;
-  color: #ffd38a;
+  margin: 0;
+  padding: var(--s2) var(--s3);
+  border-left: 3px solid var(--warn);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+  font-size: var(--fs-meta);
+  color: var(--warn);
 }
 
 .warn-weak {
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
 }
 
 .brief-actions {
@@ -464,51 +435,36 @@ const weakCount = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: var(--s2);
-  padding-top: 2px;
-}
-
-.dismiss-btn {
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: var(--text-muted, #94a3b8);
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.dismiss-btn:hover {
-  color: var(--text);
-  border-color: rgba(255, 255, 255, 0.3);
+  padding: var(--s3) var(--s4);
+  border-top: 1px solid var(--border);
 }
 
 .details-btn {
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(102, 217, 239, 0.18);
-  border: 1px solid var(--accent-earth);
+  border-color: var(--accent-earth);
+  background: var(--surface-2);
   color: var(--accent-earth);
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
-.details-btn:hover {
-  background: rgba(102, 217, 239, 0.28);
-  box-shadow: 0 0 16px rgba(102, 217, 239, 0.28);
+.details-btn:hover:not(:disabled) {
+  border-color: var(--accent-earth);
+  background: color-mix(in srgb, var(--accent-earth) 14%, var(--surface-2));
+  color: var(--text);
 }
 
-@media (max-width: 960px) {
+/* narrow: a bottom sheet sitting on the dock, capped so it ends below the globes (centre 50vh, radius 17.5vw) */
+@media (max-width: 1199px) {
   .briefing-card {
-    right: var(--s3);
-    left: var(--s3);
-    width: auto;
     top: auto;
-    bottom: 132px;
-    transform: none;
+    left: 0;
+    right: 0;
+    bottom: 49px; /* dock: 32 tab + 2 x 8 padding + 1 hairline */
+    width: auto;
+    max-height: max(160px, calc(50vh - 17.5vw - 57px));
+    border-bottom: none;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+  .brief-top {
+    padding-top: var(--s3);
   }
 }
 </style>

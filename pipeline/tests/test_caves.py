@@ -61,7 +61,7 @@ def test_committed_earth_list_is_lava_tubes_only_and_unverified() -> None:
     assert d["lat"].between(-90, 90).all() and d["lon"].between(-180, 180).all()
 
 
-def test_moon_landmark_targets_count_pits_at_the_landmark_not_the_nearest_disc(monkeypatch) -> None:
+def test_landmark_targets_are_computed_at_the_landmark_not_copied_from_a_disc(monkeypatch) -> None:
     import pandas as pd
 
     from doppelgrund import real
@@ -69,24 +69,37 @@ def test_moon_landmark_targets_count_pits_at_the_landmark_not_the_nearest_disc(m
     from doppelgrund.fixtures.synthetic import LITH_COLS
 
     cols = [*EXPECTED_FEATURES, *LITH_COLS]
-    disc = pd.DataFrame({"lat": [0.0], "lon": [1.0], **{c: [np.nan] for c in cols}})  # ~30 km off
+    # three landmarks 1 degree (~30 km on the Moon) apart: closer than the disc grid, so a
+    # nearest-disc copy would give two of them identical features
     lm = pd.DataFrame(
         {
-            "id": ["a", "b"],
-            "name": ["A", "B"],
-            "body": ["moon", "mars"],
-            "lat": [0.0, 0.0],
-            "lon": [0.0, 0.0],
-            "source": ["x", "x"],
-            "notes": ["", ""],
+            "id": ["a", "m", "b"],
+            "name": ["A", "M", "B"],
+            "body": ["moon", "mars", "moon"],
+            "lat": [-88.0, 18.0, -89.0],
+            "lon": [10.0, 77.0, 10.0],
+            "source": ["x"] * 3,
+            "notes": [""] * 3,
         }
     )
+    calls = []
+
+    def fake_builder(body):
+        def build(lat, lon, ids):  # every feature = the latitude it was evaluated at
+            calls.append((body, list(lat), list(lon)))
+            return pd.DataFrame({c: np.asarray(lat, np.float32) for c in cols})
+
+        return build
+
     monkeypatch.setattr(real, "load_landmarks", lambda: lm)
-    monkeypatch.setattr(real.caves, "load_lroc_pits", lambda _p: (np.array([0.0]), np.array([0.0])))
-    monkeypatch.setattr(real, "get", lambda _k: None)
-    t = real.targets_real(disc, disc).set_index("target_id")
-    # the disc is 30 km from the landmark (outside r = 23.7 km) but the pit sits on the landmark
-    assert t.loc["a", "pit_cave_density_per_1000km2"] == pytest.approx(
-        1000 / (np.pi * 23.7**2), rel=1e-3
-    )
-    assert np.isnan(t.loc["b", "pit_cave_density_per_1000km2"])  # Mars: no catalogue
+    monkeypatch.setattr(real, "moon_discs_real", fake_builder("moon"))
+    monkeypatch.setattr(real, "mars_discs_real", fake_builder("mars"))
+    empty = pd.DataFrame({"lat": [0.0], "lon": [0.0], **{c: [np.nan] for c in cols}})
+    t = real.targets_real(empty, empty)
+    assert list(t["target_id"]) == ["a", "m", "b"]  # landmark order kept across bodies
+    assert calls == [("moon", [-88.0, -89.0], [10.0, 10.0]), ("mars", [18.0], [77.0])]
+    assert t.set_index("target_id")["slope_p50_deg"].to_dict() == {
+        "a": -88.0,
+        "m": 18.0,
+        "b": -89.0,
+    }

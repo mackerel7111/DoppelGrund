@@ -103,7 +103,9 @@ const progressPct = computed(() =>
     <AppHeader :tutorial-active="tutorialVisible" />
     <div v-if="s.notice" class="notice" role="status">
       {{ s.notice }}
-      <button type="button" aria-label="Dismiss notice" @click="s.notice = null">✕</button>
+      <button type="button" class="tab" aria-label="Dismiss notice" @click="s.notice = null">
+        ✕
+      </button>
     </div>
 
     <AboutDialog v-if="s.aboutOpen" />
@@ -164,7 +166,7 @@ const progressPct = computed(() =>
   height: 100%;
   pointer-events: none; /* only the UI pieces below take events; the rest reaches the globe */
 }
-.app > header,
+/* the header sets its own z-index (30) so its popovers sit above the briefing card */
 .maps,
 .state {
   position: relative;
@@ -211,7 +213,7 @@ const progressPct = computed(() =>
 }
 .notice {
   position: fixed;
-  bottom: 76px;
+  bottom: 76px; /* above the dock: 12 inset + 50 tall + 14 */
   left: 50%;
   transform: translateX(-50%);
   z-index: 25;

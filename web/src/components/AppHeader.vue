@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useSession } from '../stores/session';
 import {
   FOOTPRINT_SHORT,
+  GROUP_NAMES,
   LENS_NAMES,
   LENS_SHORT,
   PARTIAL_LABEL,
@@ -12,16 +13,17 @@ import {
   TERMS,
 } from '../content/labels';
 import { formatLatLon } from '../stores/selectors';
-import { LENS_IDS, type Body, type LensId } from '../data/types';
+import { GROUP_IDS, LENS_IDS, type Body, type LensId } from '../data/types';
 import LensControls from './LensControls.vue';
 import LayerToggles from './LayerToggles.vue';
 
-type PopoverId = 'target' | 'focus' | 'layers' | null;
+type PopoverId = 'target' | 'focus' | 'layers' | 'partial' | null;
 
 defineProps<{ tutorialActive?: boolean }>();
 const s = useSession();
 const openPopover = ref<PopoverId>(null);
 const navRef = ref<HTMLElement | null>(null);
+const rightRef = ref<HTMLElement | null>(null);
 
 const bodyLabel = computed(() => (s.body === 'moon' ? 'Moon' : 'Mars'));
 const partial = computed(() => partialNotice(s.bundle?.manifest.resolution));
@@ -31,6 +33,15 @@ function openAbout(section: string): void {
   s.aboutSection = section;
   s.aboutOpen = true;
 }
+
+/** Disabled presets say which data they wait for (same rule as ControlPanel). */
+function lensTitle(id: LensId): string {
+  if (!s.lensDisabled(id)) return LENS_NAMES[id];
+  const need = GROUP_IDS.filter((g) => s.presets[id][g] > 0 && !s.available[g]);
+  const where = s.body === 'moon' ? 'the Moon' : 'Mars';
+  return `Needs ${need.map((g) => GROUP_NAMES[g]).join(' / ')} data, not available for ${where} yet`;
+}
+
 const bodyTargets = computed(() => (s.bundle?.targets ?? []).filter((t) => t.body === s.body));
 
 const selectedLandmarkObj = computed(() => {
@@ -100,10 +111,9 @@ function onSelectLens(id: LensId): void {
 }
 
 function onDocPointerDown(ev: PointerEvent): void {
-  if (!openPopover.value || !navRef.value) return;
-  if (!navRef.value.contains(ev.target as Node)) {
-    closePopovers();
-  }
+  if (!openPopover.value) return;
+  const t = ev.target as Node;
+  if (!navRef.value?.contains(t) && !rightRef.value?.contains(t)) closePopovers();
 }
 
 function onKeyDown(ev: KeyboardEvent): void {
@@ -131,52 +141,37 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <header class="hdr" role="banner">
-    <div class="brand-group">
-      <span class="title">DoppelGrund</span>
-      <span v-if="s.synthetic === true" class="synth-pill" :title="SYNTHETIC_BANNER">
-        Synthetic data
-      </span>
-      <button
-        v-else-if="partial"
-        type="button"
-        class="synth-pill partial-btn"
-        :title="`${partial}. Click for details.`"
-        @click="openAbout('sources')"
-      >
-        {{ PARTIAL_LABEL
-        }}<span v-if="partialReason" class="partial-reason"> · {{ partialReason }}</span>
-      </button>
-    </div>
+  <header class="hdr hud" role="banner">
+    <span class="title">DoppelGrund</span>
 
     <nav
       v-if="!s.aboutOpen && s.bundle"
       ref="navRef"
-      class="hud-steps"
+      class="cluster"
       aria-label="Explorer controls"
     >
       <div class="step-wrap">
         <button
           type="button"
-          class="step-pill"
-          :class="{ open: openPopover === 'target', 'tutorial-highlight': tutorialActive }"
+          class="tab step"
+          :class="{ 'tutorial-highlight': tutorialActive }"
           :aria-expanded="openPopover === 'target'"
           data-test="hud-step-target"
           @click="togglePopover('target')"
         >
-          <span class="step-num">1. Target:</span>
+          <span class="step-num">Target</span>
           <span class="step-val">{{ bodyLabel }} &middot; {{ targetSummary }}</span>
           <span class="chev" aria-hidden="true">&#9662;</span>
         </button>
 
         <div
           v-if="openPopover === 'target'"
-          class="popover popover-target"
+          class="popover hud popover-target"
           role="dialog"
           aria-label="Target selection"
         >
           <div class="pop-head">
-            <span class="pop-title">1. Target world &amp; region</span>
+            <span class="pop-title">Target world and region</span>
             <button type="button" class="pop-close" aria-label="Close" @click="closePopovers">
               &times;
             </button>
@@ -224,28 +219,29 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <span class="cluster-div" aria-hidden="true" />
+
       <div class="step-wrap">
         <button
           type="button"
-          class="step-pill"
-          :class="{ open: openPopover === 'focus' }"
+          class="tab step"
           :aria-expanded="openPopover === 'focus'"
           data-test="hud-step-focus"
           @click="togglePopover('focus')"
         >
-          <span class="step-num">2. Focus:</span>
+          <span class="step-num">Focus</span>
           <span class="step-val">{{ focusSummary }}</span>
           <span class="chev" aria-hidden="true">&#9662;</span>
         </button>
 
         <div
           v-if="openPopover === 'focus'"
-          class="popover popover-focus"
+          class="popover hud popover-focus"
           role="dialog"
           aria-label="Mission focus and weights"
         >
           <div class="pop-head">
-            <span class="pop-title">2. {{ TERMS.focus }}</span>
+            <span class="pop-title">{{ TERMS.focus }}</span>
             <button type="button" class="pop-close" aria-label="Close" @click="closePopovers">
               &times;
             </button>
@@ -255,10 +251,10 @@ onBeforeUnmount(() => {
               v-for="id in LENS_IDS"
               :key="id"
               type="button"
-              class="pill"
+              class="tab"
               :disabled="s.lensDisabled(id)"
               :aria-pressed="s.lens === id"
-              :title="LENS_NAMES[id]"
+              :title="lensTitle(id)"
               :data-test="`hud-lens-${id}`"
               @click="onSelectLens(id)"
             >
@@ -269,28 +265,29 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <span class="cluster-div" aria-hidden="true" />
+
       <div class="step-wrap">
         <button
           type="button"
-          class="step-pill"
-          :class="{ open: openPopover === 'layers' }"
+          class="tab step"
           :aria-expanded="openPopover === 'layers'"
           data-test="hud-step-layers"
           @click="togglePopover('layers')"
         >
-          <span class="step-num">3. Layers</span>
-          <span v-if="activeLayerCount > 0" class="layer-count">{{ activeLayerCount }}</span>
+          <span class="step-num">Layers</span>
+          <span v-if="activeLayerCount > 0" class="step-val num">{{ activeLayerCount }} on</span>
           <span class="chev" aria-hidden="true">&#9662;</span>
         </button>
 
         <div
           v-if="openPopover === 'layers'"
-          class="popover popover-layers"
+          class="popover hud popover-layers"
           role="dialog"
           aria-label="Map overlay layers"
         >
           <div class="pop-head">
-            <span class="pop-title">3. Overlay layers</span>
+            <span class="pop-title">Overlay layers</span>
             <button type="button" class="pop-close" aria-label="Close" @click="closePopovers">
               &times;
             </button>
@@ -300,7 +297,55 @@ onBeforeUnmount(() => {
       </div>
     </nav>
 
-    <div class="right-controls">
+    <div ref="rightRef" class="right-controls">
+      <span v-if="s.synthetic === true" class="tag warn" :title="SYNTHETIC_BANNER">
+        Synthetic data
+      </span>
+      <div v-else-if="partial" class="step-wrap">
+        <button
+          type="button"
+          class="tag warn"
+          :aria-expanded="openPopover === 'partial'"
+          aria-controls="partial-popover"
+          data-test="partial-badge"
+          @click="togglePopover('partial')"
+        >
+          {{ PARTIAL_LABEL
+          }}<span v-if="partialReason" class="partial-reason"
+            >&nbsp;&middot; {{ partialReason }}</span
+          >
+        </button>
+        <div
+          v-if="openPopover === 'partial'"
+          id="partial-popover"
+          class="popover hud popover-partial"
+          role="dialog"
+          aria-label="What partial data means"
+        >
+          <div class="pop-head">
+            <span class="pop-title">{{ PARTIAL_LABEL }}</span>
+            <button type="button" class="pop-close" aria-label="Close" @click="closePopovers">
+              &times;
+            </button>
+          </div>
+          <p class="pop-note">This build is a sample: {{ partial }}.</p>
+          <p v-if="s.bundle?.manifest.resolution?.mode === 'fast'" class="pop-hint">
+            Earth terrain comes from 470 m overview levels instead of 30 m elevation models.
+          </p>
+          <p v-if="(s.bundle?.manifest.resolution?.stride ?? 1) > 1" class="pop-hint">
+            Only some land hexagons are computed, so a better match may sit in a skipped one.
+          </p>
+          <button
+            type="button"
+            class="tab pop-link"
+            data-test="partial-sources"
+            @click="openAbout('sources')"
+          >
+            Data sources &rarr;
+          </button>
+        </div>
+      </div>
+
       <div v-if="!s.aboutOpen" class="seg" role="group" aria-label="View mode">
         <button type="button" :aria-pressed="s.view === '3d'" @click="s.setView('3d')">3D</button>
         <button type="button" :aria-pressed="s.view === '2d'" @click="s.setView('2d')">2D</button>
@@ -309,21 +354,21 @@ onBeforeUnmount(() => {
         v-if="!s.aboutOpen"
         id="explorer-back"
         type="button"
-        class="about-btn"
+        class="tab"
         aria-label="Back to introduction"
         :disabled="s.introOpen"
         @click="s.introOpen = true"
       >
-        ← Back
+        &larr; Intro
       </button>
       <button
         type="button"
-        class="about-btn"
+        class="tab"
         :aria-pressed="s.aboutOpen"
         data-test="about-btn"
         @click="s.aboutOpen = !s.aboutOpen"
       >
-        {{ s.aboutOpen ? '\u2190 Back to Explorer' : 'About' }}
+        {{ s.aboutOpen ? '← Back to Explorer' : 'About' }}
       </button>
     </div>
   </header>
@@ -339,149 +384,90 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s3);
+  gap: var(--s4);
   margin: var(--s2) var(--s3) 0;
-  padding: 6px var(--s3);
-  background: rgba(11, 14, 19, 0.84);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-}
-
-.brand-group {
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  flex-shrink: 0;
+  padding: var(--s2) var(--s3);
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  font-size: var(--fs-card);
+  font-weight: 500;
   color: var(--text);
 }
 
-.synth-pill {
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--accent-warn);
-  background: rgba(242, 169, 59, 0.12);
-  border: 1px solid rgba(242, 169, 59, 0.35);
-}
-
-.tutorial-highlight {
-  outline: 2px solid var(--accent-earth);
-  outline-offset: 4px;
-  box-shadow: 0 0 0 6px rgba(79, 195, 247, 0.12);
-}
-
-.partial-btn {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.partial-btn:hover {
-  background: rgba(242, 169, 59, 0.22);
-}
-
-@media (max-width: 900px) {
-  .partial-reason {
-    display: none;
-  }
-}
-
-.hud-steps {
+/* Target / Focus / Layers read as one instrument: shared frame, hairline dividers */
+.cluster {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--s2);
-  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius-control) + 2px);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.cluster-div {
+  flex: none;
+  width: 1px;
+  height: 16px;
+  background: var(--border);
 }
 
 .step-wrap {
   position: relative;
 }
 
-.step-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: var(--text);
-  font-size: 12.5px;
-  line-height: 1.3;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-}
-
-.step-pill:hover,
-.step-pill.open {
-  background: rgba(102, 217, 239, 0.12);
-  border-color: rgba(102, 217, 239, 0.55);
-}
-
 .step-num {
-  color: var(--text-muted, #94a3b8);
-  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .step-val {
-  color: var(--text);
-  font-weight: 500;
-  max-width: 240px;
+  max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.layer-count {
-  padding: 0 6px;
-  border-radius: 999px;
-  background: rgba(102, 217, 239, 0.2);
-  color: var(--accent-earth);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 500;
 }
 
 .chev {
   font-size: 10px;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
+}
+
+.tutorial-highlight {
+  outline: 2px solid var(--accent-earth);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-earth) 12%, transparent);
 }
 
 .popover {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + var(--s4)); /* clears the header's bottom edge */
   left: 0;
   z-index: 35;
-  background: rgba(12, 16, 23, 0.96);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 12px;
-  padding: var(--s3);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.65);
   display: grid;
   gap: var(--s2);
+  padding: var(--s3);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
 }
 
 .popover-target {
-  width: min(330px, 88vw);
+  width: min(336px, 88vw);
 }
 
 .popover-focus {
-  width: min(340px, 90vw);
+  width: min(344px, 90vw);
 }
 
 .popover-layers {
-  width: min(290px, 88vw);
+  width: min(288px, 88vw);
+  left: auto;
+  right: 0;
+}
+
+.popover-partial {
+  width: min(320px, 88vw);
   left: auto;
   right: 0;
 }
@@ -494,81 +480,63 @@ onBeforeUnmount(() => {
 }
 
 .pop-title {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--text-muted, #94a3b8);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .pop-close {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
   background: transparent;
-  border: none;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
   font-size: 16px;
   line-height: 1;
-  padding: 2px 6px;
-  cursor: pointer;
 }
 
 .pop-close:hover {
+  background: var(--surface-2);
   color: var(--text);
 }
 
 .field-label {
-  font-size: 12px;
-  color: var(--text-muted, #94a3b8);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
 }
 
 select {
   width: 100%;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: var(--surface-2);
+  font-size: var(--fs-meta);
   color: var(--text);
-  border: 1px solid var(--border);
-  font-size: 13px;
 }
 
 .pop-note {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   color: var(--text);
-  line-height: 1.45;
 }
 
 .pop-hint {
   margin: 0;
-  font-size: 11.5px;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.4;
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
+}
+
+.pop-link {
+  justify-self: start;
+  border-color: var(--border);
+  color: var(--accent-earth);
 }
 
 .lens-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-}
-
-.pill {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.pill[aria-pressed='true'] {
-  background: rgba(102, 217, 239, 0.16);
-  border-color: var(--accent-earth);
-  color: var(--accent-earth);
-}
-
-.pill:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  gap: var(--s1);
 }
 
 .right-controls {
@@ -580,56 +548,51 @@ select {
 
 .seg {
   display: inline-flex;
-  border-radius: 999px;
+  gap: 2px;
   padding: 2px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius-control) + 2px);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
 }
 
 .seg button {
-  padding: 3px 10px;
-  border-radius: 999px;
+  min-height: 28px;
+  padding: 0 var(--s3);
   border: none;
   background: transparent;
-  color: var(--text-muted, #94a3b8);
-  font-size: 12px;
-  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+}
+
+.seg button:hover {
+  color: var(--text);
+  background: var(--surface-2);
 }
 
 .seg button[aria-pressed='true'] {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--surface-2);
   color: var(--text);
-  font-weight: 500;
+  box-shadow: inset 0 -2px 0 var(--accent-earth);
 }
 
-.about-btn {
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: var(--text);
-  font-size: 12.5px;
-  cursor: pointer;
-}
-
-.about-btn:hover,
-.about-btn[aria-pressed='true'] {
-  border-color: var(--accent-earth);
-  background: rgba(102, 217, 239, 0.12);
-}
-
-@media (max-width: 960px) {
+@media (max-width: 1199px) {
   .hdr {
     flex-wrap: wrap;
     row-gap: var(--s2);
   }
-  .hud-steps {
+  .cluster {
     order: 3;
-    width: 100%;
-    justify-content: flex-start;
+    max-width: 100%;
+    flex-wrap: wrap; /* not overflow: that would clip the popovers */
   }
   .step-val {
-    max-width: 180px;
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 900px) {
+  .partial-reason {
+    display: none;
   }
 }
 </style>

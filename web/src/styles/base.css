@@ -120,15 +120,25 @@ select {
   padding: var(--s1) var(--s3);
   cursor: pointer;
   min-height: 32px;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
 }
 
-button:hover:not(:disabled),
+button:hover:not(:disabled, [aria-disabled='true']),
 select:hover {
   border-color: var(--text-muted);
 }
 
-button:disabled {
-  opacity: 0.5;
+button:active:not(:disabled, [aria-disabled='true']) {
+  transform: translateY(1px);
+}
+
+button:disabled,
+button[aria-disabled='true'] {
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -275,17 +285,86 @@ details.more[open] > summary {
   line-height: 1;
 }
 
-/* quiet text tag, e.g. Novel / Known analogue site */
+/* ---- one floating-surface system: header, dock, drawer, popovers, legend, briefing card ---- */
+.hud {
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+}
+
+/* Three chip styles only. .tab = clickable choice, .tag = static label, .stat = a measured value. */
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 32px;
+  padding: 0 var(--s3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+}
+.tab:hover:not(:disabled, [aria-disabled='true']) {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+.tab[aria-pressed='true'],
+.tab[aria-expanded='true'] {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent-earth);
+}
+
+/* quiet text tag, e.g. Novel / Known analogue site / Partial data */
 .tag {
   display: inline-flex;
   align-items: center;
   height: 20px;
+  min-height: 0;
   padding: 0 var(--s2);
   border: 1px solid var(--border);
   border-radius: 4px;
+  background: transparent;
   font-size: var(--fs-meta);
   color: var(--text-muted);
   white-space: nowrap;
+}
+.tag.earth {
+  color: var(--accent-earth);
+  border-color: color-mix(in srgb, var(--accent-earth) 40%, transparent);
+}
+.tag.warn {
+  color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+}
+button.tag {
+  height: 24px;
+}
+button.tag.warn:hover,
+button.tag.warn[aria-expanded='true'] {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+}
+
+.stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s1);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.stat > b {
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .visually-hidden {

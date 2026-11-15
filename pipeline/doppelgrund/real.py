@@ -38,7 +38,6 @@ from doppelgrund.fixtures.synthetic import (
     LITH_COLS,
     N_DISCS,
     fibonacci_lattice,
-    haversine_km,
     load_land,
     select_land_cells,
     targets_table,
@@ -857,8 +856,11 @@ def mars_discs_real(lat, lon, ids):
 
 
 def targets_real(moon, mars):
-    """Target features = the nearest disc to each landmark in config/landmarks.yaml (human-owned). While that file is empty: the nearest real disc to the synthetic target
-    positions, ids prefixed placeholder_. ponytail: the nearest disc is up to about 60 km (Moon) / 120 km (Mars) from the point; upgrade = run the disc builders at the landmark."""
+    """Target features for each landmark in config/landmarks.yaml (human-owned), computed by the same disc builders
+    as the disc grids but centred on the landmark itself (plan: preloaded landmarks are always computed explicitly),
+    so two landmarks closer together than the ~110 km disc spacing no longer share a disc. While that file is empty:
+    the nearest real disc to the synthetic target positions, ids prefixed placeholder_.
+    ponytail: re-reads each body's DEM once more (~1 min); pass the loaded DEM in if this gets called often."""
     lm = load_landmarks()
     if not len(lm):
         t = targets_table(moon, mars)
@@ -867,31 +869,31 @@ def targets_real(moon, mars):
             name="PLACEHOLDER (nearest real disc) " + t["name"].str.replace("Synthetic ", ""),
         )
     cols = [*EXPECTED_FEATURES, *LITH_COLS]
-    pits = caves.load_lroc_pits(get("lroc_pits"))
-    rows = []
-    for r in lm.itertuples():
-        d = moon if r.body == "moon" else mars
-        disc = d.iloc[
-            int(np.argmin(haversine_km(d["lat"].to_numpy(), d["lon"].to_numpy(), r.lat, r.lon)))
-        ]
-        rows.append(
-            {
-                "target_id": r.id,
-                "name": r.name,
-                "body": r.body,
-                "lat": r.lat,
-                "lon": r.lon,
-                **{c: disc[c] for c in cols},
-                # pits are point data, so count them at the landmark itself, not at the nearest disc
-                # (up to ~60 km away); Mars has no catalogue (NaN)
-                "pit_cave_density_per_1000km2": (
-                    caves.disc_density(np.array([r.lat]), np.array([r.lon]), *pits, R_KM)[0]
-                    if r.body == "moon"
-                    else np.nan
-                ),
-            }
+    parts = []
+    for body, build in (("moon", moon_discs_real), ("mars", mars_discs_real)):
+        sel = lm[lm["body"] == body]
+        if not len(sel):
+            continue
+        lat, lon = sel["lat"].to_numpy(float), sel["lon"].to_numpy(float)
+        f = build(
+            lat, lon, np.arange(len(sel))
+        )  # Moon pits are counted here, at the landmark; Mars stays NaN
+        parts.append(
+            pd.DataFrame(
+                {
+                    "target_id": sel["id"].to_numpy(),
+                    "name": sel["name"].to_numpy(),
+                    "body": body,
+                    "lat": lat,
+                    "lon": lon,
+                    **{c: f[c].to_numpy() for c in cols},
+                },
+                index=sel.index,
+            )
         )
-    return pd.DataFrame(rows).astype({c: np.float32 for c in cols})
+    return (
+        pd.concat(parts).loc[lm.index].reset_index(drop=True).astype({c: np.float32 for c in cols})
+    )
 
 
 def earth_table_real(cells):

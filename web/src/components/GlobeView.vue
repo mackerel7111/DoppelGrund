@@ -166,7 +166,7 @@ defineExpose({ scene });
     <p class="hint meta" :class="{ gone: !hintVisible }">
       Drag to turn · scroll to zoom · click left globe for target · click Earth for details
     </p>
-    <div class="legend" data-test="globe-legend">
+    <div class="legend hud" data-test="globe-legend">
       <div class="row">
         <select
           :value="s.colorBy"
@@ -186,8 +186,8 @@ defineExpose({ scene });
             ? 'Brighter = farther from known sites'
             : 'Brighter = more similar'
         }}
-        · smoothed for display
       </span>
+      <span class="meta">Smoothed for display</span>
     </div>
   </div>
 </template>
@@ -206,13 +206,13 @@ defineExpose({ scene });
 }
 .hint {
   position: absolute;
-  top: 66px;
+  top: 76px; /* under the header */
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
   padding: var(--s1) var(--s3);
-  border-radius: 999px;
-  background: rgba(4, 6, 11, 0.65);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
   color: var(--text-muted);
   white-space: nowrap;
   pointer-events: none;
@@ -225,19 +225,12 @@ defineExpose({ scene });
   position: absolute;
   bottom: var(--s3);
   right: var(--s3);
-  left: auto;
-  width: 260px;
-  max-width: 260px;
-  box-sizing: border-box;
+  width: 288px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
-  padding: 6px 10px;
-  border-radius: var(--radius-card);
-  background: rgba(11, 14, 19, 0.82);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  gap: var(--s1);
+  padding: var(--s2) var(--s3);
   text-align: right;
   pointer-events: none;
 }
@@ -245,37 +238,50 @@ defineExpose({ scene });
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: var(--s2);
   width: 100%;
 }
 .row select {
   pointer-events: auto;
-  max-width: 118px;
+  max-width: 128px;
+  min-height: 28px;
+  padding: 0 var(--s2);
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 11px;
-  padding: 2px 5px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: var(--fs-meta);
 }
 .bar {
   width: 64px;
   flex-shrink: 0;
   height: 8px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
-@media (max-width: 960px) {
+/* narrow: the header wraps to two rows (bottom ~110px) and the bottom edge belongs to the sheet */
+/* mid widths: sit on top of the dock, which now takes the whole bottom row */
+@media (max-width: 1365px) {
+  .legend {
+    bottom: 70px; /* 12 + 50 dock + 8 */
+  }
+}
+@media (max-width: 1199px) {
   .hint {
-    top: 106px;
+    top: 120px;
     max-width: calc(100vw - 24px);
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .legend {
-    right: var(--s3);
-    bottom: var(--s2);
+    top: 164px;
+    bottom: auto;
+  }
+}
+/* phones: the header wraps to three rows (bottom ~170px) */
+@media (max-width: 640px) {
+  .hint {
+    top: 184px;
+  }
+  .legend {
+    top: 228px;
   }
 }
 </style>
