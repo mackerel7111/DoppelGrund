@@ -143,3 +143,24 @@ export const COLOR_OPTIONS: { id: ColorBy; label: string }[] = [
   { id: 'subsurface', label: 'Subsurface' },
   { id: 'novelty', label: 'Distance from known sites' },
 ];
+
+/** One plain sentence under the colour selector: what the colours on the Earth map mean right now. */
+export function colorHelp(colorBy: ColorBy, target?: string): string {
+  const t = target ?? 'the landmark';
+  switch (colorBy) {
+    case 'S':
+      return `How closely each place matches ${t} overall. Brighter = more similar.`;
+    case 'terrain':
+      return `Match with ${t} on slope and relief only. Brighter = more similar.`;
+    case 'thermal':
+      return `Match with ${t} on temperature only. Brighter = more similar.`;
+    case 'cold_ice':
+      return `Match with ${t} on freezing, ice and dryness only. Brighter = more similar.`;
+    case 'composition':
+      return `Match with ${t} on rock type only. Brighter = more similar.`;
+    case 'subsurface':
+      return `Match with ${t} on caves and lava tubes only (little data). Brighter = more similar.`;
+    case 'novelty':
+      return 'Distance to the nearest documented analogue site. Brighter = farther away, so less studied.';
+  }
+}

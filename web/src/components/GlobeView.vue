@@ -7,7 +7,7 @@ import { nearestDisc } from '../map/targetLayers';
 import { useSession } from '../stores/session';
 import { cardMarkers } from '../stores/selectors';
 import { finiteMax, legendGradient, makePalette, metricMeta } from '../map/palette';
-import { COLOR_OPTIONS } from '../content/labels';
+import { COLOR_OPTIONS, colorHelp } from '../content/labels';
 import type { ColorBy } from '../data/types';
 
 const emit = defineEmits<{ fallback: [reason: string] }>();
@@ -167,6 +167,7 @@ defineExpose({ scene });
       Drag to turn · scroll to zoom · click left globe for target · click Earth for details
     </p>
     <div class="legend hud" data-test="globe-legend">
+      <span class="meta">Colour the Earth by</span>
       <div class="row">
         <select
           :value="s.colorBy"
@@ -180,14 +181,10 @@ defineExpose({ scene });
         <span class="bar" :style="{ background: legendGradient() }" />
         <span class="num meta">{{ meta.domain[1] }}{{ meta.unit === 'km' ? ' km' : '' }}</span>
       </div>
-      <span class="meta">
-        {{
-          s.colorBy === 'novelty'
-            ? 'Brighter = farther from known sites'
-            : 'Brighter = more similar'
-        }}
-      </span>
-      <span class="meta">Smoothed for display</span>
+      <span class="meta" data-test="color-help">{{
+        colorHelp(s.colorBy, s.target ? targetName : undefined)
+      }}</span>
+      <span class="meta">Colours are blended between neighbouring hexagons for readability.</span>
     </div>
   </div>
 </template>
