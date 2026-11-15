@@ -131,7 +131,7 @@ const progressPct = computed(() =>
 
 <template>
   <div class="app">
-    <AppHeader :tutorial-active="tutorialVisible" />
+    <AppHeader :tutorial-active="tutorialVisible" @tutorial="tutorialRequested = true" />
     <div v-if="s.notice" class="notice" role="status">
       {{ s.notice }}
       <button type="button" class="tab" aria-label="Dismiss notice" @click="s.notice = null">

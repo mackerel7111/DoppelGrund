@@ -31,3 +31,26 @@ describe('Partial data badge', () => {
     w.unmount();
   });
 });
+
+describe('Tutorial button', () => {
+  beforeEach(() => setActivePinia(createPinia()));
+
+  it('asks to show the tutorial again, and is off while the intro or the tutorial is open', async () => {
+    const store = useSession();
+    store.introOpen = false;
+    const w = mount(AppHeader, { props: { tutorialActive: false } });
+    const btn = w.get('[data-test="tutorial-btn"]');
+    await btn.trigger('click');
+    expect(w.emitted('tutorial')).toHaveLength(1);
+    await w.setProps({ tutorialActive: true });
+    expect(btn.attributes('disabled')).toBeDefined(); // already showing
+    await w.setProps({ tutorialActive: false });
+    store.introOpen = true;
+    await w.vm.$nextTick();
+    expect(btn.attributes('disabled')).toBeDefined(); // the welcome page is open
+    store.introOpen = false;
+    store.aboutOpen = true;
+    await w.vm.$nextTick();
+    expect(w.find('[data-test="tutorial-btn"]').exists()).toBe(false); // hidden on About, like Intro
+  });
+});
