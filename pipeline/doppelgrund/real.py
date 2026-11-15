@@ -29,6 +29,7 @@ from doppelgrund.config import (
     EXPECTED_FEATURES,
     REPO,
     load_crosswalk,
+    load_known_sites,
     load_landmarks,
     load_profiles,
 )
@@ -928,6 +929,30 @@ def earth_table_real(cells):
     ]
 
 
+def site_cells(land: list[str], stride: int) -> list[str]:
+    """Known-site hexes plus their ring-1 neighbours that are land cells and NOT already in the
+    stride sample (``land[::stride]``), so a stride run can be topped up without changing its hex list.
+    Validation needs these cells present (plan 10.1: a site matches its hex or a ring-1 neighbour)."""
+    import h3
+
+    have, sample = set(land), set(land[::stride])
+    out: set[str] = set()
+    for r in load_known_sites().itertuples():
+        out.update(h3.grid_disk(h3.latlng_to_cell(float(r.lat), float(r.lon), 4), 1))
+    return sorted((out & have) - sample)
+
+
+def merge_site_hexes(main: Path, extra: Path) -> int:
+    """Append the rows of ``extra`` (a site-hex Earth table) to ``main`` (earth_features.parquet),
+    dropping hexes already there. Returns the number of rows added."""
+    a, b = pd.read_parquet(main), pd.read_parquet(extra)
+    b = b[~b["h3"].isin(set(a["h3"]))]
+    pd.concat([a, b[a.columns.intersection(b.columns)]], ignore_index=True).to_parquet(
+        main, index=False
+    )
+    return len(b)
+
+
 NEED = {
     "earth_features": [
         "h3",
@@ -1033,7 +1058,22 @@ def main(argv=None) -> int:
         help="comma list of Diviner latitude bands to fetch, e.g. 90s80s,80s70s (others stay NaN, tables marked real-partial); default all 18",
     )
     p.add_argument("--diviner-threads", type=int, default=DIVINER_THREADS)
+    p.add_argument(
+        "--site-hexes",
+        action="store_true",
+        help="Earth Engine for the known-site hexes (+ ring 1) missing from the --stride sample only; "
+        "writes <out>/earth_site_hexes.parquet. Use its OWN --out folder and the same --stride/--fast",
+    )
+    p.add_argument(
+        "--merge-site-hexes",
+        type=Path,
+        help="append that parquet to <out>/earth_features.parquet and stop (offline)",
+    )
     a = p.parse_args(argv)
+    if a.merge_site_hexes:
+        n = merge_site_hexes(a.out / "earth_features.parquet", a.merge_site_hexes)
+        print(f"added {n} site hexes to {a.out / 'earth_features.parquet'}")
+        return 0
     bad = set(filter(None, a.diviner_bands.split(","))) - set(GCP_BANDS)
     if bad:
         p.error(f"unknown --diviner-bands {sorted(bad)}; choose from {GCP_BANDS}")
@@ -1056,6 +1096,11 @@ def main(argv=None) -> int:
         earth_remote(
             select_land_cells()[::STRIDE]
         )  # batches only; Moon/Mars/final tables run later on one machine
+        return 0
+    if a.site_hexes:
+        cells = site_cells(select_land_cells(), STRIDE)
+        print(f"{len(cells)} site hexes outside the stride-{STRIDE} sample", flush=True)
+        earth_table_real(cells).to_parquet(OUT / "earth_site_hexes.parquet", index=False)
         return 0
     tables = build_tables(a.limit, use_ee=not a.no_ee)
     write_tables(

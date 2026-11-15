@@ -106,3 +106,24 @@ def test_no_evaluable_site_gives_an_empty_summary_not_an_error(tmp_path: Path) -
     assert V.summarise(per_site).empty
     V.write_report(tmp_path / "out", V.Inputs(d), {"spec": (per_pair, per_site)}, far)
     assert "not in sample" in (tmp_path / "out" / "ablation.md").read_text(encoding="utf-8")
+
+
+def test_site_cells_add_only_land_ring1_hexes_missing_from_the_stride_sample(monkeypatch) -> None:
+    import h3
+
+    from doppelgrund import real
+
+    c = h3.latlng_to_cell(45.0, 10.0, 4)
+    ring = sorted(h3.grid_disk(c, 1))
+    land = [
+        *ring[:6],
+        "840000fffffffff",
+    ]  # one ring cell is "sea" (missing), plus an unrelated land cell
+    site = pd.DataFrame([{**dict.fromkeys(KNOWN_SITE_COLUMNS), "lat": 45.0, "lon": 10.0}])
+    monkeypatch.setattr(real, "load_known_sites", lambda: site)
+    got = real.site_cells(sorted(land), stride=2)
+    assert set(got) <= set(ring) and set(got) <= set(
+        land
+    )  # land ring-1 cells only, no unrelated one
+    assert not set(got) & set(sorted(land)[::2])  # none already in the stride sample
+    assert real.site_cells(sorted(land), stride=1) == []  # stride 1 already contains everything
