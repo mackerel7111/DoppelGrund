@@ -17,7 +17,7 @@ import {
   rowInfo,
   type FeatureRow,
 } from '../stores/selectors';
-import { FLAG_MASKED, GROUP_IDS } from '../data/types';
+import { FLAG_MASKED, GROUP_IDS, HIDDEN_GROUPS } from '../data/types';
 import { heatCss } from '../map/palette';
 
 const props = defineProps<{ row: number }>();
@@ -105,7 +105,7 @@ const traitPredictions = computed(() => {
       bar: Number.isFinite(val) ? { '--v': val / 100, '--c': heatCss(val) } : undefined,
       weight: Math.round(s.effective[g] * 100),
     };
-  }).filter((t) => t.score !== null || t.weight > 0);
+  }).filter((t) => !HIDDEN_GROUPS.includes(t.id) && (t.score !== null || t.weight > 0));
 });
 
 const featRows = computed<FeatureRow[]>(() => {

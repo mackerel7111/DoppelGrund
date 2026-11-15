@@ -2,7 +2,7 @@
 import type { FeatureRow } from '../stores/selectors';
 import { formatValue } from '../stores/selectors';
 import { FEATURE_LABELS, GROUP_NAMES, LITH_LABELS, NOT_MEASURED } from '../content/labels';
-import { LITH_CLASSES, type GroupId } from '../data/types';
+import { HIDDEN_GROUPS, LITH_CLASSES, type GroupId } from '../data/types';
 
 const props = defineProps<{ rows: FeatureRow[]; targetLabel: string; bodyName: string }>();
 
@@ -38,7 +38,7 @@ function sim(v: number): string {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="r in props.rows" :key="r.name">
+      <tr v-for="r in props.rows.filter((x) => !HIDDEN_GROUPS.includes(x.group))" :key="r.name">
         <th scope="row">
           {{ r.name === 'lith' ? 'Lithology' : FEATURE_LABELS[r.name] }}
           <span class="meta">{{ GROUP_NAMES[r.group as GroupId] }} · {{ r.unit }}</span>

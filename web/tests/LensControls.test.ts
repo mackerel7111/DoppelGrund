@@ -8,14 +8,14 @@ import { useSession } from '../src/stores/session';
 describe('LensControls', () => {
   beforeEach(() => setActivePinia(createPinia()));
 
-  it('renders five labelled sliders at the balanced preset', () => {
+  it('renders four labelled sliders at the balanced preset and hides subsurface', () => {
     const w = mount(LensControls);
-    for (const g of ['terrain', 'thermal', 'cold_ice', 'composition', 'subsurface']) {
+    for (const g of ['terrain', 'thermal', 'cold_ice', 'composition']) {
       const input = w.get(`[data-test="slider-${g}"]`);
-      const want = g === 'subsurface' ? '10' : '23'; // 22.5 → 23 on the integer slider
-      expect((input.element as HTMLInputElement).value).toBe(want);
+      expect((input.element as HTMLInputElement).value).toBe('23'); // 22.5 → 23 on the integer slider
       expect(w.find(`label[for="w-${g}"]`).exists()).toBe(true);
     }
+    expect(w.find('[data-test="slider-subsurface"]').exists()).toBe(false); // hidden, still weighted
     expect(w.get('[data-test="lens-label"]').text()).toContain('Terrain 23 · Thermal 23');
   });
 
