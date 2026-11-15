@@ -284,6 +284,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
                 <td>
                   <span class="pending">Needs human review</span> A first check has run on a short
                   list of documented sites and does not yet beat the random baseline.
+                  <span class="verdict"
+                    ><b>Verdict (first run, not yet signed off):</b> not better than random on the
+                    current list of 23 documented sites, so there is no evidence yet that the
+                    ranking recovers known analogues.</span
+                  >
                 </td>
               </tr>
               <tr>
@@ -291,6 +296,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
                 <td>
                   <span class="pending">Needs human review</span> Many documented sites are
                   vegetated and are excluded by the barren-ground mask, so they count as misses.
+                  <span class="verdict"
+                    ><b>Verdict (first run, not yet signed off):</b> not better than random: the
+                    median documented site ranks lower than the random baseline, partly because
+                    masked (vegetated) sites count as misses.</span
+                  >
                 </td>
               </tr>
               <tr>
@@ -319,6 +329,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
                 <td>
                   <span class="pending">Needs human review</span> The rock-class crosswalk is a
                   proposal awaiting a geologist's review.
+                  <span class="verdict"
+                    ><b>Verdict (first run, not yet signed off):</b> none yet: no test of the
+                    crosswalk has been run.</span
+                  >
                 </td>
               </tr>
               <tr>
@@ -797,6 +811,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 .pending {
   color: var(--warn);
   font-weight: 600;
+}
+
+.data-table .verdict {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
 }
 
 .data-table .pending {
