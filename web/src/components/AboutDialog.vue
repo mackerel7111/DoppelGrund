@@ -243,7 +243,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               </tr>
               <tr>
                 <td>PCA, GMM, HDBSCAN clustering</td>
-                <td>Unsupervised machine learning</td>
+                <td>
+                  Unsupervised machine learning. The groups are exploratory: HDBSCAN groups shift
+                  when the data is resampled, GMM groups are steadier.
+                </td>
               </tr>
               <tr>
                 <td>Weight calibration on known site pairs</td>
@@ -265,7 +268,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
           <p class="lead">
             Validation by rediscovery tests whether documented analogue sites rank highly for the
             Moon and Mars targets they are known for. A first run exists, but it is a check on a
-            short site list that no one has reviewed yet, so nothing below counts as validated.
+            short site list that no one has reviewed yet, so none of the metrics below counts as
+            validated.
           </p>
           <table class="data-table">
             <thead>
@@ -277,87 +281,58 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
             <tbody>
               <tr>
                 <td>Recall of known sites in the top 100 / 500 / 1,000 vs random</td>
-                <td class="pending">
-                  A first check has run on a short list of documented sites and does not yet beat
-                  the random baseline. Pending human review.
+                <td>
+                  <span class="pending">Needs human review</span> A first check has run on a short
+                  list of documented sites and does not yet beat the random baseline.
                 </td>
               </tr>
               <tr>
                 <td>Median percentile rank of known sites</td>
-                <td class="pending">
-                  Pending validation: many documented sites are vegetated and are excluded by the
-                  barren-ground mask, so they count as misses.
+                <td>
+                  <span class="pending">Needs human review</span> Many documented sites are
+                  vegetated and are excluded by the barren-ground mask, so they count as misses.
                 </td>
               </tr>
               <tr>
                 <td>Novel candidates (stable, well covered, &ge; 300 km from any known site)</td>
-                <td class="pending">
-                  Pending validation: exploratory suggestions only, not discoveries.
+                <td>
+                  <span class="pending">Not yet validated</span> Exploratory suggestions only, not
+                  discoveries.
                 </td>
               </tr>
               <tr>
                 <td>Focus presets (weights between the four traits)</td>
-                <td class="pending">
-                  Pending validation: illustrative starting points. Calibration on known sites is
-                  not built.
+                <td>
+                  <span class="pending">Not yet validated</span> Illustrative starting points.
+                  Calibration on known sites is not built.
                 </td>
               </tr>
               <tr>
                 <td>Per-feature tolerances (how fast similarity falls with the gap)</td>
-                <td class="pending">
-                  Pending validation: set from the pooled spread of the data, not checked against
-                  expert judgement.
+                <td>
+                  <span class="pending">Not yet validated</span> Set from the pooled spread of the
+                  data, not checked against expert judgement.
                 </td>
               </tr>
               <tr>
                 <td>Rock composition similarity</td>
-                <td class="pending">
-                  Pending validation: the rock-class crosswalk is a proposal awaiting a geologist's
-                  review.
-                </td>
-              </tr>
-              <tr>
-                <td>Temperature similarity</td>
-                <td class="pending">
-                  Pending validation: Earth temperature uses one MODIS product in this build, Mars
-                  temperature is not measured, and the Moon has no annual range.
-                </td>
-              </tr>
-              <tr>
-                <td>Cold &amp; ice similarity</td>
-                <td class="pending">
-                  Pending validation: permafrost covers the Northern Hemisphere only and nothing is
-                  measured for Mars.
+                <td>
+                  <span class="pending">Needs human review</span> The rock-class crosswalk is a
+                  proposal awaiting a geologist's review.
                 </td>
               </tr>
               <tr>
                 <td>Match stability (share of perturbed runs in the top 1%)</td>
-                <td class="pending">
-                  Pending validation: computed, but not yet checked against independent data.
+                <td>
+                  <span class="pending">Not yet validated</span> Computed, but not checked against
+                  independent data.
                 </td>
               </tr>
               <tr>
                 <td>Novelty (distance from known sites)</td>
-                <td class="pending">
-                  Pending validation: depends on a short, partly mapped list of known sites, so most
-                  places count as novel.
-                </td>
-              </tr>
-              <tr>
-                <td>Clusters (HDBSCAN and GMM)</td>
-                <td class="pending">
-                  Exploratory: HDBSCAN groups change noticeably when the data is resampled, GMM
-                  groups are steadier.
-                </td>
-              </tr>
-              <tr>
-                <td>Dataset licences and citations</td>
-                <td class="pending">Pending human verification of each source.</td>
-              </tr>
-              <tr>
-                <td>Full-resolution results</td>
-                <td class="pending">
-                  Pending: this build is a fast-mode, 1-in-4 sample of Earth hexagons.
+                <td>
+                  <span class="pending">Not yet validated</span> Depends on a short, partly mapped
+                  list of known sites, so most places count as novel.
                 </td>
               </tr>
             </tbody>
@@ -380,7 +355,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               <h4>Dataset Registry &amp; Licences</h4>
               <p>
                 Full dataset identifiers and licences live in <code>config/datasets.yaml</code> and
-                <code>docs/submission/data-sources.md</code>.
+                <code>docs/submission/data-sources.md</code>. Most licences and citations are still
+                awaiting human verification against each catalogue page.
               </p>
             </div>
             <div v-if="partial" class="info-item">
@@ -423,6 +399,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
             <li>
               Permafrost data covers the Northern Hemisphere only, Mars thermal data is an open
               item, and the lithology crosswalk is the weakest harmonised dimension.
+            </li>
+            <li>
+              Temperature and cold-and-ice matching is thin outside Earth and the Moon: Mars has no
+              temperature or cold-and-ice measurements, the Moon has no annual range, and this build
+              takes Earth temperature from one MODIS product.
+            </li>
+            <li>
+              This build is a fast-mode sample of Earth hexagons. The full-resolution run, with
+              finer terrain and more temperature sources, is still to come.
             </li>
             <li>
               A high score means model-defined similarity on the listed features. It is not a claim
@@ -812,6 +797,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 .pending {
   color: var(--warn);
   font-weight: 600;
+}
+
+.data-table .pending {
+  display: block; /* the status label sits above its reason */
 }
 
 @media (max-width: 960px) {

@@ -16,12 +16,15 @@ describe('About & methods', () => {
     expect(text).toContain('Numerical method, not a trained model');
     expect(text).toContain('Unsupervised machine learning');
     expect(text).toContain('Weakly supervised learning');
-    const pending = w.findAll('td.pending').map((x) => x.text());
-    expect(pending.length).toBeGreaterThanOrEqual(10); // every metric not yet validated is listed
+    const status = w.findAll('span.pending').map((x) => x.text());
+    expect(status).toHaveLength(8); // only metrics that have a validation step
+    expect(status.every((x) => x === 'Not yet validated' || x === 'Needs human review')).toBe(true);
     for (const metric of ['Focus presets', 'Per-feature tolerances', 'Rock composition similarity'])
       expect(w.text()).toContain(metric);
-    expect(pending.filter((t) => t.startsWith('Pending validation')).length).toBeGreaterThan(6);
-    expect(w.text()).toContain('nothing below counts as validated');
+    expect(w.text()).toContain('none of the metrics below counts as validated');
+    // data gaps and licences are not "pending validation": they live in Limitations and Sources
+    expect(w.text()).toContain('Mars has no temperature or cold-and-ice measurements');
+    expect(w.text()).toContain('awaiting human verification');
     expect(w.findAll('table')).toHaveLength(2);
   });
 
