@@ -41,6 +41,9 @@ from doppelgrund.ml.stability import lens_for_target, stability
 
 logger = logging.getLogger(__name__)
 
+MIN_CLUSTER_SIZE, MIN_SAMPLES = 100, 10  # spec 02 R6.2 defaults
+GMM_KS = range(6, 26, 2)  # spec 02 R6.2: K by BIC over 6-24
+
 
 def run(interim: Path, draws: int | None = None, with_layers: bool = True, log=print) -> dict:
     interim = Path(interim)
@@ -79,9 +82,11 @@ def run(interim: Path, draws: int | None = None, with_layers: bool = True, log=p
     )  # fmt: skip
     pca = fit_pca(ci.Z, 0.90, seed)
     P = pca.transform(ci.Z)
-    mcs = max(10, len(P) // 200)
-    hdb = fit_hdbscan(P, min_cluster_size=mcs, seed=seed)
-    gmm, _ = fit_gmm_bic(P, ks=range(2, 11, 2), seed=seed)
+    # spec R6.2: min_cluster_size 100, min_samples 10, GMM K by BIC over 6-24. min_cluster_size
+    # scales down on small samples (N // 200 reaches 100 at about 20,000 rows), never above 100.
+    mcs = min(MIN_CLUSTER_SIZE, max(10, len(P) // 200))
+    hdb = fit_hdbscan(P, min_cluster_size=mcs, min_samples=MIN_SAMPLES, seed=seed)
+    gmm, _ = fit_gmm_bic(P, ks=GMM_KS, seed=seed)
     pd.DataFrame(
         {"row_key": ci.row_keys, "hdb_label": hdb.astype(np.int16),
          "gmm_label": gmm.predict(P).astype(np.int16),
@@ -101,12 +106,22 @@ def run(interim: Path, draws: int | None = None, with_layers: bool = True, log=p
     )
     ari = {
         "hdbscan": label_stability(
-            P, lambda X: fit_hdbscan(X, min_cluster_size=mcs, seed=seed), seed=seed
+            P,
+            lambda X: fit_hdbscan(X, min_cluster_size=mcs, min_samples=MIN_SAMPLES, seed=seed),
+            seed=seed,
         ),
         "gmm": label_stability(P, refit_gmm, seed=seed),
     }
     (interim / "ml" / "cluster_stability.json").write_text(
-        json.dumps({"ari_mean_5_refits_80pct": ari, "min_cluster_size": mcs, "gmm_k": k}, indent=1),
+        json.dumps(
+            {
+                "ari_mean_5_refits_80pct": ari,
+                "min_cluster_size": mcs,
+                "min_samples": MIN_SAMPLES,
+                "gmm_k": k,
+            },
+            indent=1,
+        ),
         encoding="utf-8",
     )
     log(f"cluster stability (ARI): HDBSCAN {ari['hdbscan']:.2f}, GMM {ari['gmm']:.2f}")

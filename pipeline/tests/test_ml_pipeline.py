@@ -50,6 +50,9 @@ def test_driver_writes_every_c2_file_the_bundle_needs(tmp_path: Path, monkeypatc
     assert rep["n"].sum() == len(cl)
     ari = json.loads((d / "ml" / "cluster_stability.json").read_text())["ari_mean_5_refits_80pct"]
     assert all(-1.0 <= v <= 1.0 for v in ari.values())
+    info = json.loads((d / "ml" / "cluster_stability.json").read_text())
+    assert info["min_samples"] == 10 and 10 <= info["min_cluster_size"] <= 100
+    assert 6 <= info["gmm_k"] <= 24  # spec R6.2 grid
     full = json.loads((d / "ml" / "regimes.json").read_text())
     assert set(full) == set(out["regimes"]) and {"gmm", "gmm_prob", "hdb"} <= set(
         next(iter(full.values()))
