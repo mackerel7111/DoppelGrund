@@ -324,6 +324,132 @@
      29.035
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Cinder Lake crater field, Arizona",
+    "source": "https://pubs.usgs.gov/publication/ofr677",
+    "kind": "known_site",
+    "site_id": "cinder_lake",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -111.52305,
+     35.32805
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Rio Grande Gorge, New Mexico",
+    "source": "https://www.blm.gov/blog/2021-08-04/when-public-land-new-mexico-stood-moon",
+    "kind": "known_site",
+    "site_id": "rio_grande_gorge",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -105.73377,
+     36.33607
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Kilbourne Hole, New Mexico",
+    "source": "https://www.blm.gov/blog/2021-08-04/when-public-land-new-mexico-stood-moon",
+    "kind": "known_site",
+    "site_id": "kilbourne_hole",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -106.96322,
+     31.97166
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Stillwater Complex, Montana",
+    "source": "https://ares.jsc.nasa.gov/projects/simulants/nu-lht.html",
+    "kind": "known_site",
+    "site_id": "stillwater_complex",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -109.903,
+     45.386
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Rio Tinto basin, Spain",
+    "source": "https://doi.org/10.1016/j.epsl.2005.09.043",
+    "kind": "known_site",
+    "site_id": "rio_tinto",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -6.59578,
+     37.69346
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "North Pole Dome, Pilbara, Western Australia",
+    "source": "https://doi.org/10.1016/j.epsl.2010.06.018",
+    "kind": "known_site",
+    "site_id": "pilbara_north_pole_dome",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     119.4373,
+     -21.1518
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Dumont Dunes, California",
+    "source": "https://doi.org/10.1002/rob.21647",
+    "kind": "known_site",
+    "site_id": "dumont_dunes",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -116.2248,
+     35.68106
+    ]
+   }
   }
  ]
 }

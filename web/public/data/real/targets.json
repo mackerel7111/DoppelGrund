@@ -6,12 +6,12 @@
   "lat": -89.67,
   "lon": 129.78,
   "features": [
-   6.89608097076416,
-   16.28342628479004,
-   919.8325805664062,
-   0.6872888207435608,
-   101.06705474853516,
-   93.69282531738281,
+   26.86405372619629,
+   64.97681427001953,
+   1506.9873046875,
+   0.34430620074272156,
+   86.7327651977539,
+   37.42680740356445,
    null,
    1.0,
    null,
@@ -26,7 +26,7 @@
    0.0,
    0.0
   ],
-  "cluster": 8,
+  "cluster": -1,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -41,189 +41,14 @@
   "lat": -87.45,
   "lon": -5.17,
   "features": [
-   6.89608097076416,
-   16.28342628479004,
-   919.8325805664062,
-   0.6872888207435608,
-   101.06705474853516,
-   93.69282531738281,
+   11.317723274230957,
+   18.959815979003906,
+   1163.42626953125,
+   0.4365967810153961,
+   54.47541046142578,
+   0.0,
    null,
    1.0,
-   null,
-   0.0,
-   null
-  ],
-  "lith": [
-   0.0,
-   1.0,
-   0.0,
-   0.0,
-   0.0,
-   0.0
-  ],
-  "cluster": 8,
-  "notes": "",
-  "coverage_notes": [
-   "annual_range_K: not measured",
-   "permafrost_prob: not measured",
-   "pit_cave_density_per_1000km2: not measured"
-  ]
- },
- {
-  "id": "mons_malapert",
-  "name": "Mons Malapert (Malapert Massif)",
-  "body": "moon",
-  "lat": -85.98,
-  "lon": -1.67,
-  "features": [
-   7.238376617431641,
-   18.07080078125,
-   585.7696533203125,
-   0.6575568318367004,
-   120.57736206054688,
-   131.72915649414062,
-   null,
-   1.0,
-   null,
-   0.0,
-   null
-  ],
-  "lith": [
-   0.0,
-   1.0,
-   0.0,
-   0.0,
-   0.0,
-   0.0
-  ],
-  "cluster": 7,
-  "notes": "",
-  "coverage_notes": [
-   "annual_range_K: not measured",
-   "permafrost_prob: not measured",
-   "pit_cave_density_per_1000km2: not measured"
-  ]
- },
- {
-  "id": "mons_mouton",
-  "name": "Mons Mouton",
-  "body": "moon",
-  "lat": -84.6,
-  "lon": 31.0,
-  "features": [
-   12.056818008422852,
-   23.33035659790039,
-   1814.984375,
-   0.4083717167377472,
-   159.59173583984375,
-   69.2485122680664,
-   null,
-   0.9756944179534912,
-   null,
-   0.0,
-   null
-  ],
-  "lith": [
-   0.0,
-   1.0,
-   0.0,
-   0.0,
-   0.0,
-   0.0
-  ],
-  "cluster": -1,
-  "notes": "",
-  "coverage_notes": [
-   "annual_range_K: not measured",
-   "permafrost_prob: not measured",
-   "pit_cave_density_per_1000km2: not measured"
-  ]
- },
- {
-  "id": "nobile",
-  "name": "Nobile crater",
-  "body": "moon",
-  "lat": -85.2752,
-  "lon": 53.2725,
-  "features": [
-   12.056818008422852,
-   23.33035659790039,
-   1814.984375,
-   0.4083717167377472,
-   159.59173583984375,
-   69.2485122680664,
-   null,
-   0.9756944179534912,
-   null,
-   0.0,
-   null
-  ],
-  "lith": [
-   0.0,
-   1.0,
-   0.0,
-   0.0,
-   0.0,
-   0.0
-  ],
-  "cluster": -1,
-  "notes": "",
-  "coverage_notes": [
-   "annual_range_K: not measured",
-   "permafrost_prob: not measured",
-   "pit_cave_density_per_1000km2: not measured"
-  ]
- },
- {
-  "id": "de_gerlache",
-  "name": "de Gerlache crater",
-  "body": "moon",
-  "lat": -88.4849,
-  "lon": -88.3447,
-  "features": [
-   5.445735931396484,
-   14.87058162689209,
-   433.5163879394531,
-   0.7571160197257996,
-   100.06456756591797,
-   51.64754867553711,
-   null,
-   1.0,
-   null,
-   0.0,
-   null
-  ],
-  "lith": [
-   0.0,
-   1.0,
-   0.0,
-   0.0,
-   0.0,
-   0.0
-  ],
-  "cluster": 19,
-  "notes": "",
-  "coverage_notes": [
-   "annual_range_K: not measured",
-   "permafrost_prob: not measured",
-   "pit_cave_density_per_1000km2: not measured"
-  ]
- },
- {
-  "id": "cabeus_b",
-  "name": "Cabeus B",
-  "body": "moon",
-  "lat": -82.2587,
-  "lon": -54.5846,
-  "features": [
-   10.993658065795898,
-   20.831924438476562,
-   1741.3199462890625,
-   0.44258633255958557,
-   142.10546875,
-   177.91757202148438,
-   null,
-   0.9274945855140686,
    null,
    0.0,
    null
@@ -245,18 +70,53 @@
   ]
  },
  {
-  "id": "slater",
-  "name": "Slater crater",
+  "id": "mons_malapert",
+  "name": "Mons Malapert (Malapert Massif)",
   "body": "moon",
-  "lat": -88.0792,
-  "lon": 111.2881,
+  "lat": -85.98,
+  "lon": -1.67,
   "features": [
-   8.521550178527832,
-   19.7956600189209,
-   1131.41796875,
-   0.5681990385055542,
-   97.7518310546875,
-   74.34038543701172,
+   14.289518356323242,
+   24.20726776123047,
+   1413.717041015625,
+   0.295145720243454,
+   138.1698760986328,
+   69.84262084960938,
+   null,
+   0.9454190731048584,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": -1,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "mons_mouton",
+  "name": "Mons Mouton",
+  "body": "moon",
+  "lat": -84.6,
+  "lon": 31.0,
+  "features": [
+   6.380092144012451,
+   14.473010063171387,
+   713.8632202148438,
+   0.7681178450584412,
+   132.16412353515625,
+   103.48113250732422,
    null,
    1.0,
    null,
@@ -271,7 +131,147 @@
    0.0,
    0.0
   ],
-  "cluster": 4,
+  "cluster": 21,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "nobile",
+  "name": "Nobile crater",
+  "body": "moon",
+  "lat": -85.2752,
+  "lon": 53.2725,
+  "features": [
+   8.509661674499512,
+   17.619083404541016,
+   883.1246337890625,
+   0.6075416207313538,
+   106.25144958496094,
+   145.64027404785156,
+   null,
+   1.0,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 6,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "de_gerlache",
+  "name": "de Gerlache crater",
+  "body": "moon",
+  "lat": -88.4849,
+  "lon": -88.3447,
+  "features": [
+   9.583860397338867,
+   21.053951263427734,
+   870.3698120117188,
+   0.5224601626396179,
+   94.31792449951172,
+   99.30467224121094,
+   null,
+   1.0,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 2,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "cabeus_b",
+  "name": "Cabeus B",
+  "body": "moon",
+  "lat": -82.2587,
+  "lon": -54.5846,
+  "features": [
+   9.880840301513672,
+   18.995450973510742,
+   746.3660278320312,
+   0.5057687759399414,
+   98.58243560791016,
+   110.45394897460938,
+   null,
+   0.9944092631340027,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 2,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "slater",
+  "name": "Slater crater",
+  "body": "moon",
+  "lat": -88.0792,
+  "lon": 111.2881,
+  "features": [
+   6.915628433227539,
+   15.299899101257324,
+   625.1610717773438,
+   0.6875751614570618,
+   85.77164459228516,
+   15.526611328125,
+   null,
+   1.0,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 8,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -286,27 +286,27 @@
   "lat": 0.6741,
   "lon": 23.4732,
   "features": [
-   0.7509018182754517,
-   1.7032474279403687,
-   154.2939453125,
-   0.9849891662597656,
-   213.0946807861328,
-   278.3023986816406,
+   0.7123038172721863,
+   1.3980649709701538,
+   140.47900390625,
+   0.9949116110801697,
+   206.08123779296875,
+   278.6078796386719,
    null,
-   0.5814095735549927,
+   0.6100449562072754,
    null,
    0.0,
    null
   ],
   "lith": [
-   0.36190998554229736,
-   0.6380900144577026,
+   0.6233999729156494,
+   0.3765999972820282,
    0.0,
    0.0,
    0.0,
    0.0
   ],
-  "cluster": 27,
+  "cluster": -1,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -321,27 +321,27 @@
   "lat": -11.7428,
   "lon": 15.6667,
   "features": [
-   4.406688690185547,
-   9.692904472351074,
-   332.3944396972656,
-   0.9124642014503479,
-   215.53086853027344,
-   274.8773193359375,
+   6.314699649810791,
+   18.41468048095703,
+   462.0367736816406,
+   0.7259489893913269,
+   209.80877685546875,
+   276.64849853515625,
    null,
-   0.5786062479019165,
+   0.5933042168617249,
    null,
    0.0,
    null
   ],
   "lith": [
-   0.05576999858021736,
-   0.9442300200462341,
+   0.0,
+   1.0,
    0.0,
    0.0,
    0.0,
    0.0
   ],
-  "cluster": 18,
+  "cluster": 9,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -356,14 +356,14 @@
   "lat": -43.2958,
   "lon": -11.2153,
   "features": [
-   8.957123756408691,
-   22.41607093811035,
-   1559.3416748046875,
-   0.5482941269874573,
-   208.3321533203125,
-   216.40435791015625,
+   2.4706389904022217,
+   11.170974731445312,
+   292.4670104980469,
+   0.8851608037948608,
+   203.43833923339844,
+   207.3395538330078,
    null,
-   0.6340588331222534,
+   0.6742041110992432,
    null,
    0.0,
    10.200605392456055
@@ -376,7 +376,7 @@
    0.0,
    0.0
   ],
-  "cluster": 3,
+  "cluster": 16,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -390,10 +390,10 @@
   "lat": 18.4082,
   "lon": 77.6873,
   "features": [
-   3.8947012424468994,
-   10.734528541564941,
-   520.5394897460938,
-   0.8683146834373474,
+   1.485817551612854,
+   6.796911239624023,
+   201.2044219970703,
+   0.9441946148872375,
    null,
    null,
    null,
@@ -403,14 +403,14 @@
    null
   ],
   "lith": [
-   0.699999988079071,
+   0.4000000059604645,
    0.0,
    0.0,
-   0.30000001192092896,
+   0.6000000238418579,
    0.0,
    0.0
   ],
-  "cluster": 10,
+  "cluster": 25,
   "notes": "",
   "coverage_notes": [
    "lst_mean_K: not measured",
@@ -428,10 +428,10 @@
   "lat": -5.3672,
   "lon": 137.811,
   "features": [
-   6.821413040161133,
-   13.496379852294922,
-   910.7364501953125,
-   0.7575172185897827,
+   5.90263557434082,
+   14.812871932983398,
+   1149.182373046875,
+   0.7489418387413025,
    null,
    null,
    null,
@@ -441,14 +441,233 @@
    null
   ],
   "lith": [
-   1.0,
+   0.4000000059604645,
    0.0,
+   0.0,
+   0.6000000238418579,
+   0.0,
+   0.0
+  ],
+  "cluster": 9,
+  "notes": "",
+  "coverage_notes": [
+   "lst_mean_K: not measured",
+   "diurnal_range_K: not measured",
+   "annual_range_K: not measured",
+   "frac_below_0C: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "apollo14_fra_mauro",
+  "name": "Apollo 14 landing site (Fra Mauro formation)",
+  "body": "moon",
+  "lat": -3.64589,
+  "lon": -17.47194,
+  "features": [
+   1.9042706489562988,
+   3.8674817085266113,
+   111.98298645019531,
+   0.9974596500396729,
+   210.04652404785156,
+   277.0117492675781,
+   null,
+   0.617375910282135,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.954800009727478,
+   0.04520000144839287,
    0.0,
    0.0,
    0.0,
    0.0
   ],
-  "cluster": 19,
+  "cluster": 33,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "apollo15_hadley",
+  "name": "Apollo 15 landing site (Hadley-Apennine)",
+  "body": "moon",
+  "lat": 26.13239,
+  "lon": 3.6333,
+  "features": [
+   6.86992883682251,
+   23.56742286682129,
+   1027.863037109375,
+   0.5774905681610107,
+   195.5371856689453,
+   268.63165283203125,
+   null,
+   0.6498575210571289,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.6807000041007996,
+   0.31929999589920044,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 6,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "apollo16_descartes",
+  "name": "Apollo 16 landing site (Descartes highlands)",
+  "body": "moon",
+  "lat": -8.9734,
+  "lon": 15.5011,
+  "features": [
+   2.463233470916748,
+   7.710373401641846,
+   179.83810424804688,
+   0.9601408243179321,
+   200.79364013671875,
+   275.22454833984375,
+   null,
+   0.626497745513916,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 23,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "meridiani_planum",
+  "name": "Opportunity landing site, Eagle crater (Meridiani Planum)",
+  "body": "mars",
+  "lat": -1.9462,
+  "lon": -5.5266,
+  "features": [
+   0.3094278872013092,
+   1.0216939449310303,
+   46.54934310913086,
+   0.9974517822265625,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.699999988079071,
+   0.0,
+   0.0,
+   0.30000001192092896,
+   0.0,
+   0.0
+  ],
+  "cluster": 34,
+  "notes": "",
+  "coverage_notes": [
+   "lst_mean_K: not measured",
+   "diurnal_range_K: not measured",
+   "annual_range_K: not measured",
+   "frac_below_0C: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "phoenix_landing",
+  "name": "Phoenix landing site (Vastitas Borealis)",
+  "body": "mars",
+  "lat": 68.2188,
+  "lon": -125.7492,
+  "features": [
+   0.5678983926773071,
+   1.8240368366241455,
+   70.77191162109375,
+   0.9933726787567139,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.5,
+   0.0,
+   0.0,
+   0.5,
+   0.0,
+   0.0
+  ],
+  "cluster": 32,
+  "notes": "",
+  "coverage_notes": [
+   "lst_mean_K: not measured",
+   "diurnal_range_K: not measured",
+   "annual_range_K: not measured",
+   "frac_below_0C: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "nili_fossae",
+  "name": "Nili Fossae",
+  "body": "mars",
+  "lat": 22.02,
+  "lon": 76.69,
+  "features": [
+   2.7249326705932617,
+   7.454233169555664,
+   405.7943115234375,
+   0.9651097059249878,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.699999988079071,
+   0.0,
+   0.0,
+   0.30000001192092896,
+   0.0,
+   0.0
+  ],
+  "cluster": -1,
   "notes": "",
   "coverage_notes": [
    "lst_mean_K: not measured",
