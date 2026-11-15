@@ -148,6 +148,8 @@ export const useSession = defineStore('session', () => {
   const bundle = shallowRef<Bundle | null>(null);
   const synthetic = ref<boolean | null>(null);
   const aboutOpen = ref(false);
+  /** Section id the About dialog should open on (consumed on mount), e.g. 'sources'. */
+  const aboutSection = ref<string | null>(null);
   const introOpen = ref(false);
   const notice = ref<string | null>(null);
   const textures = shallowRef<Partial<Record<TextureId, ImageBitmap>>>({});
@@ -397,6 +399,7 @@ export const useSession = defineStore('session', () => {
     bundle,
     synthetic,
     aboutOpen,
+    aboutSection,
     introOpen,
     notice,
     textures,

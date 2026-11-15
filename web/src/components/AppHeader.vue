@@ -8,6 +8,7 @@ import {
   PARTIAL_LABEL,
   SYNTHETIC_BANNER,
   partialNotice,
+  partialShort,
   TERMS,
 } from '../content/labels';
 import { formatLatLon } from '../stores/selectors';
@@ -23,6 +24,12 @@ const navRef = ref<HTMLElement | null>(null);
 
 const bodyLabel = computed(() => (s.body === 'moon' ? 'Moon' : 'Mars'));
 const partial = computed(() => partialNotice(s.bundle?.manifest.resolution));
+const partialReason = computed(() => partialShort(s.bundle?.manifest.resolution));
+
+function openAbout(section: string): void {
+  s.aboutSection = section;
+  s.aboutOpen = true;
+}
 const bodyTargets = computed(() => (s.bundle?.targets ?? []).filter((t) => t.body === s.body));
 
 const selectedLandmarkObj = computed(() => {
@@ -129,7 +136,16 @@ onBeforeUnmount(() => {
       <span v-if="s.synthetic === true" class="synth-pill" :title="SYNTHETIC_BANNER">
         Synthetic data
       </span>
-      <span v-else-if="partial" class="synth-pill" :title="partial">{{ PARTIAL_LABEL }}</span>
+      <button
+        v-else-if="partial"
+        type="button"
+        class="synth-pill partial-btn"
+        :title="`${partial}. Click for details.`"
+        @click="openAbout('sources')"
+      >
+        {{ PARTIAL_LABEL
+        }}<span v-if="partialReason" class="partial-reason"> · {{ partialReason }}</span>
+      </button>
     </div>
 
     <nav
@@ -343,6 +359,21 @@ onBeforeUnmount(() => {
   color: var(--accent-warn);
   background: rgba(242, 169, 59, 0.12);
   border: 1px solid rgba(242, 169, 59, 0.35);
+}
+
+.partial-btn {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.partial-btn:hover {
+  background: rgba(242, 169, 59, 0.22);
+}
+
+@media (max-width: 900px) {
+  .partial-reason {
+    display: none;
+  }
 }
 
 .hud-steps {

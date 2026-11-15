@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { partialNotice } from '../src/content/labels';
+import { partialNotice, partialShort } from '../src/content/labels';
 
 describe('partialNotice', () => {
   it('says fast mode and the sampling for a fast 1-in-20 bundle', () => {
@@ -19,5 +19,14 @@ describe('partialNotice', () => {
   it('is null for a complete bundle or one with no resolution recorded', () => {
     expect(partialNotice({ mode: 'full', stride: 1 })).toBeNull();
     expect(partialNotice(undefined)).toBeNull();
+  });
+});
+
+describe('partialShort', () => {
+  it('gives the sampling for a stride above 1, else fast mode, else null', () => {
+    expect(partialShort({ mode: 'fast', stride: 20 })).toBe('1 in 20 hexagons');
+    expect(partialShort({ mode: 'fast', stride: 1 })).toBe('fast mode');
+    expect(partialShort({ mode: 'full', stride: 1 })).toBeNull();
+    expect(partialShort(undefined)).toBeNull();
   });
 });

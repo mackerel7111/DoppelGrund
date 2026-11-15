@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useSession } from '../stores/session';
+import { partialNotice } from '../content/labels';
 
 interface WheelSection {
   id: string;
@@ -24,6 +25,7 @@ const rotationDeg = ref(0);
 
 const stepAngle = 360 / SECTIONS.length;
 const activeSection = computed(() => SECTIONS[activeIndex.value]);
+const partial = computed(() => partialNotice(s.bundle?.manifest.resolution));
 const formattedIndex = computed(() => String(activeIndex.value + 1).padStart(2, '0'));
 
 function selectSection(index: number): void {
@@ -70,7 +72,12 @@ function onKey(ev: KeyboardEvent): void {
   if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') spinBy(-1);
 }
 
-onMounted(() => window.addEventListener('keydown', onKey));
+onMounted(() => {
+  window.addEventListener('keydown', onKey);
+  const wanted = SECTIONS.findIndex((x) => x.id === s.aboutSection);
+  if (wanted >= 0) selectSection(wanted); // e.g. the header's "Partial data" pill opens Sources
+  s.aboutSection = null;
+});
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 </script>
 
@@ -309,6 +316,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               <p>
                 Full dataset identifiers and licences live in <code>config/datasets.yaml</code> and
                 <code>docs/submission/data-sources.md</code>.
+              </p>
+            </div>
+            <div v-if="partial" class="info-item">
+              <h4>Partial real data</h4>
+              <p>
+                This build is a fast-mode sample ({{ partial }}). Earth terrain is read from Earth
+                Engine overview levels at 470 m instead of the 30 m elevation models, Earth
+                temperature comes from MODIS MOD11A2 only, and only some of the land hexagons are
+                computed. The scorecard source lines say the same.
               </p>
             </div>
             <div class="info-item">
