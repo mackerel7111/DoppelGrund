@@ -19,6 +19,8 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 MIN_S = 1e-6
+# G2: 0 on the planets by definition (no water cycle), so their zeros say nothing about spread
+EARTH_ONLY = frozenset({"aridity_index"})
 
 
 def apply_transforms(X: np.ndarray, transforms: Sequence[str]) -> np.ndarray:
@@ -75,14 +77,17 @@ def fit_scaler(
 ) -> Scaler:
     """Pooled per-feature median and MAD over the three bodies on the transformed scale.
 
-    ``earth`` must already exclude masked rows. A feature with ``s < 1e-6`` (or no finite value)
+    ``earth`` must already exclude masked rows. Features in ``EARTH_ONLY`` are fitted on Earth rows
+    alone. A feature with ``s < 1e-6`` (or no finite value)
     gets ``s = 1.0`` and a logged warning.
     """
     pooled = apply_transforms(np.vstack([earth, moon, mars]), transforms)
+    n_earth = len(earth)
     n_feat = pooled.shape[1]
     med, s = np.zeros(n_feat), np.ones(n_feat)
     for j in range(n_feat):
-        x = pooled[np.isfinite(pooled[:, j]), j]
+        col = pooled[:n_earth, j] if _name(names, j) in EARTH_ONLY else pooled[:, j]
+        x = col[np.isfinite(col)]
         if x.size == 0:
             logger.warning(
                 "feature %s: no finite value on any body; median 0, s 1", _name(names, j)

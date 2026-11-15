@@ -109,3 +109,48 @@ landmarks:
     lon: 137.8110
     source: https://planetarynames.wr.usgs.gov/Feature/2071
     notes: Curiosity (MSL) landing crater. TODO(verify) the gazetteer shapefile's Mars latitude is planetocentric.
+  # 2026-11-15: six landmarks added on the user's explicit instruction (known-sites-literature.md section 1), for human
+  # review. They exist so documented Earth sites can be paired with the target the literature names. Apollo points are
+  # landing-module positions (LROC 2016 coordinate table, mean Earth/polar axis), not feature centres.
+  - id: apollo14_fra_mauro
+    name: Apollo 14 landing site (Fra Mauro formation)
+    body: moon
+    lat: -3.64589
+    lon: -17.47194
+    source: https://www.lroc.asu.edu/data/support/downloads/2016_LROC_Coordinates_of_Human_Features.pdf
+    notes: Apollo 14 LM, 342.52806 E converted to [-180, 180). Pairs with the Nordlinger Ries training sites.
+  - id: apollo15_hadley
+    name: Apollo 15 landing site (Hadley-Apennine)
+    body: moon
+    lat: 26.13239
+    lon: 3.63330
+    source: https://www.lroc.asu.edu/data/support/downloads/2016_LROC_Coordinates_of_Human_Features.pdf
+    notes: Apollo 15 LM. Pairs with Rio Grande Gorge and Kilbourne Hole (training).
+  - id: apollo16_descartes
+    name: Apollo 16 landing site (Descartes highlands)
+    body: moon
+    lat: -8.9734
+    lon: 15.5011
+    source: https://www.lroc.asu.edu/data/support/downloads/2016_LROC_Coordinates_of_Human_Features.pdf
+    notes: Apollo 16 LM, about 84 km from the `descartes` crater centre (outside one disc). Pairs with Sudbury (training) and the Stillwater complex (NU-LHT simulant).
+  - id: meridiani_planum
+    name: Opportunity landing site, Eagle crater (Meridiani Planum)
+    body: mars
+    lat: -1.9462
+    lon: -5.5266
+    source: https://planetarynames.wr.usgs.gov/Feature/1703
+    notes: Eagle crater, 354.4734 E converted to [-180, 180). TODO(verify) the gazetteer page itself was not opened; the value agrees across several Wikipedia copies that cite it. Pairs with the Rio Tinto basin.
+  - id: phoenix_landing
+    name: Phoenix landing site (Vastitas Borealis)
+    body: mars
+    lat: 68.2188
+    lon: -125.7492
+    source: https://an.rsl.wustl.edu/phx2008/help/landing_site.htm
+    notes: NASA/JPL 68.2188 N, 234.2508 E (IAU 2000 areocentric), converted to [-180, 180). No spec pair yet (Beacon Valley is not named in Levy et al. 2008).
+  - id: nili_fossae
+    name: Nili Fossae
+    body: mars
+    lat: 22.02
+    lon: 76.69
+    source: https://planetarynames.wr.usgs.gov/Feature/4271
+    notes: Gazetteer centre of a feature about 700 km long, so a disc here is an arbitrary patch of it. Pairs with the Pilbara North Pole Dome (Brown et al. 2010 carbonates).

@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
 import { Deck, MapView, WebMercatorViewport, type PickingInfo } from '@deck.gl/core';
 import { useSession } from '../stores/session';
-import { COLOR_OPTIONS } from '../content/labels';
+import { COLOR_OPTIONS, colorHelp } from '../content/labels';
 import type { ColorBy } from '../data/types';
 import LayerToggles from './LayerToggles.vue';
 import { buildEarthLayers } from '../map/earthLayers';
@@ -18,6 +18,7 @@ import {
   sourceFor,
 } from '../map/palette';
 
+const emit = defineEmits<{ viewDetails: [row: number] }>();
 const s = useSession();
 const host = ref<HTMLDivElement | null>(null);
 let deck: Deck<MapView> | null = null;
@@ -70,8 +71,8 @@ function onColor(ev: Event): void {
 
 function onClick(info: PickingInfo): void {
   if (info.layer?.id === 'hexes' && info.index >= 0) s.selectRow(info.index);
-  else if (info.layer?.id === 'card-rings' && info.object)
-    s.selectRow((info.object as CardMarker).row);
+  else if ((info.layer?.id === 'card-rings' || info.layer?.id === 'card-numbers') && info.object)
+    emit('viewDetails', (info.object as CardMarker).row);
 }
 
 function tooltip(info: PickingInfo): string | null {
@@ -163,7 +164,7 @@ watchEffect(
         Zoom to matches
       </button>
       <label class="color"
-        ><span class="meta">Colour</span>
+        ><span class="meta">Colour the Earth by</span>
         <select data-test="color-by" :value="s.colorBy" @change="onColor">
           <option v-for="o in COLOR_OPTIONS" :key="o.id" :value="o.id">{{ o.label }}</option>
         </select></label
@@ -177,6 +178,7 @@ watchEffect(
       aria-label="Earth map of H3 hexagons coloured by the active metric"
     />
     <div class="legend" aria-label="Legend">
+      <span class="meta" data-test="color-help">{{ colorHelp(s.colorBy) }}</span>
       <span class="meta">{{ meta.label }} ({{ meta.unit }})</span>
       <span class="num meta">{{ meta.domain[0] }}</span>
       <span class="bar" :style="{ background: legendGradient() }" />

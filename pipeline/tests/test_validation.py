@@ -127,3 +127,9 @@ def test_site_cells_add_only_land_ring1_hexes_missing_from_the_stride_sample(mon
     )  # land ring-1 cells only, no unrelated one
     assert not set(got) & set(sorted(land)[::2])  # none already in the stride sample
     assert real.site_cells(sorted(land), stride=1) == []  # stride 1 already contains everything
+
+
+def test_a_method_with_no_eligible_hexagon_is_not_a_perfect_hit() -> None:
+    S = np.full(4, np.nan)  # e.g. the cold lens for a Mars target (no thermal data)
+    status, rank, n = V.rank_pair(S, [0, 1])
+    assert status == V.STATUS_NO_RANKING and n == 0

@@ -98,6 +98,7 @@ export function buildEarthLayers(inp: EarthLayerInput, overlays: Layer[] = []): 
     }),
     new TextLayer<CardMarker>({
       id: 'card-numbers',
+      pickable: true,
       data: inp.cards,
       getPosition: (c) => [c.lng, c.lat],
       getText: (c) => String(c.n),

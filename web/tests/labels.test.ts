@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { partialNotice, partialShort } from '../src/content/labels';
+import { COLOR_OPTIONS, colorHelp, partialNotice, partialShort } from '../src/content/labels';
 
 describe('partialNotice', () => {
   it('says fast mode and the sampling for a fast 1-in-20 bundle', () => {
@@ -28,5 +28,20 @@ describe('partialShort', () => {
     expect(partialShort({ mode: 'fast', stride: 1 })).toBe('fast mode');
     expect(partialShort({ mode: 'full', stride: 1 })).toBeNull();
     expect(partialShort(undefined)).toBeNull();
+  });
+});
+
+describe('colorHelp', () => {
+  it('names the target and says what brighter means for every colour option', () => {
+    for (const o of COLOR_OPTIONS) {
+      const text = colorHelp(o.id, 'Shackleton crater');
+      expect(text).toContain('Brighter');
+      if (o.id !== 'novelty') expect(text).toContain('Shackleton crater');
+    }
+  });
+
+  it('says "the landmark" when no target is given, and explains novelty as distance', () => {
+    expect(colorHelp('S')).toContain('the landmark');
+    expect(colorHelp('novelty')).toContain('farther away');
   });
 });

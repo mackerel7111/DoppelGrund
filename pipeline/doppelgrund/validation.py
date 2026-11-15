@@ -30,7 +30,7 @@ import pandas as pd
 
 from doppelgrund.config import EXPECTED_FEATURES, REPO, Profiles, load_known_sites, load_profiles
 from doppelgrund.harmonise import Scaler
-from doppelgrund.ml.retrieval import regime_mask, restrict
+from doppelgrund.ml.retrieval import regime_first, regime_mask
 from doppelgrund.ml.stability import lens_for_target
 from doppelgrund.scoring import GROUPS, score
 
@@ -39,6 +39,9 @@ DIM_LENS = {"terrain": "landing_mobility", "cold_ice": "cold_volatiles",
             "composition": "geology_minerals"}  # fmt: skip
 NOT_BUILT = ["PCA + kNN", "+ calibrated weights (leave-one-site-out)"]
 STATUS_OK, STATUS_MISSING = "ok", "not_in_sample"
+STATUS_NO_RANKING = (
+    "no_ranking"  # the method scores no Earth hexagon for this target (e.g. Mars thermal lens)
+)
 
 
 def md(df: pd.DataFrame) -> str:
@@ -94,12 +97,14 @@ class Inputs:
 
     def _score(self, tid: str, method: str) -> np.ndarray:
         prof = self.prof
-        if method.startswith("cluster_"):  # regime-restricted retrieval on the balanced score
+        if method.startswith(
+            "cluster_"
+        ):  # regime-first retrieval on the balanced score (same pool as the others)
             kind = method.removeprefix("cluster_")
             mask, none = regime_mask(kind, self.earth["h3"], self.clusters, self.regimes[tid])
             if none:
                 self.fallback.add((tid, kind))
-            return restrict(self.scores(tid, "balanced"), mask)
+            return regime_first(self.scores(tid, "balanced"), mask)
         x, lt = self.target_vec(tid)
         if (
             method == "unweighted"
@@ -141,6 +146,8 @@ def candidate_rows(lat: float, lon: float, row_of: dict[str, int]) -> list[int]:
 def rank_pair(S: np.ndarray, cand: Sequence[int]) -> tuple[str, int, int]:
     """(status, rank, n_eligible): rank 1 = best; a miss gets rank n_eligible + 1."""
     n = int(np.isfinite(S).sum())
+    if n == 0:  # nothing to rank: not a "last place" (n + 1 = 1 would count as a perfect hit)
+        return STATUS_NO_RANKING, 1, 0
     if not cand:
         return STATUS_MISSING, n + 1, n
     ok = [i for i in cand if np.isfinite(S[i])]
@@ -201,9 +208,9 @@ def evaluate(
     per_pair = pd.DataFrame(base, columns=cols)
     rand = {(r[0], r[1]): r[6] for r in recs if r[2] == "random"}
     rows = []
-    for (site, method), g in per_pair[per_pair.status != STATUS_MISSING].groupby(
-        ["site_id", "method"]
-    ):
+    for (site, method), g in per_pair[
+        ~per_pair.status.isin([STATUS_MISSING, STATUS_NO_RANKING])
+    ].groupby(["site_id", "method"]):
         if method == "random":
             ms = [rand[(site, t)] for t in g.target_id]
             m = {k: float(np.mean([x[k] for x in ms])) for k in ms[0]}
@@ -227,29 +234,38 @@ def boot_ci(x: np.ndarray, stat, idx: np.ndarray) -> tuple[float, float]:
 
 
 def summarise(per_site: pd.DataFrame, boots: int = 2000, seed: int = 0) -> pd.DataFrame:
-    """One row per method: metrics over sites, bootstrap 95% CIs, paired diff vs the baseline."""
+    """One row per method: metrics over the sites it can score (``n_sites``), bootstrap 95% CIs,
+    and the paired difference to the baseline over the sites both score (``n_paired``)."""
     if per_site.empty:  # no evaluable site (e.g. none of them is in the sample)
         return pd.DataFrame()
     wide = {m: g.set_index("site_id") for m, g in per_site.groupby("method")}
-    sites = sorted(set.intersection(*(set(g.index) for g in wide.values()))) if wide else []
-    n = len(sites)
-    idx = np.random.default_rng(seed).integers(0, max(n, 1), size=(boots, max(n, 1)))
+    rng_idx: dict[int, np.ndarray] = {}
+
+    def resample(
+        n: int,
+    ) -> np.ndarray:  # same draws for every method with n sites, so diffs stay paired
+        if n not in rng_idx:
+            rng_idx[n] = np.random.default_rng(seed).integers(0, max(n, 1), size=(boots, max(n, 1)))
+        return rng_idx[n]
+
     stats = {"recall@500": np.mean, "pct_rank": np.median, "mrr": np.mean}
     stats.update({f"recall@{k}": np.mean for k in KS if k != 500})
     base = wide.get("balanced")
     out = []
     for m, g in wide.items():
-        g = g.loc[sites]
+        n = len(g)
         row = {"method": m, "n_sites": n}
         for k, f in stats.items():
             x = g[k].to_numpy(float)
-            lo, hi = boot_ci(x, f, idx) if n else (np.nan, np.nan)
+            lo, hi = boot_ci(x, f, resample(n)) if n else (np.nan, np.nan)
             row[k] = float(f(x)) if n else np.nan
             row[f"{k}_ci"] = f"[{lo:.3f}, {hi:.3f}]"
+        both = sorted(set(g.index) & set(base.index)) if base is not None else []
+        row["n_paired"] = len(both)
         for k in ("pct_rank", "recall@500"):  # paired difference to the profile-weighted baseline
-            if base is not None and n:
-                d = g[k].to_numpy(float) - base.loc[sites, k].to_numpy(float)
-                lo, hi = boot_ci(d, np.mean, idx)
+            if both:
+                d = g.loc[both, k].to_numpy(float) - base.loc[both, k].to_numpy(float)
+                lo, hi = boot_ci(d, np.mean, resample(len(both)))
                 row[f"{k}_diff_vs_balanced"] = f"{d.mean():+.3f} [{lo:.3f}, {hi:.3f}]"
         out.append(row)
     return pd.DataFrame(out)
@@ -290,6 +306,13 @@ def write_report(
         ]
         if len(summ):
             lines += [md(summ.round(3)), ""]
+        nr = per_pair[per_pair.status == STATUS_NO_RANKING]
+        if len(nr):
+            by = ", ".join(f"{m} ({k})" for m, k in nr.groupby("method").size().items())
+            lines += [
+                f"Pairs left out because the method scores no Earth hexagon for the target: {by}",
+                "",
+            ]
         lines += ["Not built yet: " + "; ".join(NOT_BUILT) + " (calibration is task 2.12).", ""]
         if inp.fallback:
             fb = ", ".join(f"{t} ({k})" for t, k in sorted(inp.fallback))

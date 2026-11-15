@@ -6,7 +6,7 @@ import type { Palette } from '../data/types';
 // T1 = the result's best score, so the best place always reaches full alpha.
 // T0 is data-relative: the TOP_FRACTION quantile of eligible scores, clamped to [T0_MIN, T0_MAX],
 // so the best ~40 % of a result always glows and the rest stays faint (never an "empty" globe).
-export const A_LOW = 0.1; // scores below T0 are nearly invisible
+export const A_LOW = 0.35; // scores below T0 stay visible but quiet, so switching the colour metric always changes the globe
 export const GAMMA = 0.8; // <1 makes the glowing band strong quickly
 export const TOP_FRACTION = 0.4;
 export const T0_MIN = 0.2;
@@ -108,6 +108,47 @@ function rowColors(
 }
 
 /**
+ * Display-only gap fill for sampled bundles (stride > 1): every transparent pixel within `radius`
+ * pixels of a painted one takes the nearest painted pixel's colour. Without it the blur on the
+ * globe averages the few painted pixels with empty ones and the heat all but disappears.
+ */
+export function fillGaps(
+  rgba: Uint8ClampedArray,
+  width: number,
+  height: number,
+  radius: number,
+): Uint8ClampedArray {
+  if (radius < 1) return rgba;
+  const out = new Uint8ClampedArray(rgba);
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      if (rgba[(y * width + x) * 4 + 3] !== 0) continue;
+      let best = -1;
+      let bestD = radius * radius + 1;
+      for (let dy = -radius; dy <= radius; dy++) {
+        const yy = y + dy;
+        if (yy < 0 || yy >= height) continue;
+        for (let dx = -radius; dx <= radius; dx++) {
+          const d = dx * dx + dy * dy;
+          if (d >= bestD) continue;
+          const xx = (x + dx + width) % width; // wraps at the date line
+          const o = (yy * width + xx) * 4;
+          if (rgba[o + 3] === 0) continue;
+          best = o;
+          bestD = d;
+        }
+      }
+      if (best < 0) continue;
+      const o = (y * width + x) * 4;
+      out[o] = rgba[best];
+      out[o + 1] = rgba[best + 1];
+      out[o + 2] = rgba[best + 2];
+      out[o + 3] = rgba[best + 3];
+    }
+  return out;
+}
+
+/**
  * Paint an RGBA overlay the size of the index image. `values[row]` is the metric per Earth row.
  * Pixels without a hexagon and rows that are masked, ineligible or NaN are transparent (alpha 0).
  */
@@ -116,6 +157,7 @@ export function paint(
   values: Float32Array,
   palette: Palette,
   eligible: Uint8Array,
+  fill?: { width: number; radius: number },
 ): Uint8ClampedArray {
   const rows = indexRGB instanceof Int32Array ? indexRGB : decodeIndex(indexRGB);
   const colors = rowColors(values, palette, eligible);
@@ -131,5 +173,5 @@ export function paint(
     out[o + 2] = colors[c + 2];
     out[o + 3] = colors[c + 3];
   }
-  return out;
+  return fill ? fillGaps(out, fill.width, rows.length / fill.width, fill.radius) : out;
 }

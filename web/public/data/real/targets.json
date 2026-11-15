@@ -46,7 +46,7 @@
    1163.42626953125,
    0.4365967810153961,
    54.47541046142578,
-   -3.306018829345703,
+   0.0,
    null,
    1.0,
    null,
@@ -61,7 +61,7 @@
    0.0,
    0.0
   ],
-  "cluster": -1,
+  "cluster": 1,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -131,7 +131,7 @@
    0.0,
    0.0
   ],
-  "cluster": 1,
+  "cluster": 21,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -166,7 +166,7 @@
    0.0,
    0.0
   ],
-  "cluster": -1,
+  "cluster": 6,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -201,7 +201,7 @@
    0.0,
    0.0
   ],
-  "cluster": -1,
+  "cluster": 2,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -236,7 +236,7 @@
    0.0,
    0.0
   ],
-  "cluster": -1,
+  "cluster": 2,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -271,7 +271,7 @@
    0.0,
    0.0
   ],
-  "cluster": 1,
+  "cluster": 8,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -306,7 +306,7 @@
    0.0,
    0.0
   ],
-  "cluster": 2,
+  "cluster": -1,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -341,7 +341,7 @@
    0.0,
    0.0
   ],
-  "cluster": 2,
+  "cluster": 9,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -376,7 +376,7 @@
    0.0,
    0.0
   ],
-  "cluster": 2,
+  "cluster": 16,
   "notes": "",
   "coverage_notes": [
    "annual_range_K: not measured",
@@ -410,7 +410,7 @@
    0.0,
    0.0
   ],
-  "cluster": 2,
+  "cluster": 25,
   "notes": "",
   "coverage_notes": [
    "lst_mean_K: not measured",
@@ -448,7 +448,226 @@
    0.0,
    0.0
   ],
-  "cluster": 2,
+  "cluster": 9,
+  "notes": "",
+  "coverage_notes": [
+   "lst_mean_K: not measured",
+   "diurnal_range_K: not measured",
+   "annual_range_K: not measured",
+   "frac_below_0C: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "apollo14_fra_mauro",
+  "name": "Apollo 14 landing site (Fra Mauro formation)",
+  "body": "moon",
+  "lat": -3.64589,
+  "lon": -17.47194,
+  "features": [
+   1.9042706489562988,
+   3.8674817085266113,
+   111.98298645019531,
+   0.9974596500396729,
+   210.04652404785156,
+   277.0117492675781,
+   null,
+   0.617375910282135,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.954800009727478,
+   0.04520000144839287,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 33,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "apollo15_hadley",
+  "name": "Apollo 15 landing site (Hadley-Apennine)",
+  "body": "moon",
+  "lat": 26.13239,
+  "lon": 3.6333,
+  "features": [
+   6.86992883682251,
+   23.56742286682129,
+   1027.863037109375,
+   0.5774905681610107,
+   195.5371856689453,
+   268.63165283203125,
+   null,
+   0.6498575210571289,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.6807000041007996,
+   0.31929999589920044,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 6,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "apollo16_descartes",
+  "name": "Apollo 16 landing site (Descartes highlands)",
+  "body": "moon",
+  "lat": -8.9734,
+  "lon": 15.5011,
+  "features": [
+   2.463233470916748,
+   7.710373401641846,
+   179.83810424804688,
+   0.9601408243179321,
+   200.79364013671875,
+   275.22454833984375,
+   null,
+   0.626497745513916,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "cluster": 23,
+  "notes": "",
+  "coverage_notes": [
+   "annual_range_K: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "meridiani_planum",
+  "name": "Opportunity landing site, Eagle crater (Meridiani Planum)",
+  "body": "mars",
+  "lat": -1.9462,
+  "lon": -5.5266,
+  "features": [
+   0.3094278872013092,
+   1.0216939449310303,
+   46.54934310913086,
+   0.9974517822265625,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.699999988079071,
+   0.0,
+   0.0,
+   0.30000001192092896,
+   0.0,
+   0.0
+  ],
+  "cluster": 34,
+  "notes": "",
+  "coverage_notes": [
+   "lst_mean_K: not measured",
+   "diurnal_range_K: not measured",
+   "annual_range_K: not measured",
+   "frac_below_0C: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "phoenix_landing",
+  "name": "Phoenix landing site (Vastitas Borealis)",
+  "body": "mars",
+  "lat": 68.2188,
+  "lon": -125.7492,
+  "features": [
+   0.5678983926773071,
+   1.8240368366241455,
+   70.77191162109375,
+   0.9933726787567139,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.5,
+   0.0,
+   0.0,
+   0.5,
+   0.0,
+   0.0
+  ],
+  "cluster": 32,
+  "notes": "",
+  "coverage_notes": [
+   "lst_mean_K: not measured",
+   "diurnal_range_K: not measured",
+   "annual_range_K: not measured",
+   "frac_below_0C: not measured",
+   "permafrost_prob: not measured",
+   "pit_cave_density_per_1000km2: not measured"
+  ]
+ },
+ {
+  "id": "nili_fossae",
+  "name": "Nili Fossae",
+  "body": "mars",
+  "lat": 22.02,
+  "lon": 76.69,
+  "features": [
+   2.7249326705932617,
+   7.454233169555664,
+   405.7943115234375,
+   0.9651097059249878,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.0,
+   null
+  ],
+  "lith": [
+   0.699999988079071,
+   0.0,
+   0.0,
+   0.30000001192092896,
+   0.0,
+   0.0
+  ],
+  "cluster": -1,
   "notes": "",
   "coverage_notes": [
    "lst_mean_K: not measured",

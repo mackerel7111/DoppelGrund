@@ -25,8 +25,17 @@ function cardScore(kind: CardKind, sVal: number, sgVal: number): string {
   return Number.isFinite(v) ? v.toFixed(1) : 'N/A';
 }
 
+/** Why a tab has no match: the body has no data for that group at all, or no cell cleared the floors. */
+function emptyReason(kind: CardKind): string {
+  if (kind !== 'overall' && !s.available[kind]) {
+    const where = s.body === 'moon' ? 'the Moon' : 'Mars';
+    return `No ${GROUP_NAMES[kind]} data for ${where} yet, so there is nothing to match`;
+  }
+  return emptyCardText(kind);
+}
+
 function cardTooltip(kind: CardKind, row: number | null, sVal: number, sgVal: number): string {
-  if (row === null || !s.bundle) return emptyCardText(kind);
+  if (row === null || !s.bundle) return emptyReason(kind);
   const lat = s.bundle.latlng[row * 2];
   const lng = s.bundle.latlng[row * 2 + 1];
   const coords = formatLatLon(lat, lng);
@@ -55,13 +64,13 @@ watch(
   <div v-if="s.result && !s.aboutOpen" class="dock-anchor">
     <div
       v-if="shortlistOpen"
-      class="shortlist-drawer"
+      class="shortlist-drawer hud"
       role="dialog"
       aria-label="Top 50 predicted Earth locations"
       data-test="shortlist-drawer"
     >
       <div class="drawer-head">
-        <span class="drawer-title">Predicted ideal Earth locations (Top 50)</span>
+        <span class="drawer-title">Predicted ideal Earth locations, top 50</span>
         <button
           type="button"
           class="drawer-close"
@@ -76,28 +85,28 @@ watch(
       </div>
     </div>
 
-    <nav class="match-dock" aria-label="Ideal locations predicted by model">
-      <span class="dock-label">Ideal locations</span>
-
+    <nav class="match-dock hud" aria-label="Ideal locations predicted by model">
+      <span class="dock-label">Earth matches</span>
       <button
         v-for="(c, idx) in cards"
         :key="c.kind"
         type="button"
-        class="match-pill"
-        :class="{
-          active: c.row !== null && c.row === s.selectedRow,
-          empty: c.row === null,
-        }"
-        :disabled="c.row === null"
+        class="tab"
+        :aria-disabled="c.row === null ? 'true' : undefined"
         :aria-pressed="c.row !== null && c.row === s.selectedRow"
+        :aria-describedby="c.row === null ? `dock-why-${c.kind}` : undefined"
         :title="cardTooltip(c.kind, c.row, c.S, c.S_g)"
         :data-test="`dock-card-${c.kind}`"
         @click="selectCard(c.row)"
       >
-        <span class="pill-rank">{{ idx + 1 }} &middot;</span>
-        <span class="pill-name">{{ SHORT_TITLES[c.kind] }}</span>
-        <span v-if="c.row !== null" class="pill-score num">
-          {{ cardScore(c.kind, c.S, c.S_g) }}
+        <span class="match-n">{{ idx + 1 }}</span>
+        <span class="tab-name">{{ SHORT_TITLES[c.kind] }}</span>
+        <span v-if="c.row !== null" class="stat">
+          <b>{{ cardScore(c.kind, c.S, c.S_g) }}</b>
+        </span>
+        <span v-else class="meta">No data</span>
+        <span v-if="c.row === null" :id="`dock-why-${c.kind}`" class="visually-hidden">
+          {{ emptyReason(c.kind) }}
         </span>
       </button>
 
@@ -105,15 +114,13 @@ watch(
 
       <button
         type="button"
-        class="match-pill top-btn"
-        :class="{ active: shortlistOpen }"
+        class="tab"
         :aria-expanded="shortlistOpen"
         title="Open ranked Top 50 predicted Earth analogue locations"
         data-test="toggle-shortlist"
         @click="shortlistOpen = !shortlistOpen"
       >
-        <span>{{ TERMS.top }}</span>
-        <span aria-hidden="true">&#8599;</span>
+        {{ TERMS.top }}
       </button>
     </nav>
   </div>
@@ -121,9 +128,9 @@ watch(
 
 <style scoped>
 .dock-anchor {
-  position: fixed;
+  position: absolute;
   left: var(--s3);
-  right: 296px;
+  right: var(--s3);
   bottom: var(--s3);
   z-index: 20;
   pointer-events: none;
@@ -137,14 +144,10 @@ watch(
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(11, 14, 19, 0.86);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  gap: 2px;
+  padding: var(--s2); /* panel radius 16 - 8 = control radius 8 */
   overflow-x: auto;
+  width: 100%;
   max-width: 100%;
   scrollbar-width: none;
 }
@@ -154,139 +157,103 @@ watch(
 }
 
 .dock-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--accent-earth);
-  padding-left: 4px;
-  padding-right: 4px;
+  padding: 0 var(--s2);
+  font-size: var(--fs-meta);
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
-.match-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid transparent;
+.tab {
+  flex-shrink: 0;
+}
+.tab-name {
   color: var(--text);
-  font-size: 12px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
-.match-pill:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.match-pill.active {
-  background: rgba(102, 217, 239, 0.15);
-  border-color: var(--accent-earth);
-  box-shadow: 0 0 14px rgba(102, 217, 239, 0.22);
-}
-
-.match-pill.empty {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
-.pill-rank {
-  color: var(--text-muted, #94a3b8);
-}
-
-.pill-name {
-  font-weight: 500;
-}
-
-.pill-score {
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--accent-earth);
+.tab .match-n {
+  width: 18px;
+  height: 18px;
   font-size: 11px;
-  font-weight: 600;
+}
+
+.tab[aria-disabled='true'] .match-n {
+  background: var(--border);
+  color: var(--text-muted);
 }
 
 .dock-divider {
-  width: 1px;
-  height: 18px;
-  background: rgba(255, 255, 255, 0.14);
   flex-shrink: 0;
-}
-
-.top-btn {
-  color: var(--text);
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-.top-btn:hover,
-.top-btn.active {
-  border-color: var(--accent-earth);
-  color: var(--accent-earth);
+  width: 1px;
+  height: 16px;
+  margin: 0 var(--s1);
+  background: var(--border);
 }
 
 .shortlist-drawer {
   pointer-events: auto;
-  width: min(460px, 92vw);
-  max-height: min(56vh, 460px);
+  width: min(464px, 92vw);
+  max-height: min(56vh, 464px);
   display: flex;
   flex-direction: column;
-  background: rgba(12, 16, 23, 0.94);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
   overflow: hidden;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
 }
 
 .drawer-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  padding: var(--s2) var(--s2) var(--s2) var(--s4);
+  border-bottom: 1px solid var(--border);
 }
 
 .drawer-title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--fs-meta);
+  font-weight: 500;
   color: var(--text);
 }
 
 .drawer-close {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
   background: transparent;
-  border: none;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
   font-size: 18px;
   line-height: 1;
-  padding: 2px 6px;
-  cursor: pointer;
 }
 
 .drawer-close:hover {
+  background: var(--surface-2);
   color: var(--text);
 }
 
 .drawer-body {
-  padding: 10px 14px 14px;
+  padding: var(--s3) var(--s4) var(--s4);
   overflow-y: auto;
 }
 
-@media (max-width: 960px) {
+/* mid widths: the dock needs the full row, so the legend moves up onto it (GlobeView) */
+@media (max-width: 1365px) {
   .dock-anchor {
-    left: var(--s3);
     right: var(--s3);
-    transform: none;
-    max-width: none;
-    bottom: 84px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .dock-anchor {
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .match-dock {
+    width: 100%;
+    border-radius: 0;
+    border-width: 1px 0 0;
   }
 }
 </style>

@@ -4,7 +4,13 @@ import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
 import { latLngToCell } from 'h3-js';
 import { arcControl, arcPoints, ARC_SEGMENTS } from '../src/globe/arcs';
-import { buildRowLookup, nearestLandmark, pickGlobe, rowAt } from '../src/globe/picking';
+import {
+  buildRowLookup,
+  nearestLandmark,
+  pickGlobe,
+  pickMatchMarker,
+  rowAt,
+} from '../src/globe/picking';
 import type { GlobeScene } from '../src/globe/GlobeScene';
 import type { Target } from '../src/data/types';
 
@@ -23,6 +29,23 @@ describe('arcs', () => {
 });
 
 describe('picking', () => {
+  it('opens the exact visible match near its number, not an unrelated cell or far-side marker', () => {
+    const camera = new THREE.PerspectiveCamera(40, 2, 1, 5000);
+    camera.position.set(0, 0, 500);
+    camera.updateMatrixWorld();
+    const scene = {
+      camera,
+      earthGlobe: { position: new THREE.Vector3() },
+      worldPoint: (_body: string, lat: number) => new THREE.Vector3(0, 0, lat === 0 ? 100 : -100),
+    } as unknown as GlobeScene;
+    const front = { n: 1, row: 42, lat: 0, lng: 0 };
+    const back = { n: 2, row: 99, lat: 1, lng: 0 };
+    expect(pickMatchMarker(scene, [front, back], 0.02, 0, 1600, 900)).toBe(42);
+    expect(pickMatchMarker(scene, [back], 0, 0, 1600, 900)).toBeNull();
+    expect(pickMatchMarker(scene, [front], 0.5, 0, 1600, 900)).toBeNull();
+    expect(pickMatchMarker(scene, [front], 0, 0, 0, 0)).toBeNull();
+  });
+
   it('finds the nearest landmark within 3° only', () => {
     const t = (id: string, lat: number, lon: number) => ({ id, lat, lon }) as Target;
     const targets = [t('a', -88.5, 5), t('b', 10, 30)];
