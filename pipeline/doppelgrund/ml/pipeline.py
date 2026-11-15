@@ -22,11 +22,18 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.mixture import GaussianMixture
 
 from doppelgrund.config import EXPECTED_FEATURES, REPO, load_known_sites, load_profiles
 from doppelgrund.export.layers import build_layers
 from doppelgrund.harmonise import apply_transforms, fit_scaler, scaled
-from doppelgrund.ml.cluster import assign_regime, fit_gmm_bic, fit_hdbscan
+from doppelgrund.ml.cluster import (
+    assign_regime,
+    cluster_report,
+    fit_gmm_bic,
+    fit_hdbscan,
+    label_stability,
+)
 from doppelgrund.ml.domain_gap import report_from_interim
 from doppelgrund.ml.embed import clustering_matrix, fit_pca
 from doppelgrund.ml.novelty import feat_novelty, geo_novelty, known_site_flag
@@ -72,7 +79,8 @@ def run(interim: Path, draws: int | None = None, with_layers: bool = True, log=p
     )  # fmt: skip
     pca = fit_pca(ci.Z, 0.90, seed)
     P = pca.transform(ci.Z)
-    hdb = fit_hdbscan(P, min_cluster_size=max(10, len(P) // 200), seed=seed)
+    mcs = max(10, len(P) // 200)
+    hdb = fit_hdbscan(P, min_cluster_size=mcs, seed=seed)
     gmm, _ = fit_gmm_bic(P, ks=range(2, 11, 2), seed=seed)
     pd.DataFrame(
         {"row_key": ci.row_keys, "hdb_label": hdb.astype(np.int16),
@@ -83,9 +91,29 @@ def run(interim: Path, draws: int | None = None, with_layers: bool = True, log=p
         f"clusters: {len(ci.row_keys)} rows, {ci.Z.shape[1]} columns, "
         f"{len(set(hdb) - {-1})} HDBSCAN clusters"
     )
+    # report (per-cluster mean z-scores and body mix) and label stability (ARI over 5 refits on 80%)
+    cluster_report(hdb, ci.row_keys, ci.Z, ci.columns).to_csv(interim / "ml" / "cluster_report.csv")
+    k = gmm.n_components
+    refit_gmm = lambda X: (  # noqa: E731 - same K as the BIC choice; refitting the BIC search is slow
+        GaussianMixture(k, covariance_type="full", reg_covar=1e-4, random_state=seed)
+        .fit(X)
+        .predict(X)
+    )
+    ari = {
+        "hdbscan": label_stability(
+            P, lambda X: fit_hdbscan(X, min_cluster_size=mcs, seed=seed), seed=seed
+        ),
+        "gmm": label_stability(P, refit_gmm, seed=seed),
+    }
+    (interim / "ml" / "cluster_stability.json").write_text(
+        json.dumps({"ari_mean_5_refits_80pct": ari, "min_cluster_size": mcs, "gmm_k": k}, indent=1),
+        encoding="utf-8",
+    )
+    log(f"cluster stability (ARI): HDBSCAN {ari['hdbscan']:.2f}, GMM {ari['gmm']:.2f}")
 
     # regime of each target: its own imputed row, placed in the same PCA space
     regimes: dict[str, int] = {}
+    full_regimes: dict[str, dict] = {}
     lith_names = [f"lith_{i}" for i in range(len(lith_cols))]
     for t in targets.itertuples():
         zt = h(np.array([[getattr(t, n) for n in names]], float))[0]
@@ -93,8 +121,12 @@ def run(interim: Path, draws: int | None = None, with_layers: bool = True, log=p
         vec = dict(zip([*names, *lith_names], np.r_[zt, lt], strict=True))
         row = np.array([vec[c] for c in ci.columns])
         row = np.where(np.isfinite(row), row, ci.medians)
-        regimes[t.target_id] = assign_regime(row, pca, gmm, ci.Z, hdb)["hdb"]
+        full_regimes[t.target_id] = assign_regime(row, pca, gmm, ci.Z, hdb)
+        regimes[t.target_id] = full_regimes[t.target_id]["hdb"]
     (interim / "target_regimes.json").write_text(json.dumps(regimes, indent=1), encoding="utf-8")
+    (interim / "ml" / "regimes.json").write_text(
+        json.dumps(full_regimes, indent=1), encoding="utf-8"
+    )
 
     # 4. novelty from config/known_sites.csv (NaN everywhere when it is empty)
     import h3

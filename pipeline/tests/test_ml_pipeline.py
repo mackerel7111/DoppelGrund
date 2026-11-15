@@ -45,6 +45,15 @@ def test_driver_writes_every_c2_file_the_bundle_needs(tmp_path: Path, monkeypatc
     st = pd.read_parquet(next((d / "stability").glob("*.parquet")))
     assert st["stability"].between(0, 1).all() and (st["h3"] == earth["h3"]).all()
     assert set(json.loads((d / "target_regimes.json").read_text())) == set(out["regimes"])
+    rep = pd.read_csv(d / "ml" / "cluster_report.csv", index_col=0)
+    assert {"n", "share_earth", "share_moon", "share_mars"} <= set(rep.columns)
+    assert rep["n"].sum() == len(cl)
+    ari = json.loads((d / "ml" / "cluster_stability.json").read_text())["ari_mean_5_refits_80pct"]
+    assert all(-1.0 <= v <= 1.0 for v in ari.values())
+    full = json.loads((d / "ml" / "regimes.json").read_text())
+    assert set(full) == set(out["regimes"]) and {"gmm", "gmm_prob", "hdb"} <= set(
+        next(iter(full.values()))
+    )
 
 
 def test_the_exporter_accepts_the_driver_output_and_carries_the_regimes(

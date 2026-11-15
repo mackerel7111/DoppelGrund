@@ -48,14 +48,14 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Build on
   - _Requirements: 5.1–5.3_
   - Depends on: 2.1, 01/1.18 (G1)
 
-- [ ] 2.8 [S] PCA + HDBSCAN + GMM (Window H16–H19)
+- [x] 2.8 [S] PCA + HDBSCAN + GMM (Window H16–H19)
   - Files: `pipeline/doppelgrund/ml/embed.py`, `pipeline/doppelgrund/ml/cluster.py`, `pipeline/tests/test_cluster.py`
   - Tests: three well-separated blobs recovered (ARI > 0.9); imputation only inside `clustering_matrix`; runtime guard path.
   - Acceptance: `clusters.parquet` written; cluster report table with body mix saved; ARI stability logged.
   - _Requirements: 6.1–6.4_
   - Depends on: 2.7
 
-- [ ] 2.9 [C] Cluster-conditioned retrieval (Window H19–H20)
+- [x] 2.9 [C] Cluster-conditioned retrieval (Window H19–H20)
   - Files: `pipeline/doppelgrund/ml/retrieval.py`, `pipeline/tests/test_retrieval.py`
   - _Requirements: 7.1, 7.2_
   - Depends on: 2.8

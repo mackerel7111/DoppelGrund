@@ -20,6 +20,7 @@ Design choices (each is a human decision to confirm at Gate G2):
 from __future__ import annotations
 
 import argparse
+import json
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -29,14 +30,14 @@ import pandas as pd
 
 from doppelgrund.config import EXPECTED_FEATURES, REPO, Profiles, load_known_sites, load_profiles
 from doppelgrund.harmonise import Scaler
+from doppelgrund.ml.retrieval import regime_mask, restrict
 from doppelgrund.ml.stability import lens_for_target
 from doppelgrund.scoring import GROUPS, score
 
 KS = (100, 500, 1000)
 DIM_LENS = {"terrain": "landing_mobility", "cold_ice": "cold_volatiles",
             "composition": "geology_minerals"}  # fmt: skip
-NOT_BUILT = ["PCA + kNN", "Cluster-conditioned (GMM)", "Cluster-conditioned (HDBSCAN)",
-             "+ calibrated weights (leave-one-site-out)"]  # fmt: skip
+NOT_BUILT = ["PCA + kNN", "+ calibrated weights (leave-one-site-out)"]
 STATUS_OK, STATUS_MISSING = "ok", "not_in_sample"
 
 
@@ -71,6 +72,12 @@ class Inputs:
         self.lith_cols = lith
         self.row_of = {c: i for i, c in enumerate(self.earth["h3"])}
         self._cache: dict[tuple[str, str], np.ndarray] = {}
+        self.fallback: set[tuple[str, str]] = set()  # (target, kind) that had no close regime
+        cl, reg = interim / "clusters.parquet", interim / "ml" / "regimes.json"
+        self.clusters = pd.read_parquet(cl) if cl.is_file() and reg.is_file() else None
+        self.regimes = (
+            json.loads(reg.read_text(encoding="utf-8")) if self.clusters is not None else {}
+        )
 
     def target_vec(self, tid: str) -> tuple[np.ndarray, np.ndarray | None]:
         t = self.targets.loc[tid]
@@ -87,6 +94,12 @@ class Inputs:
 
     def _score(self, tid: str, method: str) -> np.ndarray:
         prof = self.prof
+        if method.startswith("cluster_"):  # regime-restricted retrieval on the balanced score
+            kind = method.removeprefix("cluster_")
+            mask, none = regime_mask(kind, self.earth["h3"], self.clusters, self.regimes[tid])
+            if none:
+                self.fallback.add((tid, kind))
+            return restrict(self.scores(tid, "balanced"), mask)
         x, lt = self.target_vec(tid)
         if (
             method == "unweighted"
@@ -168,6 +181,8 @@ def evaluate(
         s = where.loc[p.site_id]
         cand = candidate_rows(float(s.lat), float(s.lon), inp.row_of)
         methods = ["unweighted", "terrain_only", "balanced"]
+        if inp.clusters is not None:
+            methods += ["cluster_hdbscan", "cluster_gmm"]
         if p.dimension in DIM_LENS:
             methods.append(DIM_LENS[p.dimension])
         for m in methods:
@@ -275,7 +290,13 @@ def write_report(
         ]
         if len(summ):
             lines += [md(summ.round(3)), ""]
-        lines += ["Not built yet: " + "; ".join(NOT_BUILT) + " (tasks 2.9 and 2.12).", ""]
+        lines += ["Not built yet: " + "; ".join(NOT_BUILT) + " (calibration is task 2.12).", ""]
+        if inp.fallback:
+            fb = ", ".join(f"{t} ({k})" for t, k in sorted(inp.fallback))
+            lines += [
+                f"No close regime, any mode (cluster rows equal the global ranking for): {fb}",
+                "",
+            ]
         bal = per_pair[(per_pair.method == "balanced") & (per_pair.status != STATUS_MISSING)]
         if len(bal):
             tab = bal.assign(pct=(bal["rank"] / bal["n_eligible"].clip(lower=1)).round(3))
