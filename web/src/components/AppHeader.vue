@@ -5,7 +5,9 @@ import {
   FOOTPRINT_SHORT,
   LENS_NAMES,
   LENS_SHORT,
+  PARTIAL_LABEL,
   SYNTHETIC_BANNER,
+  partialNotice,
   TERMS,
 } from '../content/labels';
 import { formatLatLon } from '../stores/selectors';
@@ -20,6 +22,7 @@ const openPopover = ref<PopoverId>(null);
 const navRef = ref<HTMLElement | null>(null);
 
 const bodyLabel = computed(() => (s.body === 'moon' ? 'Moon' : 'Mars'));
+const partial = computed(() => partialNotice(s.bundle?.manifest.resolution));
 const bodyTargets = computed(() => (s.bundle?.targets ?? []).filter((t) => t.body === s.body));
 
 const selectedLandmarkObj = computed(() => {
@@ -126,6 +129,7 @@ onBeforeUnmount(() => {
       <span v-if="s.synthetic === true" class="synth-pill" :title="SYNTHETIC_BANNER">
         Synthetic data
       </span>
+      <span v-else-if="partial" class="synth-pill" :title="partial">{{ PARTIAL_LABEL }}</span>
     </div>
 
     <nav
