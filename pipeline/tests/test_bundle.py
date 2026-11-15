@@ -196,3 +196,27 @@ def test_build_bundle_lists_every_missing_input(tmp_path: Path) -> None:
     msg = str(e.value)
     assert "scaler.json" in msg and "novelty.parquet" in msg and "layers/land.geojson" in msg
     assert "earth.jpg" in msg
+
+
+def test_manifest_records_fast_mode_and_the_sources_say_so(tmp_path: Path) -> None:
+    d, _, _ = _interim(tmp_path)
+    (d / "tables_info.json").write_text(
+        json.dumps({"source": "real-partial", "fast": True, "stride": 20})
+    )
+    out = tmp_path / "out"
+    build_bundle(d, out, PROF, textures_dir=tmp_path / "tex")
+    man = json.loads((out / "manifest.json").read_text())
+    assert man["resolution"] == {"mode": "fast", "stride": 20}
+    earth = {(s["feature"], s["body"]): s["dataset"] for s in man["sources"]}
+    assert (
+        "MOD11A2 only" in earth[("lst_mean_K", "earth")]
+        and "MOD21A1D/N not used" in earth[("lst_mean_K", "earth")]
+    )
+    assert "overview" in earth[("slope_p50_deg", "earth")]
+    # no tables_info.json and no flag: no resolution key, full-resolution sources text
+    (d / "tables_info.json").unlink()
+    out2 = tmp_path / "out2"
+    build_bundle(d, out2, PROF, textures_dir=tmp_path / "tex")
+    man2 = json.loads((out2 / "manifest.json").read_text())
+    assert "resolution" not in man2
+    assert any("MOD21A1D/N (Terra" in s["dataset"] for s in man2["sources"])

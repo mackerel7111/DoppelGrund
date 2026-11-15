@@ -131,6 +131,8 @@ export interface Manifest {
   contract: 'doppelgrund-bundle/1';
   created_utc: string;
   synthetic: boolean;
+  /** How the Earth Engine step was run; absent for synthetic bundles and older real ones. */
+  resolution?: { mode: 'fast' | 'full'; stride: number };
   h3_res: number;
   n_hex: number;
   features: FeatureMeta[];

@@ -1008,6 +1008,10 @@ def write_tables(tables: dict[str, pd.DataFrame], out: Path = OUT, source: str =
         assert all(tables[k][c].dtype == np.float32 for c in [*EXPECTED_FEATURES, *LITH_COLS]), k
         tables[k].to_parquet(out / f"{k}.parquet", index=False)
     (out / "tables_source.txt").write_text(source)
+    # what the Earth Engine step really used, so the bundle manifest can say so (export/bundle.py)
+    (out / "tables_info.json").write_text(
+        json.dumps({"source": source, "fast": FAST, "stride": STRIDE}), encoding="utf-8"
+    )
     pd.DataFrame(GLIM, index=O).T.assign(weight=pd.Series(GLIM_W)).rename_axis("code").to_csv(
         out / "glim_ontology_proposal.csv"
     )

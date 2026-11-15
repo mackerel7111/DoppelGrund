@@ -65,6 +65,15 @@ REAL_SOURCES: dict[str, dict[str, str]] = {
         "moon": "LROC lunar pit catalogue (Wagner and Robinson 2021)",
     },
 }
+# Fast mode (real.py --fast) reads Earth Engine's coarser overview levels and skips MOD21, so the
+# sources text must say so rather than name the full-resolution inputs.
+FAST_EARTH_SOURCES: dict[str, str] = {
+    "terrain": "COPERNICUS/DEM/GLO30_2024_1 + NASA/NASADEM_HGT/001, read from Earth Engine "
+    "overview levels at 470 m (fast mode, coarser than the 30 m source)",
+    "thermal": "MODIS/061/MOD11A2 only (Terra); MOD21A1D/N not used in fast mode",
+    "cold_ice": "Obu et al. 2018 permafrost + TerraClimate aridity + MODIS Terra LST "
+    "(MOD11A2 only, fast mode)",
+}
 LITH_SOURCES = {
     "earth": "GLiM (Hartmann and Moosdorf 2012)",
     "moon": "LP GRS FeO",
@@ -157,10 +166,12 @@ def targets_json(
     return out
 
 
-def sources_for(prof: Profiles) -> list[dict[str, str]]:
+def sources_for(prof: Profiles, fast: bool = False) -> list[dict[str, str]]:
     out = []
     for f in prof.features:
         for body, dataset in REAL_SOURCES.get(f.group, {}).items():
+            if fast and body == "earth" and f.group in FAST_EARTH_SOURCES:
+                dataset = FAST_EARTH_SOURCES[f.group]
             out.append({"feature": f.name, "body": body, "dataset": dataset, "version": ""})
     out += [
         {"feature": "lith", "body": b, "dataset": d, "version": ""} for b, d in LITH_SOURCES.items()
@@ -191,6 +202,7 @@ def write_bundle(
     created_utc: str,
     overwrite: bool = True,
     validate: bool = True,
+    resolution: Mapping[str, Any] | None = None,
 ) -> list[Path]:
     """Write every C6 file under ``out_dir`` and (by default) validate the result."""
     out_dir = Path(out_dir)
@@ -259,6 +271,10 @@ def write_bundle(
         "files": files,
         "sources": sources,
     }
+    if (
+        resolution
+    ):  # optional: how the Earth Engine step was run ({"mode": "fast"|"full", "stride": n})
+        manifest["resolution"] = dict(resolution)
     put("manifest.json", json_bytes(manifest))
     if validate:
         validate_bundle(out_dir)
@@ -370,14 +386,25 @@ def build_bundle(
     synthetic: bool = False,
     top_k: int | None = None,
     textures_dir: Path = REPO / "config/textures",
+    resolution: Mapping[str, Any] | None = None,
 ) -> list[Path]:
     """Build the bundle from the C2 interim tables.
+
+    ``resolution`` ({"mode": "fast"|"full", "stride": n}) goes into the manifest and selects the
+    sources text; when None it is read from ``interim/tables_info.json`` if that file exists.
 
     Needs earth_features, moon_discs, mars_discs, targets, scaler.json, clusters, novelty (all
     parquet except the scaler) and layers/*.geojson under ``interim``; stability/*.parquet are
     optional only for a ``synthetic`` run. Missing files raise FileNotFoundError listing them.
     """
     prof = prof or load_profiles()
+    info = Path(interim) / "tables_info.json"
+    if resolution is None and info.is_file():
+        d = json.loads(info.read_text(encoding="utf-8"))
+        resolution = {
+            "mode": "fast" if d.get("fast") else "full",
+            "stride": int(d.get("stride", 1)),
+        }
     interim = Path(interim)
     need = ["earth_features.parquet", "moon_discs.parquet", "mars_discs.parquet", "targets.parquet",
             "scaler.json", "clusters.parquet", "novelty.parquet",
@@ -443,7 +470,8 @@ def build_bundle(
         stability=stability,
         layers=layers,
         textures={b: p.read_bytes() for b, p in textures.items()},
-        sources=sources_for(prof),
+        sources=sources_for(prof, fast=(resolution or {}).get("mode") == "fast"),
+        resolution=resolution,
         synthetic=synthetic,
         created_utc=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     )
@@ -455,11 +483,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     p.add_argument("--out", type=Path, default=REPO / "web/public/data")
     p.add_argument("--synthetic", action="store_true", help="mark the manifest synthetic: true")
     p.add_argument("--clean", action="store_true", help="delete --out first")
+    p.add_argument(
+        "--fast",
+        action="store_true",
+        help="tables came from real.py --fast (overrides tables_info.json)",
+    )
+    p.add_argument(
+        "--stride", type=int, help="tables came from real.py --stride N (with --fast or full)"
+    )
     a = p.parse_args(argv)
+    res = None
+    if a.fast or a.stride:
+        res = {"mode": "fast" if a.fast else "full", "stride": a.stride or 1}
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     if a.clean and a.out.exists():
         shutil.rmtree(a.out)
-    written = build_bundle(a.interim, a.out, synthetic=a.synthetic)
+    written = build_bundle(a.interim, a.out, synthetic=a.synthetic, resolution=res)
     print(f"wrote {len(written)} files to {a.out}; validate_bundle passed")
     return 0
 
