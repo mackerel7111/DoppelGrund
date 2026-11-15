@@ -75,3 +75,12 @@ def test_scaler_json_round_trip_matches_c2(tmp_path) -> None:
     np.testing.assert_allclose(back.s, sc.s)
     with pytest.raises(ValueError, match="names"):
         Scaler(sc.median, sc.s, sc.counts).to_json(tmp_path / "x.json")
+
+
+def test_earth_only_feature_ignores_planet_rows() -> None:
+    # aridity is 0 on the planets by definition: pooled MAD would be 0, Earth-only MAD is 1
+    earth = np.array([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0]])
+    zeros = np.zeros((10, 2))
+    sc = fit_scaler(earth, zeros, zeros, ["none", "none"], names=["aridity_index", "other"])
+    assert sc.median[0] == 2.0 and sc.s[0] == 1.0  # Earth rows only
+    assert sc.median[1] == 0.0  # other features still pool all bodies
