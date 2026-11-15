@@ -16,8 +16,12 @@ describe('About & methods', () => {
     expect(text).toContain('Numerical method, not a trained model');
     expect(text).toContain('Unsupervised machine learning');
     expect(text).toContain('Weakly supervised learning');
-    const pending = w.findAll('td.pending');
-    expect(pending.length).toBe(3);
+    const pending = w.findAll('td.pending').map((x) => x.text());
+    expect(pending.length).toBeGreaterThanOrEqual(10); // every metric not yet validated is listed
+    for (const metric of ['Focus presets', 'Per-feature tolerances', 'Rock composition similarity'])
+      expect(w.text()).toContain(metric);
+    expect(pending.filter((t) => t.startsWith('Pending validation')).length).toBeGreaterThan(6);
+    expect(w.text()).toContain('nothing below counts as validated');
     expect(w.findAll('table')).toHaveLength(2);
   });
 

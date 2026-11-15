@@ -264,28 +264,101 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
         <div v-show="activeIndex === 3" class="section-body">
           <p class="lead">
             Validation by rediscovery tests whether documented analogue sites rank highly for the
-            Moon and Mars targets they are known for. Results update here once the real pipeline
-            runs.
+            Moon and Mars targets they are known for. A first run exists, but it is a check on a
+            short site list that no one has reviewed yet, so nothing below counts as validated.
           </p>
           <table class="data-table">
             <thead>
               <tr>
                 <th scope="col">Metric</th>
-                <th scope="col">Result</th>
+                <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Recall of known sites in the top 100 / 500 / 1,000 vs random</td>
-                <td class="pending">Pending validation</td>
+                <td class="pending">
+                  A first check has run on a short list of documented sites and does not yet beat
+                  the random baseline. Pending human review.
+                </td>
               </tr>
               <tr>
                 <td>Median percentile rank of known sites</td>
-                <td class="pending">Pending validation</td>
+                <td class="pending">
+                  Pending validation: many documented sites are vegetated and are excluded by the
+                  barren-ground mask, so they count as misses.
+                </td>
               </tr>
               <tr>
                 <td>Novel candidates (stable, well covered, &ge; 300 km from any known site)</td>
-                <td class="pending">Pending validation</td>
+                <td class="pending">
+                  Pending validation: exploratory suggestions only, not discoveries.
+                </td>
+              </tr>
+              <tr>
+                <td>Focus presets (weights between the four traits)</td>
+                <td class="pending">
+                  Pending validation: illustrative starting points. Calibration on known sites is
+                  not built.
+                </td>
+              </tr>
+              <tr>
+                <td>Per-feature tolerances (how fast similarity falls with the gap)</td>
+                <td class="pending">
+                  Pending validation: set from the pooled spread of the data, not checked against
+                  expert judgement.
+                </td>
+              </tr>
+              <tr>
+                <td>Rock composition similarity</td>
+                <td class="pending">
+                  Pending validation: the rock-class crosswalk is a proposal awaiting a geologist's
+                  review.
+                </td>
+              </tr>
+              <tr>
+                <td>Temperature similarity</td>
+                <td class="pending">
+                  Pending validation: Earth temperature uses one MODIS product in this build, Mars
+                  temperature is not measured, and the Moon has no annual range.
+                </td>
+              </tr>
+              <tr>
+                <td>Cold &amp; ice similarity</td>
+                <td class="pending">
+                  Pending validation: permafrost covers the Northern Hemisphere only and nothing is
+                  measured for Mars.
+                </td>
+              </tr>
+              <tr>
+                <td>Match stability (share of perturbed runs in the top 1%)</td>
+                <td class="pending">
+                  Pending validation: computed, but not yet checked against independent data.
+                </td>
+              </tr>
+              <tr>
+                <td>Novelty (distance from known sites)</td>
+                <td class="pending">
+                  Pending validation: depends on a short, partly mapped list of known sites, so most
+                  places count as novel.
+                </td>
+              </tr>
+              <tr>
+                <td>Clusters (HDBSCAN and GMM)</td>
+                <td class="pending">
+                  Exploratory: HDBSCAN groups change noticeably when the data is resampled, GMM
+                  groups are steadier.
+                </td>
+              </tr>
+              <tr>
+                <td>Dataset licences and citations</td>
+                <td class="pending">Pending human verification of each source.</td>
+              </tr>
+              <tr>
+                <td>Full-resolution results</td>
+                <td class="pending">
+                  Pending: this build is a fast-mode, 1-in-4 sample of Earth hexagons.
+                </td>
               </tr>
             </tbody>
           </table>
