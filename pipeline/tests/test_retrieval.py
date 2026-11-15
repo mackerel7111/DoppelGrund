@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from doppelgrund.ml.retrieval import MIN_MEMBERS, regime_mask, restrict
+from doppelgrund.ml.retrieval import MIN_MEMBERS, regime_first, regime_mask, restrict
 
 
 def table(n_a: int, n_b: int) -> tuple[list[str], pd.DataFrame]:
@@ -42,3 +42,13 @@ def test_gmm_needs_probability_at_least_half_and_unknown_rows_are_never_members(
 def test_restrict_makes_outside_rows_ineligible() -> None:
     out = restrict(np.array([5.0, 7.0, 9.0]), np.array([True, False, True]))
     assert out[0] == 5.0 and np.isnan(out[1]) and out[2] == 9.0
+
+
+def test_regime_first_keeps_the_whole_pool_and_puts_the_regime_ahead() -> None:
+    S = np.array([90.0, 80.0, 70.0, np.nan, 60.0])
+    mask = np.array([False, False, True, True, True])
+    out = regime_first(S, mask)
+    assert np.isnan(out[3])  # ineligible stays ineligible
+    assert out[2] > out[0] > out[1]  # regime row 70 beats outside rows 90 and 80
+    assert out[4] > out[0]  # but ordering inside each group is by S
+    assert regime_first(S, None) is S
