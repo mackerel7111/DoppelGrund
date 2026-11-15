@@ -21,6 +21,7 @@ web/coverage/
 web/public/data/*
 !web/public/data/.gitkeep
 !web/public/data/sample/
+!web/public/data/real/
 web/public/data/*.f32
 web/public/data/*.i16
 web/public/data/*.u8

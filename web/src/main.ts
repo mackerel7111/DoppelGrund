@@ -6,9 +6,14 @@ import { useSession } from './stores/session';
 import { EngineClient, createEngineWorker } from './workers/client';
 import './styles/base.css';
 
-/** Same-origin bundle URL; `?bundle=<name>` selects web/public/data/<name>/ (e.g. "sample"). */
+/**
+ * Same-origin bundle URL; `?bundle=<name>` selects web/public/data/<name>/ (e.g. "sample" or "real").
+ * Without it, the build-time `VITE_DEFAULT_BUNDLE` (e.g. "real") is used, else the root bundle.
+ */
 function bundleBaseUrl(): string {
-  const name = new URLSearchParams(window.location.search).get('bundle');
+  const name =
+    new URLSearchParams(window.location.search).get('bundle') ||
+    (import.meta.env.VITE_DEFAULT_BUNDLE as string | undefined);
   const sub = name && /^[a-z0-9_-]+$/.test(name) ? `${name}/` : '';
   return new URL(`${import.meta.env.BASE_URL}data/${sub}`, window.location.origin).href;
 }

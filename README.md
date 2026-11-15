@@ -19,6 +19,7 @@ The Makefile is the interface. Run make targets, not raw tools.
 ```sh
 make setup              # create .venv, pip install -e pipeline[dev], npm ci in web/
 make bundle-synthetic   # write a schema-valid synthetic bundle to web/public/data/
+make bundle             # real interim tables -> web/public/data/real/ (the only committed real bundle)
 make verify-quick       # lint + Python tests + web tests
 make dev                # Vite dev server
 make build              # production build into web/dist/

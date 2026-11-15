@@ -68,9 +68,11 @@ bundle-synthetic:
 tables-real:
 	$(PY) -m doppelgrund.real $(ARGS)
 
-# Interim tables (needs scaler, clusters, novelty, layers and real textures too; see export/bundle.py) -> web bundle.
+# Interim tables (needs scaler, clusters, novelty, layers and real textures too; see export/bundle.py) -> the real
+# bundle in web/public/data/real/ (committed, unlike the rest of web/public/data/). --clean wipes only that folder,
+# never sample/ or the synthetic root bundle. Open it with ?bundle=real, or build with VITE_DEFAULT_BUNDLE=real.
 bundle:
-	$(PY) -m doppelgrund.export.bundle --interim data/interim/real --out web/public/data --clean
+	$(PY) -m doppelgrund.export.bundle --interim data/interim/real --out web/public/data/real --clean
 
 dev:
 	cd web && $(NPM_RUN) dev
