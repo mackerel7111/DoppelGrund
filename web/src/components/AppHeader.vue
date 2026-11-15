@@ -20,6 +20,7 @@ import LayerToggles from './LayerToggles.vue';
 type PopoverId = 'target' | 'focus' | 'layers' | 'partial' | null;
 
 defineProps<{ tutorialActive?: boolean }>();
+const emit = defineEmits<{ tutorial: [] }>();
 const s = useSession();
 const openPopover = ref<PopoverId>(null);
 const navRef = ref<HTMLElement | null>(null);
@@ -360,6 +361,17 @@ onBeforeUnmount(() => {
         @click="s.introOpen = true"
       >
         &larr; Intro
+      </button>
+      <button
+        v-if="!s.aboutOpen"
+        type="button"
+        class="tab"
+        data-test="tutorial-btn"
+        aria-label="Show Doppel's quick tutorial again"
+        :disabled="s.introOpen || tutorialActive"
+        @click="emit('tutorial')"
+      >
+        Tutorial
       </button>
       <button
         type="button"

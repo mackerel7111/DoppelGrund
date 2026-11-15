@@ -243,7 +243,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               </tr>
               <tr>
                 <td>PCA, GMM, HDBSCAN clustering</td>
-                <td>Unsupervised machine learning</td>
+                <td>
+                  Unsupervised machine learning. The groups are exploratory: HDBSCAN groups shift
+                  when the data is resampled, GMM groups are steadier.
+                </td>
               </tr>
               <tr>
                 <td>Weight calibration on known site pairs</td>
@@ -264,28 +267,131 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
         <div v-show="activeIndex === 3" class="section-body">
           <p class="lead">
             Validation by rediscovery tests whether documented analogue sites rank highly for the
-            Moon and Mars targets they are known for. Results update here once the real pipeline
-            runs.
+            Moon and Mars targets they are known for. A first run exists on a short site list and
+            its results have been reviewed, but none of the metrics below counts as validated. Each
+            row says what has been done and what it shows.
           </p>
           <table class="data-table">
             <thead>
               <tr>
                 <th scope="col">Metric</th>
-                <th scope="col">Result</th>
+                <th scope="col">Info</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Recall of known sites in the top 100 / 500 / 1,000 vs random</td>
-                <td class="pending">Pending validation</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> Rediscovery check on 23 documented analogue sites, against a
+                    simulated random baseline and five other scoring methods, with bootstrap 95%
+                    intervals. The results have been reviewed.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> Not better than random on this list: 18% of the sites are in the
+                    top 500, the same as the random baseline. In the top 100 it is 10% against 4%,
+                    but the intervals overlap. No evidence yet that the ranking recovers known
+                    analogues.</span
+                  >
+                </td>
               </tr>
               <tr>
                 <td>Median percentile rank of known sites</td>
-                <td class="pending">Pending validation</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> The same check: where each site's hexagon (or a neighbour) falls
+                    in the full ranking, 1 being best, averaged over the targets of its body.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> The median site sits at about the 73rd percentile (random
+                    baseline: the 34th), so documented sites rank no better than chance. Many are
+                    vegetated and removed by the barren-ground mask, which counts as last
+                    place.</span
+                  >
+                </td>
               </tr>
               <tr>
                 <td>Novel candidates (stable, well covered, &ge; 300 km from any known site)</td>
-                <td class="pending">Pending validation</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> Candidates are picked in the app by stability, coverage and
+                    distance from known sites.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> Exploratory suggestions only. Nothing tests whether a candidate
+                    really is an analogue, so they are not discoveries.</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Focus presets (weights between the four traits)</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> Four presets (Balanced, Landing &amp; mobility, Cold regions &amp;
+                    volatiles, Geology &amp; minerals) set by hand as illustrative weights.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> The weights are not fitted to known sites: calibration is not
+                    built. Their effect is only probed through the random weight changes behind the
+                    stability numbers.</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Per-feature tolerances (how fast similarity falls with the gap)</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> Each tolerance is the feature's pooled spread (median absolute
+                    deviation) across Earth, Moon and Mars. Aridity is fitted on Earth only, because
+                    it is 0 on the planets by definition.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> Not compared with expert judgement. Random tolerance changes of
+                    about 25% are included in the stability runs.</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Rock composition similarity</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> Rock types from GLiM (Earth), Lunar Prospector iron oxide (Moon)
+                    and the USGS Mars map are mapped to six classes through a crosswalk written as a
+                    proposal.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> No test has been run, so there is no result yet. A geologist
+                    still has to review the crosswalk.</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Match stability (share of perturbed runs in the top 1%)</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> 500 seeded perturbations of the weights and tolerances for every
+                    landmark and focus preset. Each place shows how often it stays in the top
+                    1%.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> Tells you how sensitive a match is to those choices. It has not
+                    been checked against independent data.</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Novelty (distance from known sites)</td>
+                <td>
+                  <span class="info-line"
+                    ><b>Done:</b> Distance in km to the nearest of 25 documented analogue sites,
+                    plus a distance in feature space.</span
+                  >
+                  <span class="info-line"
+                    ><b>Shows:</b> With so few sites, about 97% of places are at least 300 km from
+                    the nearest one, so &ldquo;novel&rdquo; is nearly the default and does not mean
+                    unstudied.</span
+                  >
+                </td>
               </tr>
             </tbody>
           </table>
@@ -307,7 +413,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               <h4>Dataset Registry &amp; Licences</h4>
               <p>
                 Full dataset identifiers and licences live in <code>config/datasets.yaml</code> and
-                <code>docs/submission/data-sources.md</code>.
+                <code>docs/submission/data-sources.md</code>. Most licences and citations are still
+                awaiting human verification against each catalogue page.
               </p>
             </div>
             <div v-if="partial" class="info-item">
@@ -350,6 +457,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
             <li>
               Permafrost data covers the Northern Hemisphere only, Mars thermal data is an open
               item, and the lithology crosswalk is the weakest harmonised dimension.
+            </li>
+            <li>
+              Temperature and cold-and-ice matching is thin outside Earth and the Moon: Mars has no
+              temperature or cold-and-ice measurements, the Moon has no annual range, and this build
+              takes Earth temperature from one MODIS product.
+            </li>
+            <li>
+              This build is a fast-mode sample of Earth hexagons. The full-resolution run, with
+              finer terrain and more temperature sources, is still to come.
             </li>
             <li>
               A high score means model-defined similarity on the listed features. It is not a claim
@@ -739,6 +855,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 .pending {
   color: var(--warn);
   font-weight: 600;
+}
+
+.data-table .info-line {
+  display: block;
+}
+
+.data-table .info-line + .info-line {
+  margin-top: 6px;
 }
 
 @media (max-width: 960px) {

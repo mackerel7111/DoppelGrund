@@ -12,6 +12,7 @@ import {
 import { nearestDisc } from '../map/targetLayers';
 import { useSession } from '../stores/session';
 import { cardMarkers } from '../stores/selectors';
+import { layoutBadges, type Badge, type BadgeIn } from '../globe/badges';
 import { finiteMax, makePalette, metricMeta } from '../map/palette';
 
 const props = defineProps<{ showMarkerHint?: boolean }>();
@@ -21,6 +22,8 @@ const emit = defineEmits<{
   dismissMarkerHint: [];
 }>();
 const markerHint = ref<{ x: number; y: number; n: number } | null>(null);
+const badges = ref<Badge[]>([]);
+let badgeKey = '';
 const s = useSession();
 const host = ref<HTMLDivElement | null>(null);
 const scene = shallowRef<GlobeScene | null>(null);
@@ -63,6 +66,38 @@ onMounted(() => {
     scene.value = sc;
     arcs = new Arcs(sc.scene);
     sc.onFrame.push(() => {
+      if (host.value) {
+        // upright numbered badges on the points facing the camera, spread so none overlaps another
+        const width = host.value.clientWidth;
+        const height = host.value.clientHeight;
+        const pts: BadgeIn[] = [];
+        for (const m of markers.value) {
+          const point = sc.worldPoint('earth', m.lat, m.lng, 0.015);
+          if (
+            point.clone().sub(sc.earthGlobe.position).dot(sc.camera.position.clone().sub(point)) <=
+            0
+          )
+            continue;
+          const p = point.project(sc.camera);
+          if (p.z < -1 || p.z > 1) continue;
+          pts.push({
+            n: m.n,
+            row: m.row,
+            x: Math.round(((p.x + 1) * width) / 2),
+            y: Math.round(((1 - p.y) * height) / 2),
+          });
+        }
+        const next = layoutBadges(pts).map((b) => ({
+          ...b,
+          bx: Math.round(b.bx),
+          by: Math.round(b.by),
+        }));
+        const key = next.map((b) => `${b.n}:${b.x}:${b.y}:${b.bx}:${b.by}`).join('|');
+        if (key !== badgeKey) {
+          badgeKey = key;
+          badges.value = next;
+        }
+      }
       if (props.showMarkerHint && host.value) {
         const width = host.value.clientWidth;
         const height = host.value.clientHeight;
@@ -206,6 +241,31 @@ defineExpose({ scene });
       Drag to turn · scroll to zoom · click left globe to choose a target · click a numbered Earth
       location for details
     </p>
+    <div v-if="badges.length" class="badges">
+      <svg class="badge-lines" aria-hidden="true">
+        <line
+          v-for="b in badges.filter((x) => x.displaced)"
+          :key="`line-${b.n}`"
+          :x1="b.x"
+          :y1="b.y"
+          :x2="b.bx"
+          :y2="b.by"
+        />
+      </svg>
+      <button
+        v-for="b in badges"
+        :key="b.n"
+        type="button"
+        class="badge"
+        :class="{ selected: b.row === s.selectedRow }"
+        :style="{ left: `${b.bx}px`, top: `${b.by}px` }"
+        :aria-label="`Match ${b.n}, view details`"
+        data-test="match-badge"
+        @click.stop="emit('viewDetails', b.row)"
+      >
+        {{ b.n }}
+      </button>
+    </div>
     <div
       v-if="showMarkerHint && markerHint"
       class="marker-hint"
@@ -250,6 +310,50 @@ defineExpose({ scene });
 }
 .hint.gone {
   opacity: 0;
+}
+.badges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.badge-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.badge-lines line {
+  stroke: #4fc3f7;
+  stroke-width: 1.5;
+}
+.badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid #4fc3f7;
+  border-radius: 50%;
+  background: #0b1626;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px #0009;
+}
+.badge::after {
+  content: '';
+  position: absolute;
+  inset: -9px; /* a 44px touch target */
+}
+.badge.selected {
+  background: #4fc3f7;
+  color: #06121f;
 }
 .marker-hint {
   position: absolute;

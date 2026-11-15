@@ -78,6 +78,42 @@ describe('explorer detail flow', () => {
     await w.vm.$nextTick();
     expect(w.find('.close').exists()).toBe(false);
   });
+  it('the Tutorial button shows Doppel and the location tip on the points together, even if both were seen', async () => {
+    localStorage.setItem('doppelgrund.markerGuidanceSeen', '1');
+    const s = useSession();
+    s.loading.phase = 'ready';
+    const w = mount(App, {
+      global: {
+        stubs: {
+          AppHeader: { name: 'AppHeader', template: '<div />' },
+          StoryIntro: true,
+          AboutDialog: true,
+          GlobeView: { name: 'GlobeView', props: ['showMarkerHint'], template: '<div />' },
+          EarthMap: true,
+          TargetPanel: true,
+          BottomMatchDock: true,
+          SiteDetailsModal: true,
+        },
+      },
+    });
+    wrappers.push(w);
+    s.introOpen = false;
+    ranked();
+    await w.vm.$nextTick();
+    const globe = () => w.findComponent({ name: 'GlobeView' });
+    expect(globe().props('showMarkerHint')).toBe(false);
+    expect(w.find('.explorer-tutorial').exists()).toBe(false);
+    w.findComponent({ name: 'AppHeader' }).vm.$emit('tutorial');
+    await w.vm.$nextTick();
+    expect(w.find('.explorer-tutorial').exists()).toBe(true);
+    expect(globe().props('showMarkerHint')).toBe(true); // shown while the tutorial is up
+    await w.get('.explorer-tutorial [aria-label="Dismiss tutorial"]').trigger('click');
+    expect(w.find('.explorer-tutorial').exists()).toBe(false);
+    expect(globe().props('showMarkerHint')).toBe(true); // stays until the user dismisses it
+    globe().vm.$emit('dismissMarkerHint');
+    await w.vm.$nextTick();
+    expect(globe().props('showMarkerHint')).toBe(false);
+  });
   it('starts with a short summary and keeps measurements and sources in their own tabs', async () => {
     ranked();
     const w = mount(SiteDetailsModal, { props: { row: 0 } });

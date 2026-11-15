@@ -66,7 +66,15 @@ const tutorialRequested = ref(tutorialWanted());
 const tutorialVisible = computed(
   () => tutorialRequested.value && s.loading.phase === 'ready' && !s.introOpen && !s.aboutOpen,
 );
+// The header's Tutorial button: show Doppel again together with the location tip on the points.
+const tutorialReplay = ref(false);
+function showTutorialAgain(): void {
+  tutorialReplay.value = true;
+  markerGuidance.value = true; // the stored "seen" flag stays as it is
+  tutorialRequested.value = true;
+}
 function closeTutorial(): void {
+  tutorialReplay.value = false;
   tutorialRequested.value = false;
   try {
     localStorage.setItem('doppelgrund.tutorialSeen', '1');
@@ -131,7 +139,7 @@ const progressPct = computed(() =>
 
 <template>
   <div class="app">
-    <AppHeader :tutorial-active="tutorialVisible" />
+    <AppHeader :tutorial-active="tutorialVisible" @tutorial="showTutorialAgain" />
     <div v-if="s.notice" class="notice" role="status">
       {{ s.notice }}
       <button type="button" class="tab" aria-label="Dismiss notice" @click="s.notice = null">
@@ -157,7 +165,11 @@ const progressPct = computed(() =>
         <div v-if="s.view === '3d'" class="globe-layer">
           <GlobeView
             :show-marker-hint="
-              markerGuidance && !tutorialVisible && !detailsVisible && !s.introOpen && !s.aboutOpen
+              markerGuidance &&
+              (!tutorialVisible || tutorialReplay) &&
+              !detailsVisible &&
+              !s.introOpen &&
+              !s.aboutOpen
             "
             @dismiss-marker-hint="dismissMarkerGuidance"
             @fallback="onGlobeFallback"

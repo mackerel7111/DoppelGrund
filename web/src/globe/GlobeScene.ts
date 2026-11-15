@@ -430,7 +430,7 @@ export class GlobeScene {
       .labelsData(cards)
       .labelLat((d) => (d as CardMarker).lat)
       .labelLng((d) => (d as CardMarker).lng)
-      .labelText((d) => String((d as CardMarker).n))
+      .labelText(() => '') // the numbers are upright HTML badges now (GlobeView), not flat text; the dot stays
       .labelSize(5)
       .labelDotRadius(1.5)
       .labelAltitude(0.015)
