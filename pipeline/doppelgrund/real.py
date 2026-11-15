@@ -602,8 +602,8 @@ def earth_local(cells):
     # permafrost probability: unzip the 1.9 GB GeoTIFF to scratch once (reading inside the zip is too slow), polar stereographic EPSG:3995
     with zipfile.ZipFile(get("perprob")) as zf:
         tif = next(n for n in zf.namelist() if n.endswith(".tif"))
-        if not (WORK / tif).exists():
-            zf.extract(tif, WORK)
+        if not (WORK / tif).exists() or (WORK / tif).stat().st_size != zf.getinfo(tif).file_size:
+            zf.extract(tif, WORK)  # also redo an interrupted, truncated copy
     perma = np.full(len(cells), np.nan)
     with rasterio.open(WORK / tif) as ds:
         x, y = Transformer.from_crs(4326, ds.crs.to_wkt(), always_xy=True).transform(lon, lat)
