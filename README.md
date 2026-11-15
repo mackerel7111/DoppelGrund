@@ -6,6 +6,15 @@ Pick a landmark on the Moon or Mars. DoppelGrund scores every Earth land hexagon
 best Earth match per dimension (terrain, thermal, cold & ice, composition) plus best overall, flags places nobody
 has studied, and states where each analogy fails.
 
+## AI assistance
+
+This project was built with AI coding assistants (Anthropic's Claude, used through Claude Code). The assistants wrote
+and edited the code, the configuration drafts, the documentation and the synthetic test-data generator.
+The real data come from public NASA, USGS, Copernicus and other open datasets
+(`docs/submission/data-sources.md`); the `sample/` bundle and any bundle whose manifest says `synthetic: true` are
+synthetic test data made by a generator, not real places. Which model worked on which task is recorded in
+`docs/submission/ai-use-log.md`.
+
 ## Requirements
 
 - Python 3.12+ (`python3`, or `python` on Windows)
