@@ -118,6 +118,9 @@ onBeforeUnmount(() => {
     <img class="backdrop" :src="img(scene === 3 ? `${world ?? 'moon'}-surface` : 'space')" alt="" />
     <header class="intro-header">
       <span class="brand">DoppelGrund</span>
+      <span v-if="scene === 3" class="scene-location"
+        >{{ world === 'mars' ? 'Mars' : 'Moon' }} · Surface view</span
+      >
       <div class="header-actions">
         <button
           v-if="speech"
@@ -137,7 +140,9 @@ onBeforeUnmount(() => {
         <p v-if="scene < 3" class="eyebrow">
           {{ scene === 1 ? 'An invitation from Doppel' : 'Through Doppel’s eyes' }}
         </p>
-        <h1 id="intro-heading" ref="heading" tabindex="-1">{{ titles[scene - 1] }}</h1>
+        <h1 id="intro-heading" ref="heading" tabindex="-1">
+          {{ scene === 3 ? 'A little nervous. Ready to explore.' : titles[scene - 1] }}
+        </h1>
         <p v-if="scene < 3" id="intro-caption" class="caption">{{ captions[scene - 1] }}</p>
         <p v-if="speechError" role="status">{{ speechError }}</p>
       </div>
@@ -229,29 +234,76 @@ onBeforeUnmount(() => {
   opacity: 1;
 }
 .surface .intro-header {
-  background: #080f1cdb;
-  border-radius: 0 0 12px 12px;
-  padding-inline: 16px;
+  background: transparent;
+  border: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  padding-block: 20px;
 }
-.surface-story {
+.surface .brand,
+.surface .header-actions,
+.scene-location {
+  background: #0b1526ed;
+  border: 1px solid #50647b;
+  border-radius: 999px;
+  padding: 6px 18px;
+  width: fit-content;
+}
+.surface .brand {
+  font-size: 20px;
+  padding-block: 12px;
+}
+.scene-location {
+  font-size: 14px;
+  padding-block: 12px;
+}
+.surface .header-actions {
+  justify-self: end;
+  padding: 2px 8px;
+  gap: 4px;
+}
+.surface .quiet {
+  padding-inline: 10px;
+}
+@media (max-width: 899px) {
+  .surface .intro-header {
+    grid-template-columns: 1fr auto;
+  }
+  .scene-location {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .surface .header-actions {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: auto;
+    flex-direction: column;
+  }
+}
+
+.story.surface-story {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 32px;
   min-height: 440px;
 }
-.surface-story .copy {
+.story.surface-story .copy {
   max-width: 850px;
+  width: fit-content;
   text-align: center;
   background: #0b111deb;
-  padding: 18px 24px;
+  padding: 10px 18px;
   border: 1px solid var(--border);
   border-radius: 14px;
 }
 .surface-story h1 {
-  font-size: clamp(24px, 2.5vw, 36px);
+  font-size: clamp(18px, 1.5vw, 23px);
 }
 .surface-rover {
+  align-self: flex-end;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -281,7 +333,7 @@ onBeforeUnmount(() => {
   width: clamp(150px, 20vw, 250px);
 }
 @media (max-width: 899px) {
-  .surface-story {
+  .story.surface-story {
     min-height: 460px;
   }
 }

@@ -135,12 +135,12 @@ export const GLOSSARY = {
 } as const;
 
 export const COLOR_OPTIONS: { id: ColorBy; label: string }[] = [
-  { id: 'S', label: 'Similarity' },
-  { id: 'terrain', label: 'Terrain' },
-  { id: 'thermal', label: 'Thermal' },
-  { id: 'cold_ice', label: 'Cold & ice' },
-  { id: 'composition', label: 'Composition' },
-  { id: 'subsurface', label: 'Subsurface' },
+  { id: 'S', label: 'Overall similarity' },
+  { id: 'terrain', label: 'Terrain similarity' },
+  { id: 'thermal', label: 'Temperature similarity' },
+  { id: 'cold_ice', label: 'Cold & ice similarity' },
+  { id: 'composition', label: 'Rock composition similarity' },
+  { id: 'subsurface', label: 'Subsurface similarity' },
   { id: 'novelty', label: 'Distance from known sites' },
 ];
 

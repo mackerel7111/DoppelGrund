@@ -2,15 +2,25 @@
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { GlobeScene, webglAvailable } from '../globe/GlobeScene';
 import { Arcs } from '../globe/arcs';
-import { attachPicking, buildRowLookup, nearestLandmark, rowAt } from '../globe/picking';
+import {
+  attachPicking,
+  buildRowLookup,
+  nearestLandmark,
+  pickMatchMarker,
+  rowAt,
+} from '../globe/picking';
 import { nearestDisc } from '../map/targetLayers';
 import { useSession } from '../stores/session';
 import { cardMarkers } from '../stores/selectors';
-import { finiteMax, legendGradient, makePalette, metricMeta } from '../map/palette';
-import { COLOR_OPTIONS, colorHelp } from '../content/labels';
-import type { ColorBy } from '../data/types';
+import { finiteMax, makePalette, metricMeta } from '../map/palette';
 
-const emit = defineEmits<{ fallback: [reason: string] }>();
+const props = defineProps<{ showMarkerHint?: boolean }>();
+const emit = defineEmits<{
+  fallback: [reason: string];
+  viewDetails: [row: number];
+  dismissMarkerHint: [];
+}>();
+const markerHint = ref<{ x: number; y: number; n: number } | null>(null);
 const s = useSession();
 const host = ref<HTMLDivElement | null>(null);
 const scene = shallowRef<GlobeScene | null>(null);
@@ -53,6 +63,32 @@ onMounted(() => {
     scene.value = sc;
     arcs = new Arcs(sc.scene);
     sc.onFrame.push(() => {
+      if (props.showMarkerHint && host.value) {
+        const width = host.value.clientWidth;
+        const height = host.value.clientHeight;
+        let visible = false;
+        for (const marker of markers.value) {
+          const point = sc.worldPoint('earth', marker.lat, marker.lng, 0.015);
+          if (
+            point.clone().sub(sc.earthGlobe.position).dot(sc.camera.position.clone().sub(point)) <=
+            0
+          )
+            continue;
+          const p = point.project(sc.camera);
+          if (p.z < -1 || p.z > 1 || Math.abs(p.x) > 1 || Math.abs(p.y) > 1) continue;
+          const x = Math.round(Math.max(12, Math.min(width - 280, ((p.x + 1) * width) / 2 + 24)));
+          const y = Math.round(Math.max(12, Math.min(height - 180, ((1 - p.y) * height) / 2 - 90)));
+          if (
+            markerHint.value?.x !== x ||
+            markerHint.value.y !== y ||
+            markerHint.value.n !== marker.n
+          )
+            markerHint.value = { x, y, n: marker.n };
+          visible = true;
+          break;
+        }
+        if (!visible) markerHint.value = null;
+      }
       const tp = targetPoint.value;
       const from = tp ? sc.worldPoint('body', tp.lat, tp.lng, 0.02) : null;
       const to = markers.value.map((m) => sc.worldPoint('earth', m.lat, m.lng, 0.01));
@@ -68,6 +104,13 @@ onMounted(() => {
       );
     });
     detach = attachPicking(sc, {
+      onMatch: (x, y) => {
+        const bounds = sc.renderer.domElement.getBoundingClientRect();
+        const row = pickMatchMarker(sc, markers.value, x, y, bounds.width, bounds.height);
+        if (row === null) return false;
+        emit('viewDetails', row);
+        return true;
+      },
       onEarth: (lat, lng) => {
         const row = rowAt(rowLookup.value, lat, lng);
         if (row !== null) s.selectRow(row);
@@ -137,10 +180,6 @@ watch([scene, () => s.selectedRow], ([sc, row]) => {
   sc?.setSelected(p);
   if (sc && p) sc.facePoint('earth', p.lat, p.lng);
 });
-function onColor(ev: Event): void {
-  const v = (ev.target as HTMLSelectElement).value;
-  if (COLOR_OPTIONS.some((o) => o.id === v)) s.setColorBy(v as ColorBy);
-}
 watch(
   [scene, () => s.result?.version, () => s.colorBy],
   ([sc]) => {
@@ -164,27 +203,21 @@ defineExpose({ scene });
       :aria-label="`3D view: ${s.body === 'moon' ? 'Moon' : 'Mars'} (left) and Earth (right); target ${targetName}`"
     />
     <p class="hint meta" :class="{ gone: !hintVisible }">
-      Drag to turn · scroll to zoom · click left globe for target · click Earth for details
+      Drag to turn · scroll to zoom · click left globe to choose a target · click a numbered Earth
+      location for details
     </p>
-    <div class="legend hud" data-test="globe-legend">
-      <span class="meta">Colour the Earth by</span>
-      <div class="row">
-        <select
-          :value="s.colorBy"
-          aria-label="Colour metric"
-          data-test="color-by"
-          @change="onColor"
-        >
-          <option v-for="o in COLOR_OPTIONS" :key="o.id" :value="o.id">{{ o.label }}</option>
-        </select>
-        <span class="num meta">{{ meta.domain[0] }}</span>
-        <span class="bar" :style="{ background: legendGradient() }" />
-        <span class="num meta">{{ meta.domain[1] }}{{ meta.unit === 'km' ? ' km' : '' }}</span>
-      </div>
-      <span class="meta" data-test="color-help">{{
-        colorHelp(s.colorBy, s.target ? targetName : undefined)
-      }}</span>
-      <span class="meta">Colours are blended between neighbouring hexagons for readability.</span>
+    <div
+      v-if="showMarkerHint && markerHint"
+      class="marker-hint"
+      :style="{ left: `${markerHint.x}px`, top: `${markerHint.y}px` }"
+      role="status"
+      data-test="marker-guidance"
+    >
+      <span class="number" aria-hidden="true">{{ markerHint.n }}</span>
+      <p>Click a numbered Earth location to see its details.</p>
+      <button type="button" aria-label="Dismiss location tip" @click="$emit('dismissMarkerHint')">
+        ×
+      </button>
     </div>
   </div>
 </template>
@@ -218,67 +251,45 @@ defineExpose({ scene });
 .hint.gone {
   opacity: 0;
 }
-.legend {
+.marker-hint {
   position: absolute;
-  bottom: var(--s3);
-  right: var(--s3);
-  width: 288px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--s1);
-  padding: var(--s2) var(--s3);
-  text-align: right;
-  pointer-events: none;
-}
-.row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--s2);
-  width: 100%;
-}
-.row select {
+  gap: 10px;
+  max-width: min(268px, calc(100% - 24px));
+  padding: 10px 8px 10px 12px;
+  background: #101b2a;
+  border: 1px solid #52778e;
+  border-radius: 12px;
   pointer-events: auto;
-  max-width: 128px;
-  min-height: 28px;
-  padding: 0 var(--s2);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--fs-meta);
+  box-shadow: 0 6px 20px #0005;
 }
-.bar {
-  width: 64px;
+.marker-hint p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.marker-hint .number {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--accent-earth);
+  border-radius: 50%;
+  color: var(--accent-earth);
   flex-shrink: 0;
-  height: 8px;
-  border-radius: 4px;
 }
-/* narrow: the header wraps to two rows (bottom ~110px) and the bottom edge belongs to the sheet */
-/* mid widths: sit on top of the dock, which now takes the whole bottom row */
-@media (max-width: 1365px) {
-  .legend {
-    bottom: 70px; /* 12 + 50 dock + 8 */
-  }
+.marker-hint button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: 22px;
 }
-@media (max-width: 1199px) {
-  .hint {
-    top: 120px;
-    max-width: calc(100vw - 24px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .legend {
-    top: 164px;
-    bottom: auto;
-  }
-}
-/* phones: the header wraps to three rows (bottom ~170px) */
 @media (max-width: 640px) {
   .hint {
-    top: 184px;
-  }
-  .legend {
-    top: 228px;
+    display: none;
   }
 }
 </style>

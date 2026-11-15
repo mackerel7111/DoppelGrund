@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { latLngToCell } from 'h3-js';
 import type { Target } from '../data/types';
+import type { CardMarker } from '../stores/selectors';
 import { haversineKm } from '../engine/geo';
 import type { GlobeScene } from './GlobeScene';
 
@@ -67,7 +68,38 @@ export function buildRowLookup(h3: string[]): Map<string, number> {
   return new Map(h3.map((c, i) => [c, i]));
 }
 
+/** Screen-space hit area includes a match dot and its number, and excludes Earth's far side. */
+export function pickMatchMarker(
+  scene: GlobeScene,
+  markers: CardMarker[],
+  ndcX: number,
+  ndcY: number,
+  width: number,
+  height: number,
+): number | null {
+  if (width <= 0 || height <= 0) return null;
+  let nearest: number | null = null;
+  let distance = 40; // pixels: include the label as well as its dot, including on touch screens
+  for (const marker of markers) {
+    const point = scene.worldPoint('earth', marker.lat, marker.lng, 0.015);
+    if (
+      point.clone().sub(scene.earthGlobe.position).dot(scene.camera.position.clone().sub(point)) <=
+      0
+    )
+      continue;
+    const projected = point.project(scene.camera);
+    if (projected.z < -1 || projected.z > 1) continue;
+    const d = Math.hypot(((projected.x - ndcX) * width) / 2, ((projected.y - ndcY) * height) / 2);
+    if (d < distance) {
+      distance = d;
+      nearest = marker.row;
+    }
+  }
+  return nearest;
+}
+
 export interface PickHandlers {
+  onMatch?: (ndcX: number, ndcY: number) => boolean;
   onEarth: (lat: number, lng: number) => void;
   onBody: (lat: number, lng: number) => void;
 }
@@ -110,6 +142,10 @@ export function attachPicking(scene: GlobeScene, handlers: PickHandlers): () => 
   const up = (ev: PointerEvent): void => {
     if (start && !dragged) {
       const [x, y] = ndc(ev);
+      if (handlers.onMatch?.(x, y)) {
+        start = null;
+        return;
+      }
       const hit = pickGlobe(scene, x, y);
       if (hit?.globe === 'earth') handlers.onEarth(hit.lat, hit.lng);
       else if (hit?.globe === 'body') handlers.onBody(hit.lat, hit.lng);

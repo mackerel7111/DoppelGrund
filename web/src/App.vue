@@ -2,7 +2,6 @@
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import AppHeader from './components/AppHeader.vue';
 import StatusBar from './components/StatusBar.vue';
-import SiteBriefingCard from './components/SiteBriefingCard.vue';
 import BottomMatchDock from './components/BottomMatchDock.vue';
 import SiteDetailsModal from './components/SiteDetailsModal.vue';
 import AboutDialog from './components/AboutDialog.vue';
@@ -21,6 +20,38 @@ if (s.view === '3d') void loadGlobe(); // fetch the 3D chunk while the data load
 const nHex = computed(() => s.bundle?.manifest.n_hex ?? null);
 const debug = new URLSearchParams(window.location.search).has('debug');
 const detailsOpen = ref(false);
+function markerGuidanceWanted(): boolean {
+  try {
+    return localStorage.getItem('doppelgrund.markerGuidanceSeen') !== '1';
+  } catch {
+    return true;
+  }
+}
+const markerGuidance = ref(markerGuidanceWanted());
+function dismissMarkerGuidance(): void {
+  markerGuidance.value = false;
+  try {
+    localStorage.setItem('doppelgrund.markerGuidanceSeen', '1');
+  } catch {
+    /* remember for this visit */
+  }
+}
+function openSelectedDetails(): void {
+  dismissMarkerGuidance();
+  detailsOpen.value = true;
+}
+function openMarkerDetails(row: number): void {
+  s.selectRow(row);
+  openSelectedDetails();
+}
+const detailsVisible = computed(
+  () =>
+    detailsOpen.value &&
+    s.selectedRow !== null &&
+    !s.introOpen &&
+    !s.aboutOpen &&
+    s.loading.phase === 'ready',
+);
 
 // Always begin with the welcome page, including returning visits and refreshes.
 s.introOpen = true;
@@ -77,8 +108,8 @@ watch(
   { immediate: true },
 );
 
-watch([() => s.selectedRow, () => s.aboutOpen], ([row, isAbout]) => {
-  if (row === null || isAbout) detailsOpen.value = false;
+watch([() => s.selectedRow, () => s.aboutOpen, () => s.introOpen], ([row, isAbout, isIntro]) => {
+  if (row === null || isAbout || isIntro) detailsOpen.value = false;
 });
 
 watch(
@@ -121,33 +152,46 @@ const progressPct = computed(() =>
       </progress>
       <p class="meta num">{{ s.loading.done }} / {{ s.loading.total || '?' }} files</p>
     </main>
-    <template v-else>
-      <div v-if="s.view === '3d'" class="globe-layer">
-        <GlobeView @fallback="onGlobeFallback" />
+    <div v-else class="explorer-workspace" :class="{ inspecting: detailsVisible }">
+      <div class="explorer-canvas">
+        <div v-if="s.view === '3d'" class="globe-layer">
+          <GlobeView
+            :show-marker-hint="
+              markerGuidance && !tutorialVisible && !detailsVisible && !s.introOpen && !s.aboutOpen
+            "
+            @dismiss-marker-hint="dismissMarkerGuidance"
+            @fallback="onGlobeFallback"
+            @view-details="openMarkerDetails"
+          />
+        </div>
+        <div v-else class="maps">
+          <section class="panel" aria-label="Target body map">
+            <div class="panel-title">Target</div>
+            <TargetPanel />
+          </section>
+          <section class="panel" aria-label="Earth map">
+            <div class="panel-title">Earth</div>
+            <EarthMap @view-details="openMarkerDetails" />
+          </section>
+        </div>
+        <button
+          v-if="!detailsVisible"
+          type="button"
+          class="details-launcher"
+          data-test="view-details"
+          :disabled="s.selectedRow === null"
+          @click="openSelectedDetails"
+        >
+          View details →
+        </button>
+        <BottomMatchDock />
       </div>
-      <div v-else class="maps">
-        <section class="panel" aria-label="Target body map">
-          <div class="panel-title">Target</div>
-          <TargetPanel />
-        </section>
-        <section class="panel" aria-label="Earth map">
-          <div class="panel-title">Earth</div>
-          <EarthMap />
-        </section>
-      </div>
-      <SiteBriefingCard
-        v-if="s.selectedRow !== null && !detailsOpen"
-        :row="s.selectedRow"
-        @view-details="detailsOpen = true"
-        @close="s.selectRow(null)"
-      />
-      <BottomMatchDock />
       <SiteDetailsModal
-        v-if="detailsOpen && s.selectedRow !== null"
+        v-if="detailsVisible && s.selectedRow !== null"
         :row="s.selectedRow"
         @close="detailsOpen = false"
       />
-    </template>
+    </div>
 
     <ExplorerTutorial v-if="tutorialVisible" :body="s.body" @close="closeTutorial" />
     <Transition name="intro-out">
@@ -159,6 +203,42 @@ const progressPct = computed(() =>
 </template>
 
 <style scoped>
+.details-launcher {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 4;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--accent-earth);
+  border-radius: 12px;
+  background: #101b2af5;
+  color: var(--accent-earth);
+  pointer-events: auto;
+}
+
+.explorer-workspace {
+  grid-row: 2;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  pointer-events: none;
+}
+.explorer-workspace.inspecting {
+  grid-template-columns: minmax(0, 1fr) 420px;
+}
+.explorer-canvas {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+@media (max-width: 899px) {
+  .explorer-workspace.inspecting {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .app {
   display: grid;
   grid-template-columns: 1fr;
@@ -195,7 +275,7 @@ const progressPct = computed(() =>
   accent-color: var(--accent-earth);
 }
 .globe-layer {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: auto;
@@ -207,7 +287,8 @@ const progressPct = computed(() =>
   grid-template-columns: 2fr 3fr;
   gap: var(--s3);
   margin: var(--s2) var(--s3) var(--s3);
-  padding-bottom: 64px;
+  height: calc(100% - var(--s2) - var(--s3));
+  padding-bottom: 80px;
   min-height: 0;
   pointer-events: auto;
 }

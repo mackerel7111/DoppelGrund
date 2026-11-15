@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { clampLonLat, fitZoom, labelOffsets, nearestDisc } from '../src/map/targetLayers';
+import {
+  buildTargetLayers,
+  clampLonLat,
+  fitZoom,
+  labelOffsets,
+  nearestDisc,
+} from '../src/map/targetLayers';
 import type { DiscGrid, Target } from '../src/data/types';
 import { formatLatLon } from '../src/stores/selectors';
 
@@ -13,6 +19,16 @@ function grid(points: [number, number][]): DiscGrid {
 }
 
 describe('target panel helpers', () => {
+  it('keeps landmark layers usable while a world texture is loading', () => {
+    const input = { texture: null, landmarks: [], selectedId: null, custom: null };
+    expect(buildTargetLayers(input).some((layer) => layer.id === 'body-texture')).toBe(false);
+    expect(buildTargetLayers(input).some((layer) => layer.id === 'landmarks')).toBe(true);
+    const texture = {} as ImageBitmap;
+    expect(
+      buildTargetLayers({ ...input, texture }).some((layer) => layer.id === 'body-texture'),
+    ).toBe(true);
+  });
+
   it('snaps to the nearest disc on the sphere, across the antimeridian and near the pole', () => {
     const g = grid([
       [0, 179],

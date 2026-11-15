@@ -69,11 +69,16 @@ export function labelOffsets(landmarks: Target[]): Map<string, number> {
 export function buildTargetLayers(inp: TargetLayerInput, extra: Layer[] = []): Layer[] {
   const offsets = labelOffsets(inp.landmarks);
   const layers: Layer[] = [
-    new BitmapLayer({
-      id: 'body-texture',
-      image: inp.texture,
-      bounds: [-180, -90, 180, 90],
-    }),
+    // While switching worlds the new texture may still be loading. deck.gl cannot use null as an image.
+    ...(inp.texture
+      ? [
+          new BitmapLayer({
+            id: 'body-texture',
+            image: inp.texture,
+            bounds: [-180, -90, 180, 90],
+          }),
+        ]
+      : []),
     ...extra,
     new ScatterplotLayer<Target>({
       id: 'landmarks',

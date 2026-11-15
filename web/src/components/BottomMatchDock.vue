@@ -86,8 +86,7 @@ watch(
     </div>
 
     <nav class="match-dock hud" aria-label="Ideal locations predicted by model">
-      <span class="dock-label">Ideal locations</span>
-
+      <span class="dock-label">Earth matches</span>
       <button
         v-for="(c, idx) in cards"
         :key="c.kind"
@@ -105,7 +104,8 @@ watch(
         <span v-if="c.row !== null" class="stat">
           <b>{{ cardScore(c.kind, c.S, c.S_g) }}</b>
         </span>
-        <span v-else :id="`dock-why-${c.kind}`" class="visually-hidden">
+        <span v-else class="meta">No data</span>
+        <span v-if="c.row === null" :id="`dock-why-${c.kind}`" class="visually-hidden">
           {{ emptyReason(c.kind) }}
         </span>
       </button>
@@ -128,9 +128,9 @@ watch(
 
 <style scoped>
 .dock-anchor {
-  position: fixed;
+  position: absolute;
   left: var(--s3);
-  right: 316px; /* legend width 288 + its 12 inset + 16 gap */
+  right: var(--s3);
   bottom: var(--s3);
   z-index: 20;
   pointer-events: none;
@@ -147,6 +147,7 @@ watch(
   gap: 2px;
   padding: var(--s2); /* panel radius 16 - 8 = control radius 8 */
   overflow-x: auto;
+  width: 100%;
   max-width: 100%;
   scrollbar-width: none;
 }
@@ -162,6 +163,9 @@ watch(
   white-space: nowrap;
 }
 
+.tab {
+  flex-shrink: 0;
+}
 .tab-name {
   color: var(--text);
 }

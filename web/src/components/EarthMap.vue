@@ -18,6 +18,7 @@ import {
   sourceFor,
 } from '../map/palette';
 
+const emit = defineEmits<{ viewDetails: [row: number] }>();
 const s = useSession();
 const host = ref<HTMLDivElement | null>(null);
 let deck: Deck<MapView> | null = null;
@@ -70,8 +71,8 @@ function onColor(ev: Event): void {
 
 function onClick(info: PickingInfo): void {
   if (info.layer?.id === 'hexes' && info.index >= 0) s.selectRow(info.index);
-  else if (info.layer?.id === 'card-rings' && info.object)
-    s.selectRow((info.object as CardMarker).row);
+  else if ((info.layer?.id === 'card-rings' || info.layer?.id === 'card-numbers') && info.object)
+    emit('viewDetails', (info.object as CardMarker).row);
 }
 
 function tooltip(info: PickingInfo): string | null {
