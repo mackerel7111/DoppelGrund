@@ -267,9 +267,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
         <div v-show="activeIndex === 3" class="section-body">
           <p class="lead">
             Validation by rediscovery tests whether documented analogue sites rank highly for the
-            Moon and Mars targets they are known for. A first run exists, but it is a check on a
-            short site list that no one has reviewed yet, so none of the metrics below counts as
-            validated.
+            Moon and Mars targets they are known for. A first run exists on a short site list and
+            its results have been reviewed, but none of the metrics below counts as validated.
           </p>
           <table class="data-table">
             <thead>
@@ -282,24 +281,24 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
               <tr>
                 <td>Recall of known sites in the top 100 / 500 / 1,000 vs random</td>
                 <td>
-                  <span class="pending">Needs human review</span> A first check has run on a short
-                  list of documented sites and does not yet beat the random baseline.
+                  <span class="pending">Reviewed</span> A first check has run on a short list of
+                  documented sites and does not yet beat the random baseline.
                   <span class="verdict"
-                    ><b>Verdict (first run, not yet signed off):</b> not better than random on the
-                    current list of 23 documented sites, so there is no evidence yet that the
-                    ranking recovers known analogues.</span
+                    ><b>Verdict (reviewed):</b> not better than random on the current list of 23
+                    documented sites, so there is no evidence yet that the ranking recovers known
+                    analogues.</span
                   >
                 </td>
               </tr>
               <tr>
                 <td>Median percentile rank of known sites</td>
                 <td>
-                  <span class="pending">Needs human review</span> Many documented sites are
-                  vegetated and are excluded by the barren-ground mask, so they count as misses.
+                  <span class="pending">Reviewed</span> Many documented sites are vegetated and are
+                  excluded by the barren-ground mask, so they count as misses.
                   <span class="verdict"
-                    ><b>Verdict (first run, not yet signed off):</b> not better than random: the
-                    median documented site ranks lower than the random baseline, partly because
-                    masked (vegetated) sites count as misses.</span
+                    ><b>Verdict (reviewed):</b> not better than random: the median documented site
+                    ranks lower than the random baseline, partly because masked (vegetated) sites
+                    count as misses.</span
                   >
                 </td>
               </tr>
@@ -330,8 +329,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
                   <span class="pending">Needs human review</span> The rock-class crosswalk is a
                   proposal awaiting a geologist's review.
                   <span class="verdict"
-                    ><b>Verdict (first run, not yet signed off):</b> none yet: no test of the
-                    crosswalk has been run.</span
+                    ><b>Verdict:</b> none yet: no test of the crosswalk has been run.</span
                   >
                 </td>
               </tr>
