@@ -1,9 +1,26 @@
 // UI microcopy (exact strings agreed with the orchestrator).
 // 2026-11-07 panel redesign: plain words first, technical names only in GLOSSARY and About.
 // Pending orchestrator sign-off (logged in docs/STATUS.md).
-import type { CardKind, ColorBy, GroupId, LensId } from '../data/types';
+import type { CardKind, ColorBy, GroupId, LensId, Manifest } from '../data/types';
 
 export const SYNTHETIC_BANNER = 'Synthetic data — not real results';
+export const PARTIAL_LABEL = 'Partial data';
+
+/** Short reason shown beside the header pill on wide screens; null when nothing to say. */
+export function partialShort(resolution: Manifest['resolution']): string | null {
+  if (!resolution) return null;
+  if (resolution.stride > 1) return `1 in ${resolution.stride} hexagons`;
+  return resolution.mode === 'fast' ? 'fast mode' : null;
+}
+
+/** Tooltip for the header pill when a real bundle was built from a sample or in fast mode; null when complete. */
+export function partialNotice(resolution: Manifest['resolution']): string | null {
+  if (!resolution) return null;
+  const parts: string[] = [];
+  if (resolution.mode === 'fast') parts.push('Fast mode (coarser inputs)');
+  if (resolution.stride > 1) parts.push(`1 in ${resolution.stride} hexagons`);
+  return parts.length ? parts.join(', ') : null;
+}
 export const FOOTPRINT_NOTE =
   'Matches compare the ~47 km-wide area around this point, not the landmark alone.';
 export const FOOTPRINT_SHORT = 'Compares a ~47 km-wide area';

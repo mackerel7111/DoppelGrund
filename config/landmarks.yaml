@@ -10,4 +10,102 @@
 #     notes:  free text (optional)
 # Fill from authoritative sources only (NASA Artemis III candidate regions; Jezero; Gale).
 # Agents never add entries here (override O2).
-landmarks: []
+#
+# 2026-11-14: entries below compiled by Claude on the user's explicit instruction, for human review.
+# Coordinates are IAU feature centres from the USGS Gazetteer of Planetary Nomenclature center-point shapefiles
+# (MOON/MARS_nomenclature_center_pts.zip, downloaded 2026-11-14), converted from 0-360 east to [-180, 180).
+# Artemis III regions: NASA lists nine candidate regions named after these features
+# (https://www.nasa.gov/news-release/nasa-provides-update-on-artemis-iii-moon-landing-regions/).
+# A region is NOT the feature centre: these points are the named feature, so the ~47 km disc samples its surroundings.
+landmarks:
+  - id: shackleton
+    name: Shackleton crater
+    body: moon
+    lat: -89.67
+    lon: 129.78
+    source: https://planetarynames.wr.usgs.gov/Feature/5450
+    notes: South-pole crater; classic polar target in the project plan, not one of NASA's nine 2024 Artemis III regions.
+  - id: haworth
+    name: Haworth
+    body: moon
+    lat: -87.45
+    lon: -5.17
+    source: https://planetarynames.wr.usgs.gov/Feature/14502
+    notes: Artemis III candidate region "Haworth" (NASA 2024-10-28).
+  - id: mons_malapert
+    name: Mons Malapert (Malapert Massif)
+    body: moon
+    lat: -85.98
+    lon: -1.67
+    source: https://planetarynames.wr.usgs.gov/Feature/16338
+    notes: Artemis III candidate region "Malapert Massif".
+  - id: mons_mouton
+    name: Mons Mouton
+    body: moon
+    lat: -84.60
+    lon: 31.00
+    source: https://planetarynames.wr.usgs.gov/Feature/16070
+    notes: Artemis III candidate regions "Mons Mouton" and "Mons Mouton Plateau".
+  - id: nobile
+    name: Nobile crater
+    body: moon
+    lat: -85.2752
+    lon: 53.2725
+    source: https://planetarynames.wr.usgs.gov/Feature/4321
+    notes: Artemis III candidate regions "Nobile Rim 1" and "Nobile Rim 2" lie on this crater's rim.
+  - id: de_gerlache
+    name: de Gerlache crater
+    body: moon
+    lat: -88.4849
+    lon: -88.3447
+    source: https://planetarynames.wr.usgs.gov/Feature/1439
+    notes: Artemis III candidate region "de Gerlache Rim 2" lies on this crater's rim.
+  - id: cabeus_b
+    name: Cabeus B
+    body: moon
+    lat: -82.2587
+    lon: -54.5846
+    source: https://planetarynames.wr.usgs.gov/Feature/8058
+    notes: Artemis III candidate region "Peak near Cabeus B".
+  - id: slater
+    name: Slater crater
+    body: moon
+    lat: -88.0792
+    lon: 111.2881
+    source: https://planetarynames.wr.usgs.gov/Feature/15325
+    notes: Artemis III candidate region "Slater Plain".
+  - id: statio_tranquillitatis
+    name: Statio Tranquillitatis (Apollo 11 site)
+    body: moon
+    lat: 0.6741
+    lon: 23.4732
+    source: https://planetarynames.wr.usgs.gov/Feature/5684
+    notes: Mare example (Tranquility Base, Apollo 11 landing site).
+  - id: descartes
+    name: Descartes crater
+    body: moon
+    lat: -11.7428
+    lon: 15.6667
+    source: https://planetarynames.wr.usgs.gov/Feature/1498
+    notes: Highlands example; the Apollo 16 landing site lies in the Descartes highlands north of this crater, not at its centre.
+  - id: tycho
+    name: Tycho crater
+    body: moon
+    lat: -43.2958
+    lon: -11.2153
+    source: https://planetarynames.wr.usgs.gov/Feature/6163
+    notes: Young rayed crater example.
+  - id: jezero
+    name: Jezero crater
+    body: mars
+    lat: 18.4082
+    lon: 77.6873
+    source: https://planetarynames.wr.usgs.gov/Feature/14300
+    notes: Perseverance (Mars 2020) landing crater. TODO(verify) the gazetteer shapefile's Mars latitude is planetocentric.
+  - id: gale
+    name: Gale crater
+    body: mars
+    lat: -5.3672
+    lon: 137.8110
+    source: https://planetarynames.wr.usgs.gov/Feature/2071
+    notes: Curiosity (MSL) landing crater. TODO(verify) the gazetteer shapefile's Mars latitude is planetocentric.

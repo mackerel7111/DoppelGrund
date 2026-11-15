@@ -24,10 +24,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from doppelgrund import caves
 from doppelgrund.config import (
     EXPECTED_FEATURES,
     REPO,
     load_crosswalk,
+    load_known_sites,
     load_landmarks,
     load_profiles,
 )
@@ -52,6 +54,12 @@ SHARD: tuple[int, int] | None = (
 MOD21_MIN_VALID = (
     0.5  # min share of days with a valid MOD21 pixel (day AND night) before it joins the mean
 )
+DIVINER_BANDS: set[str] = (
+    set()
+)  # --diviner-bands a,b: only these Diviner latitude bands (others NaN); empty = all 18
+DIVINER_THREADS = 4  # parallel Diviner band downloads
+FAST = False  # --fast: cheaper Earth Engine inputs (overview-level DEM, MOD11A2-only thermal)
+STRIDE = 1  # --stride K: keep every K-th land hex (subsample for a fast partial run)
 THREADS = 4  # concurrent Earth Engine requests per machine (EE allows ~40 per user)
 FETCH_DIVINER = (
     True  # False: skip the 2.8 GB Diviner download; Moon thermal stays NaN outside reduced bands
@@ -98,6 +106,11 @@ FILES = {  # key: (url, sha256, path under DATA)
         "https://planetarymaps.usgs.gov/mosaic/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif",
         "38a4eb0b4452855b8dabfac40a367b458555ab4c01b31235807ad0a53c031f4c",
         "mars_dem/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif",
+    ),
+    "lroc_pits": (  # LROC lunar pit catalogue, Wagner & Robinson (2021); cp1252 CSV, licence not stated
+        "https://pds.lroc.im-ldi.com/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/EXTRAS/SHAPEFILE/LUNAR_PIT_LOCATIONS/LUNAR_PIT_LOCATIONS.CSV",
+        "c0842294ec453abd711c0f33b3bde93ba4928cd14fdedd3dff5adb116b5ee86a",
+        "moon_pits/LUNAR_PIT_LOCATIONS.CSV",
     ),
     "tes_ti": (
         "http://tes.asu.edu/mineral_map/ti_nmap2003.bin",
@@ -247,7 +260,40 @@ EE_RAW = [
 EE_COLS = [c for c in EE_RAW if c not in ("z_mean", "z2_mean")] + ["relief_std_m"]
 
 
-def earth_remote(cells, batch=100):
+TRANSIENT = ("too many", "429", "quota", "internal error", "unavailable", "deadline", "reset")
+
+
+def reduce_with_retry(fn, hexes, tries=5, sleep=time.sleep, log=print):
+    """Call ``fn(hexes)`` (a DataFrame indexed by h3). On "Computation timed out" or "User memory limit
+    exceeded" split the hexes in half and run each half; on a transient error (quota, 429, internal,
+    reset) wait and retry.
+
+    A single hex that still times out is raised: nothing smaller is left to try.
+    """
+    for attempt in range(tries):
+        try:
+            return fn(hexes)
+        except Exception as e:  # the ee exceptions are plain EEException subclasses of Exception
+            msg = str(e).lower()
+            if ("timed out" in msg or "memory limit" in msg) and len(hexes) > 1:
+                half = len(hexes) // 2
+                log(f"  timed out on {len(hexes)} hexes: retrying as {half} + {len(hexes) - half}")
+                return pd.concat(
+                    [
+                        reduce_with_retry(fn, hexes[:half], tries, sleep, log),
+                        reduce_with_retry(fn, hexes[half:], tries, sleep, log),
+                    ]
+                )
+            if any(k in msg for k in TRANSIENT) and attempt < tries - 1:
+                wait = min(120, 10 * 2**attempt)
+                log(f"  transient Earth Engine error ({msg[:80]}); retry in {wait}s")
+                sleep(wait)
+                continue
+            raise
+    raise RuntimeError("unreachable")
+
+
+def earth_remote(cells, batch=25):
     """Earth Engine reducers per hex. Terrain fuses GLO-30 + NASADEM, thermal fuses MOD11A2 + MOD21A1D/N (mean where both exist, MOD21 only where >= MOD21_MIN_VALID of days are valid). Finished batches are kept in OUT/ee_batches/NNNN.parquet and skipped on a re-run (Colab disconnect). NOT RUN here: no Earth Engine credentials."""
     import ee
     import h3  # imported here so the offline run needs no earthengine-api
@@ -266,13 +312,22 @@ def earth_remote(cells, batch=100):
     glo = ee.ImageCollection("COPERNICUS/DEM/GLO30_2024_1").select("DEM").mosaic()
     nasadem = ee.Image("NASA/NASADEM_HGT/001").select("elevation").rename("DEM")
     dem = ee.ImageCollection([glo, nasadem]).mean().setDefaultProjection("EPSG:4326", None, 30)
-    z = dem.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(
-        "EPSG:4326", None, SCALE_M
-    )
+    if FAST:
+        z = dem  # sampled at SCALE_M by reduceRegions from EE's coarser overview levels (no full-res 30 m read)
+    else:
+        z = dem.reduceResolution(ee.Reducer.mean(), maxPixels=1024).reproject(
+            "EPSG:4326", None, SCALE_M
+        )
     kx = ee.Kernel.fixed(3, 3, [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], normalize=False)
     ky = ee.Kernel.fixed(3, 3, [[-1, -2, -1], [0, 0, 0], [1, 2, 1]], normalize=False)
-    # ponytail: 'scale' is metres at the equator; EW shrink ignored, so poleward slopes are biased. Reproject for |lat|>60.
-    gx = z.convolve(kx).divide(8 * SCALE_M)
+    # z is on a lat/lon grid whose pixel is SCALE_M at the equator, so the east-west ground
+    # spacing is SCALE_M * cos(lat). The 0.05 floor matches disc_terrain (|lat| > 87 deg).
+    coslat = ee.Image.pixelLonLat().select("latitude").multiply(np.pi / 180).cos().max(0.05)
+    # Non-FAST: z is fixed at SCALE_M, so put the latitude on the same grid. FAST: z is the raw 30 m
+    # DEM, and reprojecting to it would force 30 m evaluation ("User memory limit exceeded").
+    if not FAST:
+        coslat = coslat.reproject(z.projection())
+    gx = z.convolve(kx).divide(coslat.multiply(8 * SCALE_M))
     gy = z.convolve(ky).divide(8 * SCALE_M)
     slope = gx.hypot(gy).atan().multiply(180 / np.pi).rename("slope")
     terrain = (
@@ -281,39 +336,11 @@ def earth_remote(cells, batch=100):
         .addBands(slope.lt(10).rename("frac_slope_lt_10deg"))
     )
     lst = ee.ImageCollection("MODIS/061/MOD11A2").filterDate("2010-01-01", "2020-01-01")
-    # MOD21A1D/N: Terra daily LST (K, scale already applied), same overpasses as MOD11A2, so science
-    # invariant 6 holds. ponytail: ~7,300 daily images; if reducers time out, aggregate monthly or
-    # shorten the window (record it in datasets.yaml). Aqua/VIIRS/ECOSTRESS/SMAP are NOT overpass-matched.
-    d21 = ee.ImageCollection("MODIS/061/MOD21A1D").filterDate("2010-01-01", "2020-01-01")
-    n21 = ee.ImageCollection("MODIS/061/MOD21A1N").filterDate("2010-01-01", "2020-01-01")
-    # Where MOD21's daily record is sparse (clouds / polar night: 5-9% of days at 70N) its mean is a
-    # clear-sky, mostly-summer average, far warmer than the near-complete 8-day MOD11A2. Probe 2026-11-14:
-    # 70N +4 K, Antarctica diurnal range 1.1 -> 13.9 K. So MOD21 is used only on pixels where BOTH its day and
-    # night collections have valid data on >= MOD21_MIN_VALID of days; elsewhere MOD11A2 stands alone.
-    ok21 = (
-        d21.select("LST_1KM")
-        .count()
-        .divide(d21.size())
-        .min(n21.select("LST_1KM").count().divide(n21.size()))
-        .gte(MOD21_MIN_VALID)
-    )
-    mask21 = lambda ic: ic.map(  # noqa: E731 - copyProperties keeps the timestamp calendarRange needs
-        lambda i: i.updateMask(ok21).copyProperties(i, ["system:time_start"])
-    )
-    d21, n21 = mask21(d21), mask21(n21)
 
     def fuse(a, b):
         """Mean where both images have a pixel, else the one that does (masked pixels are ignored)."""
         return ee.ImageCollection([a, b]).mean()
 
-    day = fuse(
-        lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST"),
-        d21.select("LST_1KM").mean().rename("LST"),
-    )
-    night = fuse(
-        lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST"),
-        n21.select("LST_1KM").mean().rename("LST"),
-    )
     mean_ = lst.map(
         lambda i: (
             i.select("LST_Day_1km")
@@ -323,27 +350,71 @@ def earth_remote(cells, batch=100):
             .copyProperties(i, ["system:time_start"])
         )  # map() drops the timestamp calendarRange needs
     )
-    months = ee.ImageCollection(
-        [
-            fuse(
-                mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST"),
-                d21.filter(ee.Filter.calendarRange(m, m, "month"))
-                .select("LST_1KM")
-                .mean()
-                .add(n21.filter(ee.Filter.calendarRange(m, m, "month")).select("LST_1KM").mean())
-                .divide(2)
-                .rename("LST"),
-            )
-            for m in range(1, 13)
-        ]
-    )
     # share of valid overpass samples < 0 C: day and night samples counted separately and averaged (same
     # definition for both products; the old MOD11A2 test used the day/night average and read 0 where nights freeze)
     lt0 = lambda ic, b, k: ic.select(b).map(lambda i: i.multiply(k).lt(273.15)).mean().rename("f")
-    below0 = fuse(
-        fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02)),
-        fuse(lt0(d21, "LST_1KM", 1), lt0(n21, "LST_1KM", 1)),
-    )
+
+    if FAST:
+        # MOD11A2 alone: ~460 8-day images instead of ~7,300 daily MOD21 images, so far cheaper; no fusion
+        day = lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST")
+        night = lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST")
+        months = ee.ImageCollection(
+            [
+                mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST")
+                for m in range(1, 13)
+            ]
+        )
+        below0 = fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02))
+    else:
+        # MOD21A1D/N: Terra daily LST (K, scale already applied), same overpasses as MOD11A2, so science
+        # invariant 6 holds. ponytail: ~7,300 daily images; if reducers time out, aggregate monthly or
+        # shorten the window (record it in datasets.yaml). Aqua/VIIRS/ECOSTRESS/SMAP are NOT overpass-matched.
+        d21 = ee.ImageCollection("MODIS/061/MOD21A1D").filterDate("2010-01-01", "2020-01-01")
+        n21 = ee.ImageCollection("MODIS/061/MOD21A1N").filterDate("2010-01-01", "2020-01-01")
+        # Where MOD21's daily record is sparse (clouds / polar night: 5-9% of days at 70N) its mean is a
+        # clear-sky, mostly-summer average, far warmer than the near-complete 8-day MOD11A2. Probe 2026-11-14:
+        # 70N +4 K, Antarctica diurnal range 1.1 -> 13.9 K. So MOD21 is used only on pixels where BOTH its day and
+        # night collections have valid data on >= MOD21_MIN_VALID of days; elsewhere MOD11A2 stands alone.
+        ok21 = (
+            d21.select("LST_1KM")
+            .count()
+            .divide(d21.size())
+            .min(n21.select("LST_1KM").count().divide(n21.size()))
+            .gte(MOD21_MIN_VALID)
+        )
+        mask21 = lambda ic: ic.map(  # noqa: E731 - copyProperties keeps the timestamp calendarRange needs
+            lambda i: i.updateMask(ok21).copyProperties(i, ["system:time_start"])
+        )
+        d21, n21 = mask21(d21), mask21(n21)
+
+        day = fuse(
+            lst.select("LST_Day_1km").mean().multiply(0.02).rename("LST"),
+            d21.select("LST_1KM").mean().rename("LST"),
+        )
+        night = fuse(
+            lst.select("LST_Night_1km").mean().multiply(0.02).rename("LST"),
+            n21.select("LST_1KM").mean().rename("LST"),
+        )
+        months = ee.ImageCollection(
+            [
+                fuse(
+                    mean_.filter(ee.Filter.calendarRange(m, m, "month")).mean().rename("LST"),
+                    d21.filter(ee.Filter.calendarRange(m, m, "month"))
+                    .select("LST_1KM")
+                    .mean()
+                    .add(
+                        n21.filter(ee.Filter.calendarRange(m, m, "month")).select("LST_1KM").mean()
+                    )
+                    .divide(2)
+                    .rename("LST"),
+                )
+                for m in range(1, 13)
+            ]
+        )
+        below0 = fuse(
+            fuse(lt0(lst, "LST_Day_1km", 0.02), lt0(lst, "LST_Night_1km", 0.02)),
+            fuse(lt0(d21, "LST_1KM", 1), lt0(n21, "LST_1KM", 1)),
+        )
     thermal = (
         day.add(night)
         .divide(2)
@@ -395,7 +466,7 @@ def earth_remote(cells, batch=100):
         (arid, ee.Reducer.mean(), 4638, {"mean": "aridity_index"}),
     ]
 
-    def reduce(hexes):
+    def _reduce(hexes):
         fc = ee.FeatureCollection(
             [
                 ee.Feature(
@@ -417,6 +488,9 @@ def earth_remote(cells, batch=100):
             )
         return pd.concat(got, axis=1)
 
+    def reduce(hexes):
+        return reduce_with_retry(_reduce, hexes)
+
     def finish(df):
         df = df.copy()
         df["relief_std_m"] = np.sqrt((df["z2_mean"] - df["z_mean"] ** 2).clip(lower=0))
@@ -431,7 +505,9 @@ def earth_remote(cells, batch=100):
     if miss:
         raise KeyError(f"Earth Engine reducer output lacks {miss}; got {list(probe.columns)}")
     print(finish(probe).T.round(3))
-    ck = OUT / "ee_batches"
+    ck = OUT / (
+        "ee_batches_fast" if FAST else "ee_batches"
+    )  # separate folder: fast batches must never mix with full ones
     ck.mkdir(exist_ok=True)
     nb = -(-len(cells) // batch)
     hxs = [list(cells[k : k + batch]) for k in range(0, len(cells), batch)]
@@ -629,20 +705,30 @@ def diviner_lt_grid():
     ck = OUT / "gcp_lt"
     ck.mkdir(exist_ok=True)
     grid = np.full((4, 360, 720), np.nan, np.float32)
-    for band in GCP_BANDS:
+    bands = [b for b in GCP_BANDS if not DIVINER_BANDS or b in DIVINER_BANDS]  # others stay NaN
+
+    def one(band):
         f = ck / f"{band}.npz"
-        if not f.exists():
-            if not FETCH_DIVINER:
-                warnings.warn(
-                    f"Diviner band {band} not reduced and FETCH_DIVINER is False: thermal NaN there"
-                )
-                continue
-            tab = fetch(f"gcp_{band}", GCP_URL.format(band), GCP_SHA[band], WORK / f"{band}.tab")
-            iy0, r = gcp_reduce(tab)
-            np.savez_compressed(f, iy0=iy0, r=r)
-            tab.unlink()
-        z = np.load(f)
-        grid[:, int(z["iy0"]) : int(z["iy0"]) + z["r"].shape[1]] = z["r"]
+        if f.exists():
+            return
+        if not FETCH_DIVINER:
+            warnings.warn(
+                f"Diviner band {band} not reduced and FETCH_DIVINER is False: thermal NaN there"
+            )
+            return
+        tab = fetch(f"gcp_{band}", GCP_URL.format(band), GCP_SHA[band], WORK / f"{band}.tab")
+        iy0, r = gcp_reduce(tab)
+        np.savez_compressed(f, iy0=iy0, r=r)
+        tab.unlink()
+
+    # the NASA server is slow per connection (~0.5 MB/s), several at once roughly doubles throughput
+    with ThreadPoolExecutor(DIVINER_THREADS) as ex:
+        list(ex.map(one, bands))
+    for band in bands:
+        f = ck / f"{band}.npz"
+        if f.exists():
+            z = np.load(f)
+            grid[:, int(z["iy0"]) : int(z["iy0"]) + z["r"].shape[1]] = z["r"]
     return grid
 
 
@@ -711,7 +797,17 @@ def moon_discs_real(lat, lon, ids):
         np.clip(((90 - lat) / 0.5).astype(int), 0, 359),
         np.clip(((lon + 180) / 0.5).astype(int), 0, 719),
     ]
-    f["lst_mean_K"], f["diurnal_range_K"], f["frac_below_0C"] = g[2], g[0] - g[1], g[3]
+    # Day minus night can read slightly negative on a permanently shadowed floor (Haworth -3.3 K): both
+    # bands are noise around ~0, and a range cannot be negative, so floor at 0 (NaN stays NaN).
+    f["lst_mean_K"], f["diurnal_range_K"], f["frac_below_0C"] = (
+        g[2],
+        np.maximum(g[0] - g[1], 0),
+        g[3],
+    )
+    # catalogued pits per 1000 km2, positive-only (NaN where none is catalogued, never 0; see caves.py)
+    f["pit_cave_density_per_1000km2"] = caves.disc_density(
+        lat, lon, *caves.load_lroc_pits(get("lroc_pits")), R_KM
+    )
     # LP GRS FeO (equal-area pixels, nearest pixel centre; ~5 deg true resolution). Columns: 1-4 = min/max lat/lon, 12 = W_FEO (g/g)
     p = pd.read_csv(get("lpgrs"), sep=r"\s+", header=None, usecols=list(range(13)))
     from scipy.spatial import cKDTree
@@ -771,6 +867,7 @@ def targets_real(moon, mars):
             name="PLACEHOLDER (nearest real disc) " + t["name"].str.replace("Synthetic ", ""),
         )
     cols = [*EXPECTED_FEATURES, *LITH_COLS]
+    pits = caves.load_lroc_pits(get("lroc_pits"))
     rows = []
     for r in lm.itertuples():
         d = moon if r.body == "moon" else mars
@@ -785,6 +882,13 @@ def targets_real(moon, mars):
                 "lat": r.lat,
                 "lon": r.lon,
                 **{c: disc[c] for c in cols},
+                # pits are point data, so count them at the landmark itself, not at the nearest disc
+                # (up to ~60 km away); Mars has no catalogue (NaN)
+                "pit_cave_density_per_1000km2": (
+                    caves.disc_density(np.array([r.lat]), np.array([r.lon]), *pits, R_KM)[0]
+                    if r.body == "moon"
+                    else np.nan
+                ),
             }
         )
     return pd.DataFrame(rows).astype({c: np.float32 for c in cols})
@@ -792,10 +896,9 @@ def targets_real(moon, mars):
 
 def earth_table_real(cells):
     e = earth_remote(cells).merge(earth_local(cells), on="h3", how="left")
-    if "pit_cave_density_per_1000km2" not in e:
-        # TODO(verify): catalogue ingestion needs earth_caves + a survey-coverage rule (datasets.yaml).
-        # NaN means "not catalogued / not surveyed", never 0 (science-invariant 1).
-        e["pit_cave_density_per_1000km2"] = np.nan
+    # catalogued lava tubes per 1000 km2, positive-only: NaN outside the 5 listed tubes, never 0 (caves.py)
+    tubes = caves.load_earth_lava_tubes(REPO / "config/earth_lava_tubes.csv")
+    e["pit_cave_density_per_1000km2"] = caves.hex_density(*tubes, e["h3"].tolist())
     e["vf_dem"] = e["slope_p50_deg"].notna()
     e["vf_lst"] = e["lst_mean_K"].notna()
     e["vf_lith"] = e["lith_mafic_volcanic"].notna()
@@ -826,6 +929,30 @@ def earth_table_real(cells):
     ]
 
 
+def site_cells(land: list[str], stride: int) -> list[str]:
+    """Known-site hexes plus their ring-1 neighbours that are land cells and NOT already in the
+    stride sample (``land[::stride]``), so a stride run can be topped up without changing its hex list.
+    Validation needs these cells present (plan 10.1: a site matches its hex or a ring-1 neighbour)."""
+    import h3
+
+    have, sample = set(land), set(land[::stride])
+    out: set[str] = set()
+    for r in load_known_sites().itertuples():
+        out.update(h3.grid_disk(h3.latlng_to_cell(float(r.lat), float(r.lon), 4), 1))
+    return sorted((out & have) - sample)
+
+
+def merge_site_hexes(main: Path, extra: Path) -> int:
+    """Append the rows of ``extra`` (a site-hex Earth table) to ``main`` (earth_features.parquet),
+    dropping hexes already there. Returns the number of rows added."""
+    a, b = pd.read_parquet(main), pd.read_parquet(extra)
+    b = b[~b["h3"].isin(set(a["h3"]))]
+    pd.concat([a, b[a.columns.intersection(b.columns)]], ignore_index=True).to_parquet(
+        main, index=False
+    )
+    return len(b)
+
+
 NEED = {
     "earth_features": [
         "h3",
@@ -849,7 +976,7 @@ NEED = {
 def build_tables(limit: int | None = None, use_ee: bool = True) -> dict[str, pd.DataFrame]:
     """Real C2 tables. limit: smoke test on N evenly spaced hexes and discs. use_ee False: Earth EE columns stay NaN."""
     global earth_remote
-    cells = select_land_cells()
+    cells = select_land_cells()[::STRIDE]
     lat, lon = fibonacci_lattice(N_DISCS)
     ids = np.arange(N_DISCS)
     if limit:
@@ -881,13 +1008,26 @@ def write_tables(tables: dict[str, pd.DataFrame], out: Path = OUT, source: str =
         assert all(tables[k][c].dtype == np.float32 for c in [*EXPECTED_FEATURES, *LITH_COLS]), k
         tables[k].to_parquet(out / f"{k}.parquet", index=False)
     (out / "tables_source.txt").write_text(source)
+    # what the Earth Engine step really used, so the bundle manifest can say so (export/bundle.py)
+    (out / "tables_info.json").write_text(
+        json.dumps({"source": source, "fast": FAST, "stride": STRIDE}), encoding="utf-8"
+    )
     pd.DataFrame(GLIM, index=O).T.assign(weight=pd.Series(GLIM_W)).rename_axis("code").to_csv(
         out / "glim_ontology_proposal.csv"
     )
 
 
 def main(argv=None) -> int:
-    global EE_PROJECT, OUT, FETCH_DIVINER, SHARD, THREADS
+    global \
+        EE_PROJECT, \
+        OUT, \
+        FETCH_DIVINER, \
+        SHARD, \
+        THREADS, \
+        STRIDE, \
+        FAST, \
+        DIVINER_BANDS, \
+        DIVINER_THREADS
     p = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     p.add_argument(
         "--ee-project", default="", help="Google Cloud project with Earth Engine enabled"
@@ -905,10 +1045,49 @@ def main(argv=None) -> int:
         help="I/N, e.g. 0/4: run only Earth Engine batches with index %% N == I, then stop",
     )
     p.add_argument("--threads", type=int, default=THREADS, help="concurrent Earth Engine requests")
+    p.add_argument(
+        "--stride",
+        type=int,
+        default=1,
+        help="use every K-th land hex only (e.g. 20 = ~4,000 hexes, 20x less Earth Engine work). EVERY machine and the final run must use the same K",
+    )
+    p.add_argument(
+        "--fast",
+        action="store_true",
+        help="cheaper Earth Engine inputs (overview-level DEM, MOD11A2-only thermal) (expected to be much faster; unmeasured), slightly smoother slopes. Every machine and the final run must agree",
+    )
+    p.add_argument(
+        "--diviner-bands",
+        default="",
+        help="comma list of Diviner latitude bands to fetch, e.g. 90s80s,80s70s (others stay NaN, tables marked real-partial); default all 18",
+    )
+    p.add_argument("--diviner-threads", type=int, default=DIVINER_THREADS)
+    p.add_argument(
+        "--site-hexes",
+        action="store_true",
+        help="Earth Engine for the known-site hexes (+ ring 1) missing from the --stride sample only; "
+        "writes <out>/earth_site_hexes.parquet. Use its OWN --out folder and the same --stride/--fast",
+    )
+    p.add_argument(
+        "--merge-site-hexes",
+        type=Path,
+        help="append that parquet to <out>/earth_features.parquet and stop (offline)",
+    )
     a = p.parse_args(argv)
+    if a.merge_site_hexes:
+        n = merge_site_hexes(a.out / "earth_features.parquet", a.merge_site_hexes)
+        print(f"added {n} site hexes to {a.out / 'earth_features.parquet'}")
+        return 0
+    bad = set(filter(None, a.diviner_bands.split(","))) - set(GCP_BANDS)
+    if bad:
+        p.error(f"unknown --diviner-bands {sorted(bad)}; choose from {GCP_BANDS}")
+    DIVINER_BANDS, DIVINER_THREADS = (
+        set(filter(None, a.diviner_bands.split(","))),
+        a.diviner_threads,
+    )
     if not a.no_ee and not a.ee_project:
         p.error("give --ee-project (and run `earthengine authenticate` once) or pass --no-ee")
-    THREADS = a.threads
+    THREADS, STRIDE, FAST = a.threads, max(1, a.stride), a.fast
     if a.shard:
         i, n = map(int, a.shard.split("/"))
         if not 0 <= i < n:
@@ -919,11 +1098,22 @@ def main(argv=None) -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     if SHARD:
         earth_remote(
-            select_land_cells()
+            select_land_cells()[::STRIDE]
         )  # batches only; Moon/Mars/final tables run later on one machine
         return 0
+    if a.site_hexes:
+        cells = site_cells(select_land_cells(), STRIDE)
+        print(f"{len(cells)} site hexes outside the stride-{STRIDE} sample", flush=True)
+        earth_table_real(cells).to_parquet(OUT / "earth_site_hexes.parquet", index=False)
+        return 0
     tables = build_tables(a.limit, use_ee=not a.no_ee)
-    write_tables(tables, OUT, "real" if not (a.no_ee or a.limit) else "real-partial")
+    write_tables(
+        tables,
+        OUT,
+        "real"
+        if not (a.no_ee or a.limit or STRIDE > 1 or FAST or DIVINER_BANDS)
+        else "real-partial",
+    )
     for k, v in tables.items():
         print(f"{k}: {len(v)} rows")
     return 0

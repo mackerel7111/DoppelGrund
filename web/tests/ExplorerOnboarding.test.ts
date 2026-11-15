@@ -5,7 +5,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import App from '../src/App.vue';
 import { useSession } from '../src/stores/session';
 import ExplorerTutorial from '../src/components/ExplorerTutorial.vue';
-import ControlPanel from '../src/components/ControlPanel.vue';
+const TARGET_STEP = '[data-test="hud-step-target"]'; // the HUD header's Target step
 const wrappers: ReturnType<typeof mount>[] = [];
 function app() {
   const w = mount(App, {
@@ -15,7 +15,6 @@ function app() {
           template: '<button class="enter" @click="$emit(\'done\', \'mars\')">Enter Mars</button>',
         },
         AboutDialog: true,
-        ResultsPanel: true,
         GlobeView: true,
         TargetPanel: true,
         EarthMap: true,
@@ -40,13 +39,14 @@ describe('explorer onboarding', () => {
     const w = app();
     const s = useSession();
     vi.spyOn(s, 'ensureLayer').mockResolvedValue();
+    s.bundle = { targets: [], manifest: {} } as never; // the header's step bar needs a bundle
     expect(w.findComponent(ExplorerTutorial).exists()).toBe(false);
     await w.get('.enter').trigger('click');
     expect(w.findComponent(ExplorerTutorial).exists()).toBe(false);
     s.loading.phase = 'ready';
     await w.vm.$nextTick();
     expect(w.findComponent(ExplorerTutorial).text()).toContain('Pick a place on Mars.');
-    expect(w.findComponent(ControlPanel).get('select').classes()).toContain('tutorial-highlight');
+    expect(w.get(TARGET_STEP).classes()).toContain('tutorial-highlight');
     s.body = 'moon';
     await w.vm.$nextTick();
     expect(w.findComponent(ExplorerTutorial).text()).toContain('the Moon');
@@ -54,9 +54,7 @@ describe('explorer onboarding', () => {
     await w.vm.$nextTick();
     expect(w.findComponent(ExplorerTutorial).exists()).toBe(false);
     expect(localStorage.getItem('doppelgrund.tutorialSeen')).toBe('1');
-    expect(w.findComponent(ControlPanel).get('select').classes()).not.toContain(
-      'tutorial-highlight',
-    );
+    expect(w.get(TARGET_STEP).classes()).not.toContain('tutorial-highlight');
     expect(w.find('#explorer-help').exists()).toBe(false);
     await w.get('#explorer-back').trigger('click');
     expect(w.find('.enter').exists()).toBe(true);

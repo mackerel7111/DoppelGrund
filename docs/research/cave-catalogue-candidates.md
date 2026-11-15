@@ -63,3 +63,10 @@ does not.
 1. Moon survey-coverage rule (none is documented): positive-only (NaN unless a pit exists) vs a rule you define.
 2. Which Earth entries to accept, and whether karst caves count toward the same feature.
 3. Whether to use the Mars catalogue now, given the false-positive caveat.
+
+## Decisions (user, 2026-11-14: "go with your recommendation for all three")
+1. **Moon:** positive-only. A disc has a value only where an LROC pit is catalogued inside it; otherwise NaN. Pits typed `Uncertain` (12 of 278) are dropped by me, because the catalogue README says it is unclear they qualify as pits.
+2. **Earth:** lava tubes only, from `config/earth_lava_tubes.csv` (5 single tubes). The two field-scale entries (Undara, Lava Beds) and all karst caves are left out. Coordinates are still unverified.
+3. **Mars:** left empty (NaN). The MGC3 catalogue has not been read.
+
+Result on the real grids (`caves.py`): 266 pits fall in 12 of the 3,000 Moon discs, and the list yields values in only 2 of 81,772 Earth hexes (the 5 tubes fall in 4 distinct hexes; the Tenerife and Jeju hex centres are not on the land mask, and Surtshellir and Vidgelmir share one hex, leaving 2). The subsurface feature is therefore almost always "not measured".

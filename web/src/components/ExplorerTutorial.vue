@@ -63,7 +63,8 @@ onBeforeUnmount(() => {
       <span class="guide-name">Doppel · Quick tutorial</span>
       <p role="status">{{ message }}</p>
       <span class="tip"
-        >Choose a landmark in the panel or click {{ body === 'mars' ? 'Mars' : 'the Moon' }}.</span
+        >Open Target in the top bar to choose a landmark, or click
+        {{ body === 'mars' ? 'Mars' : 'the Moon' }}.</span
       >
     </div>
     <div class="actions">

@@ -21,6 +21,7 @@ web/coverage/
 web/public/data/*
 !web/public/data/.gitkeep
 !web/public/data/sample/
+!web/public/data/real/
 web/public/data/*.f32
 web/public/data/*.i16
 web/public/data/*.u8
@@ -34,3 +35,6 @@ Thumbs.db
 
 # Crash dumps
 *.stackdump
+
+# Teammate data exports dropped in the repo root (the tables live under data/interim)
+real_tables_export*.zip

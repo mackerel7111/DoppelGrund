@@ -2,8 +2,9 @@
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import AppHeader from './components/AppHeader.vue';
 import StatusBar from './components/StatusBar.vue';
-import ControlPanel from './components/ControlPanel.vue';
-import ResultsPanel from './components/ResultsPanel.vue';
+import SiteBriefingCard from './components/SiteBriefingCard.vue';
+import BottomMatchDock from './components/BottomMatchDock.vue';
+import SiteDetailsModal from './components/SiteDetailsModal.vue';
 import AboutDialog from './components/AboutDialog.vue';
 import StoryIntro from './components/StoryIntro.vue';
 import ExplorerTutorial from './components/ExplorerTutorial.vue';
@@ -19,6 +20,7 @@ const s = useSession();
 if (s.view === '3d') void loadGlobe(); // fetch the 3D chunk while the data loads
 const nHex = computed(() => s.bundle?.manifest.n_hex ?? null);
 const debug = new URLSearchParams(window.location.search).has('debug');
+const detailsOpen = ref(false);
 
 // Always begin with the welcome page, including returning visits and refreshes.
 s.introOpen = true;
@@ -46,11 +48,13 @@ function selectFirstLandmark(): void {
   const first = s.bundle?.targets.find((t) => t.body === s.body);
   if (!s.target && first) s.selectLandmark(first.id);
 }
+
 function onIntroDone(world: Body): void {
   s.introOpen = false;
   s.selectBody(world);
   selectFirstLandmark(); // no-op until the bundle is ready; the watch below covers that order
 }
+
 watch(
   () => s.loading.phase,
   (p) => {
@@ -59,10 +63,36 @@ watch(
     selectFirstLandmark();
   },
 );
+
+// Auto-select the #1 predicted ideal Earth location whenever a fresh ranking arrives and nothing is selected.
+watch(
+  () => s.result?.version,
+  () => {
+    if (!s.result || s.selectedRow !== null) return;
+    const best = s.result.cards.find((c) => c.row !== null);
+    if (best && best.row !== null) {
+      s.selectRow(best.row);
+    }
+  },
+  { immediate: true },
+);
+
+watch([() => s.selectedRow, () => s.aboutOpen], ([row, isAbout]) => {
+  if (row === null || isAbout) detailsOpen.value = false;
+});
+
+watch(
+  () => s.target,
+  () => {
+    detailsOpen.value = false;
+  },
+);
+
 function onGlobeFallback(reason: string): void {
   s.setView('2d');
   s.notice = `3D view unavailable (${reason}), showing the 2D view.`;
 }
+
 const progressPct = computed(() =>
   s.loading.total > 0 ? Math.round((100 * s.loading.done) / s.loading.total) : 0,
 );
@@ -70,7 +100,7 @@ const progressPct = computed(() =>
 
 <template>
   <div class="app">
-    <AppHeader />
+    <AppHeader :tutorial-active="tutorialVisible" />
     <div v-if="s.notice" class="notice" role="status">
       {{ s.notice }}
       <button type="button" aria-label="Dismiss notice" @click="s.notice = null">✕</button>
@@ -103,10 +133,18 @@ const progressPct = computed(() =>
           <EarthMap />
         </section>
       </div>
-      <aside class="side">
-        <ControlPanel :tutorial-active="tutorialVisible" />
-        <ResultsPanel />
-      </aside>
+      <SiteBriefingCard
+        v-if="s.selectedRow !== null && !detailsOpen"
+        :row="s.selectedRow"
+        @view-details="detailsOpen = true"
+        @close="s.selectRow(null)"
+      />
+      <BottomMatchDock />
+      <SiteDetailsModal
+        v-if="detailsOpen && s.selectedRow !== null"
+        :row="s.selectedRow"
+        @close="detailsOpen = false"
+      />
     </template>
 
     <ExplorerTutorial v-if="tutorialVisible" :body="s.body" @close="closeTutorial" />
@@ -120,15 +158,13 @@ const progressPct = computed(() =>
 
 <style scoped>
 .app {
-  --panel-w: 380px;
   display: grid;
-  grid-template-columns: var(--panel-w) 1fr;
+  grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr);
   height: 100%;
   pointer-events: none; /* only the UI pieces below take events; the rest reaches the globe */
 }
 .app > header,
-.side,
 .maps,
 .state {
   position: relative;
@@ -162,34 +198,23 @@ const progressPct = computed(() =>
   z-index: 0;
   pointer-events: auto;
 }
-.side {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: start;
-  max-height: calc(100% - var(--s3));
-  margin: 0 var(--s3) var(--s3);
-  overflow-y: auto;
-  background: rgba(18, 24, 38, 0.96);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-panel);
-  pointer-events: auto;
-}
 .maps {
-  grid-column: 2;
+  grid-column: 1 / -1;
   grid-row: 2;
   display: grid;
   grid-template-columns: 2fr 3fr;
   gap: var(--s3);
-  margin: 0 var(--s3) var(--s3) 0;
+  margin: var(--s2) var(--s3) var(--s3);
+  padding-bottom: 64px;
   min-height: 0;
   pointer-events: auto;
 }
 .notice {
   position: fixed;
-  bottom: var(--s4);
+  bottom: 76px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 5;
+  z-index: 25;
   display: flex;
   gap: var(--s3);
   align-items: center;
@@ -200,23 +225,9 @@ const progressPct = computed(() =>
   pointer-events: auto;
 }
 @media (max-width: 1099px) {
-  .app {
-    --panel-w: 0px;
-    display: block;
-    overflow-y: auto;
-    pointer-events: auto;
-  }
-  .globe-layer {
-    position: relative;
-    height: 60vh;
-  }
-  .side {
-    max-height: none;
-    margin: var(--s3);
-  }
   .maps {
     grid-template-columns: 1fr;
-    margin: var(--s3);
+    overflow-y: auto;
   }
   .maps .panel {
     height: 400px;

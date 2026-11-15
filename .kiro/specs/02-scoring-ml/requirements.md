@@ -28,7 +28,7 @@ Scope: harmonisation, the reference scorer and match cards, parity vectors, the 
 
 ## R6 Embedding and clustering
 1. THE SYSTEM SHALL build the clustering matrix from non-separating features + lith fractions, keeping rows with ≥ 80% coverage and median-imputing the rest (recorded).
-2. THE SYSTEM SHALL fit PCA keeping 90% variance, HDBSCAN (min_cluster_size 100, min_samples 10 as defaults in config) and GMM with K chosen by BIC over 6–24.
+2. THE SYSTEM SHALL fit PCA keeping 90% variance, HDBSCAN (min_cluster_size 100, min_samples 10 as defaults in config) and GMM with K chosen by BIC over 6–24. On samples under about 20,000 rows min_cluster_size is `max(10, N // 200)` instead (never above 100), so a partial run still forms clusters.
 3. THE SYSTEM SHALL report per-cluster mean z-scores, body mix, and label stability (ARI over 5 subsample refits).
 4. THE SYSTEM SHALL assign each target a regime (GMM predict_proba; kNN vote on HDBSCAN labels).
 

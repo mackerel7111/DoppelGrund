@@ -1,0 +1,329 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Haughton impact crater, Devon Island",
+    "source": "https://en.wikipedia.org/wiki/Haughton_impact_crater",
+    "kind": "known_site",
+    "site_id": "haughton_crater",
+    "dimension": "cold_ice",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -89.66667,
+     75.38333
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "McMurdo Dry Valleys",
+    "source": "https://en.wikipedia.org/wiki/McMurdo_Dry_Valleys",
+    "kind": "known_site",
+    "site_id": "mcmurdo_dry_valleys",
+    "dimension": "cold_ice",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     162.51667,
+     -77.46667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Beacon Valley, McMurdo Dry Valleys",
+    "source": "https://en.wikipedia.org/wiki/Beacon_Valley",
+    "kind": "known_site",
+    "site_id": "beacon_valley",
+    "dimension": "cold_ice",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     160.65,
+     -77.81667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Yungay station, Atacama Desert",
+    "source": "https://astrobiology.nasa.gov/news/nasa-tests-life-detection-drill-in-the-atacama-desert/",
+    "kind": "known_site",
+    "site_id": "atacama_yungay",
+    "dimension": "cold_ice",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -69.98517,
+     -24.0825
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Bockfjorden volcanic area, Svalbard (AMASE)",
+    "source": "https://astrobiology.nasa.gov/nai/annual-reports/2009/ciw/project-6-application-of-laboratory-experimentation-to-flight-instrument-testing/index.html",
+    "kind": "known_site",
+    "site_id": "bockfjorden_svalbard",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     13.3287,
+     79.469
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Mars Desert Research Station, Utah",
+    "source": "https://en.wikipedia.org/wiki/Mars_Desert_Research_Station",
+    "kind": "known_site",
+    "site_id": "mdrs_utah",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -110.7919,
+     38.40646
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "HI-SEAS habitat, Mauna Loa",
+    "source": "https://en.wikipedia.org/wiki/HI-SEAS",
+    "kind": "known_site",
+    "site_id": "hi_seas",
+    "dimension": "terrain",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.48719,
+     19.60238
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Lake Salda, Turkey",
+    "source": "https://en.wikipedia.org/wiki/Lake_Salda",
+    "kind": "known_site",
+    "site_id": "lake_salda",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.68333,
+     37.55
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Teide National Park, Tenerife",
+    "source": "https://en.wikipedia.org/wiki/Teide_National_Park",
+    "kind": "known_site",
+    "site_id": "teide_np",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.616,
+     28.263
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Askja, Iceland",
+    "source": "https://en.wikipedia.org/wiki/Askja",
+    "kind": "known_site",
+    "site_id": "askja",
+    "dimension": "terrain",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.783,
+     65.033
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Mauna Kea (ISRU field tests)",
+    "source": "https://ntrs.nasa.gov/citations/20140008708",
+    "kind": "known_site",
+    "site_id": "mauna_kea_isru",
+    "dimension": "composition",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.46806,
+     19.82056
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Kilauea, Hawaii",
+    "source": "https://en.wikipedia.org/wiki/K%C4%ABlauea",
+    "kind": "known_site",
+    "site_id": "kilauea",
+    "dimension": "terrain",
+    "well_known": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -155.28676,
+     19.4211
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Meteor Crater, Arizona",
+    "source": "https://en.wikipedia.org/wiki/Meteor_Crater",
+    "kind": "known_site",
+    "site_id": "meteor_crater",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -111.02333,
+     35.02806
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Nordlinger Ries, Germany",
+    "source": "https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries",
+    "kind": "known_site",
+    "site_id": "nordlinger_ries",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.56667,
+     48.88333
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Sudbury Basin, Ontario",
+    "source": "https://en.wikipedia.org/wiki/Sudbury_Basin",
+    "kind": "known_site",
+    "site_id": "sudbury_basin",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.18333,
+     46.6
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Craters of the Moon, Idaho",
+    "source": "https://en.wikipedia.org/wiki/Craters_of_the_Moon_National_Monument_and_Preserve",
+    "kind": "known_site",
+    "site_id": "craters_of_the_moon",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -113.56271,
+     43.46167
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Lonar Lake, India",
+    "source": "https://en.wikipedia.org/wiki/Lonar_Lake",
+    "kind": "known_site",
+    "site_id": "lonar_lake",
+    "dimension": "composition",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     76.5075,
+     19.975
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Lanzarote (ESA PANGAEA)",
+    "source": "https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/CAVES_and_Pangaea/What_is_Pangaea",
+    "kind": "known_site",
+    "site_id": "lanzarote_pangaea",
+    "dimension": "terrain",
+    "well_known": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -13.635,
+     29.035
+    ]
+   }
+  }
+ ]
+}

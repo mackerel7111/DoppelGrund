@@ -19,6 +19,7 @@ The Makefile is the interface. Run make targets, not raw tools.
 ```sh
 make setup              # create .venv, pip install -e pipeline[dev], npm ci in web/
 make bundle-synthetic   # write a schema-valid synthetic bundle to web/public/data/
+make bundle             # real interim tables -> web/public/data/real/ (the only committed real bundle)
 make verify-quick       # lint + Python tests + web tests
 make dev                # Vite dev server
 make build              # production build into web/dist/
@@ -62,7 +63,7 @@ Notes:
 
 ## Sharing the Earth Engine extraction (4 people)
 
-The Earth Engine step is slow (about 818 batches of 100 hexes). Split it: each person runs one shard (`0/4`, `1/4`, `2/4` or `3/4`), then one person merges. Everyone must be on the same code (`dev-branch`) and leave the batch size alone, or the batches will not line up.
+The Earth Engine step is slow (about 3,271 batches of 25 hexes; a batch that times out is split in half and retried automatically). Split it: each person runs one shard (`0/4`, `1/4`, `2/4` or `3/4`), then one person merges. Everyone must be on the same code (`dev-branch`) and leave the batch size alone, or the batches will not line up.
 
 You need a Google account with Earth Engine access and a Google Cloud project registered for Earth Engine (free for non-commercial use: <https://code.earthengine.google.com/register>). The project ID is `YOUR_GCP_PROJECT` below.
 
