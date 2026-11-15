@@ -215,7 +215,13 @@ export class EngineHost {
           }
           if (this.latest.paint !== req.reqId) return; // superseded while decoding
           const { values, eligible } = metricValues(p, this.last, req.colorBy);
-          const rgba = paint(this.index.rows, values, req.palette, eligible);
+          // a sampled bundle (stride > 1) leaves gaps between hexagons: fill them for the globe only
+          const stride = p.bundle.manifest.resolution?.stride ?? 1;
+          const radius = stride > 1 ? Math.ceil(Math.sqrt(stride)) : 0;
+          const rgba = paint(this.index.rows, values, req.palette, eligible, {
+            width: this.index.width,
+            radius,
+          });
           const { width, height } = this.index;
           this.post({ type: 'painted', reqId: req.reqId, width, height, rgba }, [rgba.buffer]);
           return;

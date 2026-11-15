@@ -6,6 +6,7 @@ import {
   decodeIndex,
   glowRange,
   decodePixel,
+  fillGaps,
   paint,
   sampleIndex,
 } from '../src/globe/painter';
@@ -160,5 +161,29 @@ describe('worker paint handler', () => {
     const v = metricValues(host.prepared, null, 'novelty');
     expect(Array.from(v.values)).toEqual([10, 500, 2000]);
     expect(Array.from(v.eligible)).toEqual([1, 0, 1]);
+  });
+});
+
+describe('fillGaps', () => {
+  // one painted pixel (red, alpha 200) in a 6x1 strip
+  const strip = (): Uint8ClampedArray => {
+    const a = new Uint8ClampedArray(6 * 4);
+    a.set([255, 0, 0, 200], 2 * 4);
+    return a;
+  };
+
+  it('copies the nearest painted pixel into gaps within the radius and no further', () => {
+    const out = fillGaps(strip(), 6, 1, 2);
+    for (const x of [0, 1, 2, 3, 4])
+      expect(Array.from(out.slice(x * 4, x * 4 + 4))).toEqual([255, 0, 0, 200]);
+    expect(out[5 * 4 + 3]).toBe(0); // 3 px away
+  });
+
+  it('wraps at the date line and is a no-op for radius 0', () => {
+    const a = new Uint8ClampedArray(6 * 4);
+    a.set([0, 255, 0, 255], 5 * 4);
+    expect(fillGaps(a, 6, 1, 1)[3]).toBe(255); // pixel 0 is next to pixel 5
+    const s = strip();
+    expect(fillGaps(s, 6, 1, 0)).toBe(s);
   });
 });
