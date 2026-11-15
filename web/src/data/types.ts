@@ -35,6 +35,12 @@ export const GROUP_IDS = ['terrain', 'thermal', 'cold_ice', 'composition', 'subs
 export type GroupId = (typeof GROUP_IDS)[number];
 export type NumericGroupId = Exclude<GroupId, 'composition'>;
 
+/** Groups still computed and shipped in the bundle but not shown in the UI (almost no catalogue data). */
+export const HIDDEN_GROUPS: readonly string[] = ['subsurface'];
+export const DISPLAY_GROUP_IDS: readonly GroupId[] = GROUP_IDS.filter(
+  (g) => !HIDDEN_GROUPS.includes(g),
+);
+
 /** C1 group of each numeric feature, in column order. */
 export const FEATURE_GROUPS: readonly NumericGroupId[] = [
   'terrain',

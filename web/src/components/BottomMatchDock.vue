@@ -3,13 +3,15 @@ import { computed, ref, watch } from 'vue';
 import { useSession } from '../stores/session';
 import { emptyCardText, GROUP_NAMES, TERMS } from '../content/labels';
 import { formatLatLon } from '../stores/selectors';
-import type { CardKind } from '../data/types';
+import { HIDDEN_GROUPS, type CardKind } from '../data/types';
 import Shortlist from './Shortlist.vue';
 
 const s = useSession();
 const shortlistOpen = ref(false);
 
-const cards = computed(() => s.result?.cards ?? []);
+const cards = computed(() =>
+  (s.result?.cards ?? []).filter((c) => !HIDDEN_GROUPS.includes(c.kind)),
+);
 
 const SHORT_TITLES: Record<CardKind, string> = {
   overall: 'Overall',

@@ -11,7 +11,7 @@ import {
   mostAlike,
   rowInfo,
 } from '../stores/selectors';
-import { GROUP_IDS } from '../data/types';
+import { GROUP_IDS, HIDDEN_GROUPS } from '../data/types';
 import { N_GROUPS } from '../engine/scoring';
 import { heatCss } from '../map/palette';
 import {
@@ -107,22 +107,24 @@ function fmt(v: number | null, d = 1): string {
         <span class="meta">weight</span>
       </div>
       <ul class="traits">
-        <li v-for="(g, i) in GROUP_IDS" :key="g">
-          <span>{{ GROUP_NAMES[g] }}</span>
-          <span
-            class="score-bar"
-            :class="{ none: groupScores[i] === null }"
-            :style="
-              groupScores[i] === null
-                ? undefined
-                : { '--v': groupScores[i]! / 100, '--c': heatCss(groupScores[i]!) }
-            "
-          />
-          <span class="num" :class="{ meta: groupScores[i] === null }">{{
-            fmt(groupScores[i])
-          }}</span>
-          <span class="num meta">{{ Math.round(s.weights[g] * 100) }}%</span>
-        </li>
+        <template v-for="(g, i) in GROUP_IDS" :key="g">
+          <li v-if="!HIDDEN_GROUPS.includes(g)">
+            <span>{{ GROUP_NAMES[g] }}</span>
+            <span
+              class="score-bar"
+              :class="{ none: groupScores[i] === null }"
+              :style="
+                groupScores[i] === null
+                  ? undefined
+                  : { '--v': groupScores[i]! / 100, '--c': heatCss(groupScores[i]!) }
+              "
+            />
+            <span class="num" :class="{ meta: groupScores[i] === null }">{{
+              fmt(groupScores[i])
+            }}</span>
+            <span class="num meta">{{ Math.round(s.weights[g] * 100) }}%</span>
+          </li>
+        </template>
       </ul>
     </section>
 

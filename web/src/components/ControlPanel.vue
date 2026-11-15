@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useSession } from '../stores/session';
-import { GROUP_IDS, LENS_IDS, type LensId } from '../data/types';
+import { DISPLAY_GROUP_IDS, LENS_IDS, type LensId } from '../data/types';
 import { FOOTPRINT_SHORT, GROUP_NAMES, LENS_NAMES, LENS_SHORT, TERMS } from '../content/labels';
 import { formatLatLon } from '../stores/selectors';
 import LensControls from './LensControls.vue';
@@ -20,7 +20,7 @@ const customPoint = computed(() => {
 
 function lensTitle(id: LensId): string {
   if (!s.lensDisabled(id)) return LENS_NAMES[id];
-  const need = GROUP_IDS.filter((g) => s.presets[id][g] > 0 && !s.available[g]);
+  const need = DISPLAY_GROUP_IDS.filter((g) => s.presets[id][g] > 0 && !s.available[g]);
   return `Needs ${need.map((g) => GROUP_NAMES[g]).join(' / ')} data — not available for ${s.body === 'mars' ? 'Mars' : 'the Moon'} yet`;
 }
 

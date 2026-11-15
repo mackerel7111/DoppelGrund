@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useSession } from '../stores/session';
-import { GROUP_IDS, type GroupId } from '../data/types';
+import { DISPLAY_GROUP_IDS, type GroupId } from '../data/types';
 import { GROUP_NAMES, LENS_NAMES, TERMS } from '../content/labels';
 
 const s = useSession();
@@ -14,7 +14,7 @@ function pct(g: GroupId): number {
   return Math.round(s.effective[g] * 100);
 }
 
-const active = computed(() => GROUP_IDS.filter((g) => pct(g) > 0));
+const active = computed(() => DISPLAY_GROUP_IDS.filter((g) => pct(g) > 0));
 const summary = computed(() => active.value.map((g) => `${GROUP_NAMES[g]} ${pct(g)}`).join(' · '));
 </script>
 
@@ -41,7 +41,7 @@ const summary = computed(() => active.value.map((g) => `${GROUP_NAMES[g]} ${pct(
     <details class="more">
       <summary>{{ TERMS.adjust }}</summary>
       <div class="sliders">
-        <div v-for="g in GROUP_IDS" :key="g" class="slider">
+        <div v-for="g in DISPLAY_GROUP_IDS" :key="g" class="slider">
           <label :for="`w-${g}`"
             >{{ GROUP_NAMES[g]
             }}<template v-if="!s.available[g]">

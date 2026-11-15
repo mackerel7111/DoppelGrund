@@ -12,7 +12,14 @@ import {
   type GroupId,
   type GroupWeights,
 } from '../data/types';
-import type { Body, Card, FeatureMeta, RankTarget, SourceEntry } from '../data/types';
+import {
+  HIDDEN_GROUPS,
+  type Body,
+  type Card,
+  type FeatureMeta,
+  type RankTarget,
+  type SourceEntry,
+} from '../data/types';
 import { featureSimilarity, lithSimilarity } from '../engine/scoring';
 import { transformValue } from '../engine/transforms';
 import { PRESET_LABEL } from '../content/labels';
@@ -90,7 +97,7 @@ export interface CardMarker {
 export function cardMarkers(cards: Card[], latlng: Float32Array): CardMarker[] {
   const out: CardMarker[] = [];
   cards.forEach((c, i) => {
-    if (c.row !== null) {
+    if (c.row !== null && !HIDDEN_GROUPS.includes(c.kind)) {
       out.push({ n: i + 1, row: c.row, lat: latlng[c.row * 2], lng: latlng[c.row * 2 + 1] });
     }
   });

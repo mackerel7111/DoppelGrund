@@ -140,7 +140,6 @@ export const COLOR_OPTIONS: { id: ColorBy; label: string }[] = [
   { id: 'thermal', label: 'Temperature similarity' },
   { id: 'cold_ice', label: 'Cold & ice similarity' },
   { id: 'composition', label: 'Rock composition similarity' },
-  { id: 'subsurface', label: 'Subsurface similarity' },
   { id: 'novelty', label: 'Distance from known sites' },
 ];
 

@@ -13,7 +13,7 @@ import {
   TERMS,
 } from '../content/labels';
 import { formatLatLon } from '../stores/selectors';
-import { GROUP_IDS, LENS_IDS, type Body, type LensId } from '../data/types';
+import { DISPLAY_GROUP_IDS, LENS_IDS, type Body, type LensId } from '../data/types';
 import LensControls from './LensControls.vue';
 import LayerToggles from './LayerToggles.vue';
 
@@ -37,7 +37,7 @@ function openAbout(section: string): void {
 /** Disabled presets say which data they wait for (same rule as ControlPanel). */
 function lensTitle(id: LensId): string {
   if (!s.lensDisabled(id)) return LENS_NAMES[id];
-  const need = GROUP_IDS.filter((g) => s.presets[id][g] > 0 && !s.available[g]);
+  const need = DISPLAY_GROUP_IDS.filter((g) => s.presets[id][g] > 0 && !s.available[g]);
   const where = s.body === 'moon' ? 'the Moon' : 'Mars';
   return `Needs ${need.map((g) => GROUP_NAMES[g]).join(' / ')} data, not available for ${where} yet`;
 }
