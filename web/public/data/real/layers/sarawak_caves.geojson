@@ -1,0 +1,39 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Deer Cave (Mulu)",
+    "source": "config/sarawak_caves.csv; coordinates: Wikipedia",
+    "kind": "karst_cave",
+    "country": "Malaysia (Sarawak)",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     114.9189,
+     4.1319
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Niah Caves",
+    "source": "config/sarawak_caves.csv; coordinates: Wikipedia",
+    "kind": "karst_cave",
+    "country": "Malaysia (Sarawak)",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     113.78139,
+     3.81389
+    ]
+   }
+  }
+ ]
+}
