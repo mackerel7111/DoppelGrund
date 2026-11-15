@@ -1,73 +1,73 @@
 {
  "contract": "doppelgrund-bundle/1",
- "created_utc": "2026-11-15T02:47:36Z",
+ "created_utc": "2026-11-15T06:26:08Z",
  "synthetic": false,
  "h3_res": 4,
- "n_hex": 4089,
+ "n_hex": 20504,
  "features": [
   {
    "name": "slope_p50_deg",
    "group": "terrain",
    "unit": "deg",
    "transform": "none",
-   "median": 1.2984670400619507,
-   "s": 1.0564406365156174
+   "median": 0.8283270001411438,
+   "s": 0.6554560586810112
   },
   {
    "name": "slope_p90_deg",
    "group": "terrain",
    "unit": "deg",
    "transform": "none",
-   "median": 5.0911359786987305,
-   "s": 4.364559710025787
+   "median": 2.6234803199768066,
+   "s": 2.2289784103631973
   },
   {
    "name": "relief_std_m",
    "group": "terrain",
    "unit": "m",
    "transform": "log1p",
-   "median": 5.2098690501179625,
-   "s": 1.0823872188238868
+   "median": 4.615847286724125,
+   "s": 1.1308423106290437
   },
   {
    "name": "frac_slope_lt_10deg",
    "group": "terrain",
    "unit": "fraction",
    "transform": "none",
-   "median": 0.9722074270248413,
-   "s": 0.02779257297515869
+   "median": 0.9967004954814911,
+   "s": 0.003299504518508911
   },
   {
    "name": "lst_mean_K",
    "group": "thermal",
    "unit": "K",
    "transform": "none",
-   "median": 212.60581970214844,
-   "s": 17.0921630859375
+   "median": 256.65594482421875,
+   "s": 40.805870056152344
   },
   {
    "name": "diurnal_range_K",
    "group": "thermal",
    "unit": "K",
    "transform": "none",
-   "median": 239.07276916503906,
-   "s": 35.34967803955078
+   "median": 19.54987335205078,
+   "s": 16.060346841812134
   },
   {
    "name": "annual_range_K",
    "group": "thermal",
    "unit": "K",
    "transform": "none",
-   "median": 26.647186279296875,
-   "s": 6.711002349853516
+   "median": 26.585315704345703,
+   "s": 6.7286224365234375
   },
   {
    "name": "frac_below_0C",
    "group": "cold_ice",
    "unit": "fraction",
    "transform": "none",
-   "median": 0.6139382719993591,
-   "s": 0.051101088523864746
+   "median": 0.5968403816223145,
+   "s": 0.37531323730945587
   },
   {
    "name": "permafrost_prob",
@@ -82,16 +82,16 @@
    "group": "cold_ice",
    "unit": "ratio",
    "transform": "log1p",
-   "median": 0.0,
-   "s": 1.0
+   "median": 0.06116783701087326,
+   "s": 0.06116783701087326
   },
   {
    "name": "pit_cave_density_per_1000km2",
    "group": "subsurface",
    "unit": "per_1000km2",
    "transform": "log1p",
-   "median": 1.0885501986050026,
-   "s": 0.29303067993174914
+   "median": 0.9932891422167406,
+   "s": 0.3504894310784089
   }
  ],
  "lith_classes": [
@@ -416,6 +416,6 @@
  ],
  "resolution": {
   "mode": "fast",
-  "stride": 20
+  "stride": 4
  }
 }
