@@ -12,8 +12,15 @@ askja,"Askja, Iceland",65.033,-16.783,moon,,terrain,https://en.wikipedia.org/wik
 mauna_kea_isru,Mauna Kea (ISRU field tests),19.82056,-155.46806,moon,,composition,https://ntrs.nasa.gov/citations/20140008708,true
 kilauea,"Kilauea, Hawaii",19.4211,-155.28676,moon,,terrain,https://en.wikipedia.org/wiki/K%C4%ABlauea,true
 meteor_crater,"Meteor Crater, Arizona",35.02806,-111.02333,moon,,terrain,https://en.wikipedia.org/wiki/Meteor_Crater,false
-nordlinger_ries,"Nordlinger Ries, Germany",48.88333,10.56667,moon,,terrain,https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries,false
-sudbury_basin,"Sudbury Basin, Ontario",46.6,-81.18333,moon,,composition,https://en.wikipedia.org/wiki/Sudbury_Basin,false
+nordlinger_ries,"Nordlinger Ries, Germany",48.88333,10.56667,moon,apollo14_fra_mauro,terrain,https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries,false
+sudbury_basin,"Sudbury Basin, Ontario",46.6,-81.18333,moon,apollo16_descartes,composition,https://en.wikipedia.org/wiki/Sudbury_Basin,false
 craters_of_the_moon,"Craters of the Moon, Idaho",43.46167,-113.56271,moon,,terrain,https://en.wikipedia.org/wiki/Craters_of_the_Moon_National_Monument_and_Preserve,false
 lonar_lake,"Lonar Lake, India",19.975,76.5075,moon,,composition,https://en.wikipedia.org/wiki/Lonar_Lake,false
 lanzarote_pangaea,"Lanzarote (ESA PANGAEA)",29.035,-13.635,moon,,terrain,https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/CAVES_and_Pangaea/What_is_Pangaea,false
+cinder_lake,"Cinder Lake crater field, Arizona",35.32805,-111.52305,moon,statio_tranquillitatis,terrain,https://pubs.usgs.gov/publication/ofr677,false
+rio_grande_gorge,"Rio Grande Gorge, New Mexico",36.33607,-105.73377,moon,apollo15_hadley,terrain,https://www.blm.gov/blog/2021-08-04/when-public-land-new-mexico-stood-moon,false
+kilbourne_hole,"Kilbourne Hole, New Mexico",31.97166,-106.96322,moon,apollo15_hadley,terrain,https://www.blm.gov/blog/2021-08-04/when-public-land-new-mexico-stood-moon,false
+stillwater_complex,"Stillwater Complex, Montana",45.386,-109.903,moon,apollo16_descartes,composition,https://ares.jsc.nasa.gov/projects/simulants/nu-lht.html,false
+rio_tinto,"Rio Tinto basin, Spain",37.69346,-6.59578,mars,meridiani_planum,composition,https://doi.org/10.1016/j.epsl.2005.09.043,false
+pilbara_north_pole_dome,"North Pole Dome, Pilbara, Western Australia",-21.1518,119.4373,mars,nili_fossae,composition,https://doi.org/10.1016/j.epsl.2010.06.018,false
+dumont_dunes,"Dumont Dunes, California",35.68106,-116.2248,mars,gale,terrain,https://doi.org/10.1002/rob.21647,false
