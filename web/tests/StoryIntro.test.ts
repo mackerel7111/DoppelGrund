@@ -20,7 +20,7 @@ afterEach(() => {
 });
 describe('StoryIntro', () => {
   it.each(['moon', 'mars'] as const)(
-    'takes the visitor directly from destination choice to the %s explorer',
+    'shows the matching %s surface before entering the explorer',
     async (body) => {
       const w = intro();
       expect(w.text()).toContain('Click the telescope to begin');
@@ -30,7 +30,9 @@ describe('StoryIntro', () => {
       expect(w.get('[data-test="go"]').attributes('disabled')).toBeDefined();
       await click(w, body);
       expect(w.emitted('done')).toBeUndefined();
-      await click(w, 'go');
+      expect(w.text()).toContain(body === 'mars' ? 'Red dust, rocks' : 'Craters, dust');
+      expect(w.get('.backdrop').attributes('src')).toContain(`${body}-surface.webp`);
+      await click(w, 'surface-next');
       expect(w.emitted('done')).toEqual([[body]]);
     },
   );
@@ -39,8 +41,11 @@ describe('StoryIntro', () => {
     await click(w, 'next');
     await click(w, 'mars');
     await click(w, 'back');
-    await click(w, 'next');
     expect(w.get('[data-test="mars"]').attributes('aria-pressed')).toBe('true');
+    await click(w, 'moon');
+    expect(w.text()).toContain('Craters, dust');
+    await click(w, 'skip');
+    expect(w.emitted('done')).toEqual([['moon']]);
   });
   it('Skip and Escape finish only once with the default Moon', async () => {
     const w = intro();
@@ -51,6 +56,8 @@ describe('StoryIntro', () => {
   it('keeps old deep links useful', async () => {
     window.history.replaceState({}, '', '/?intro=3.7&world=mars');
     const w = intro();
+    await click(w, 'go');
+    expect(w.emitted('done')).toBeUndefined();
     await click(w, 'go');
     expect(w.emitted('done')).toEqual([['mars']]);
   });

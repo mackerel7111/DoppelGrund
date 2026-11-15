@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { Body } from '../data/types';
 import { narrationEnabled, speechEngine, storyteller } from '../content/narration';
 const emit = defineEmits<{ done: [world: Body] }>();
@@ -14,7 +14,16 @@ const root = ref<HTMLElement | null>(null);
 const heading = ref<HTMLElement | null>(null);
 const speech = speechEngine();
 const speechError = ref('');
-const titles = ['Let’s find another world on Earth.', 'Where shall we explore together?'];
+const titles = [
+  'Let’s find another world on Earth.',
+  'Where shall we explore together?',
+  'Doppel is shy, and a little nervous',
+];
+const surfaceCaption = computed(() =>
+  world.value === 'mars'
+    ? 'Red dust, rocks, thin cold air. What if I get stuck?'
+    : 'Craters, dust, freezing nights. What if I get stuck?',
+);
 const captions = [
   'I’m Doppel. Come with me to discover places on Earth that resemble the Moon and Mars.',
   'Choose the Moon or Mars. Then we’ll find its closest matches on Earth.',
@@ -33,7 +42,10 @@ function narrate(): void {
   speechError.value = '';
   if (!speech || !narrationEnabled.value || finished) return;
   try {
-    utterance = storyteller(`${titles[scene.value - 1]} ${captions[scene.value - 1]}`, speech);
+    utterance = storyteller(
+      `${titles[scene.value - 1]} ${scene.value === 3 ? surfaceCaption.value : captions[scene.value - 1]}`,
+      speech,
+    );
     utterance.onerror = () => {
       speechError.value = 'You can follow the text or try narration again.';
     };
@@ -50,7 +62,8 @@ function finish(): void {
 }
 function next(): void {
   if (scene.value === 1) scene.value = 2;
-  else if (world.value) finish();
+  else if (scene.value === 2 && world.value) scene.value = 3;
+  else if (scene.value === 3) finish();
 }
 function onKey(ev: KeyboardEvent): void {
   if (ev.key === 'Escape') {
@@ -96,12 +109,13 @@ onBeforeUnmount(() => {
   <div
     ref="root"
     class="intro"
+    :class="{ surface: scene === 3 }"
     role="dialog"
     aria-modal="true"
     aria-labelledby="intro-heading"
     aria-describedby="intro-caption"
   >
-    <img class="backdrop" :src="img('space')" alt="" />
+    <img class="backdrop" :src="img(scene === 3 ? `${world ?? 'moon'}-surface` : 'space')" alt="" />
     <header class="intro-header">
       <span class="brand">DoppelGrund</span>
       <div class="header-actions">
@@ -118,13 +132,13 @@ onBeforeUnmount(() => {
         <button type="button" class="quiet" data-test="skip" @click="finish">Skip intro</button>
       </div>
     </header>
-    <main class="story" :class="{ choosing: scene === 2 }">
+    <main class="story" :class="{ choosing: scene === 2, 'surface-story': scene === 3 }">
       <div class="copy">
-        <p class="eyebrow">
+        <p v-if="scene < 3" class="eyebrow">
           {{ scene === 1 ? 'An invitation from Doppel' : 'Through Doppel’s eyes' }}
         </p>
         <h1 id="intro-heading" ref="heading" tabindex="-1">{{ titles[scene - 1] }}</h1>
-        <p id="intro-caption" class="caption">{{ captions[scene - 1] }}</p>
+        <p v-if="scene < 3" id="intro-caption" class="caption">{{ captions[scene - 1] }}</p>
         <p v-if="speechError" role="status">{{ speechError }}</p>
       </div>
       <div v-if="scene === 1" class="pair">
@@ -146,7 +160,7 @@ onBeforeUnmount(() => {
           >
         </button>
       </div>
-      <div v-else class="worlds" role="group" aria-label="Choose our destination">
+      <div v-else-if="scene === 2" class="worlds" role="group" aria-label="Choose our destination">
         <button
           v-for="b in ['moon', 'mars'] as const"
           :key="b"
@@ -154,7 +168,10 @@ onBeforeUnmount(() => {
           class="target world"
           :data-test="b"
           :aria-pressed="world === b"
-          @click="world = b"
+          @click="
+            world = b;
+            scene = 3;
+          "
         >
           <img :src="img(b)" alt="" draggable="false" />
           <span class="world-name">{{ b === 'moon' ? 'The Moon' : 'Mars' }}</span>
@@ -164,34 +181,111 @@ onBeforeUnmount(() => {
           <span v-if="world === b" class="selected">✓ Our destination</span>
         </button>
       </div>
+      <div v-else class="surface-rover">
+        <p id="intro-caption" class="speech-bubble">{{ surfaceCaption }}</p>
+        <button
+          type="button"
+          class="target rover"
+          data-test="surface-next"
+          aria-label="Continue with Doppel to the explorer"
+          @click="finish"
+        >
+          <img
+            :src="img('doppel-confused')"
+            alt="Doppel feeling nervous on the surface"
+            draggable="false"
+          />
+        </button>
+      </div>
     </main>
     <footer class="navigation" :class="{ opening: scene === 1 }">
-      <button
-        type="button"
-        class="back"
-        data-test="back"
-        :disabled="scene === 1"
-        @click="scene = 1"
-      >
+      <button type="button" class="back" data-test="back" :disabled="scene === 1" @click="scene--">
         ← Back
       </button>
       <p class="instruction">
-        {{ scene === 1 ? 'Click the telescope to begin' : 'Choose the Moon or Mars' }}
+        {{
+          scene === 1
+            ? 'Click the telescope to begin'
+            : scene === 2
+              ? 'Choose the Moon or Mars'
+              : 'Click Doppel to find practice grounds on Earth'
+        }}
       </p>
       <button
-        v-if="scene === 2"
+        v-if="scene > 1"
         type="button"
         class="primary"
         data-test="go"
         :disabled="!world"
         @click="next"
       >
-        Find Earth matches →
+        {{ scene === 2 ? 'Visit this world' : 'Find Earth matches' }} →
       </button>
     </footer>
   </div>
 </template>
 <style scoped>
+.surface .backdrop {
+  opacity: 1;
+}
+.surface .intro-header {
+  background: #080f1cdb;
+  border-radius: 0 0 12px 12px;
+  padding-inline: 16px;
+}
+.surface-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  min-height: 440px;
+}
+.surface-story .copy {
+  max-width: 850px;
+  text-align: center;
+  background: #0b111deb;
+  padding: 18px 24px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.surface-story h1 {
+  font-size: clamp(24px, 2.5vw, 36px);
+}
+.surface-rover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.speech-bubble {
+  position: relative;
+  max-width: 560px;
+  margin: 0;
+  padding: 16px 22px;
+  border-radius: 16px;
+  background: #0b1526;
+  border: 1px solid #50647b;
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.5;
+  text-align: center;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 10px);
+  border: 10px solid transparent;
+  border-top-color: #0b1526;
+}
+.rover {
+  width: clamp(150px, 20vw, 250px);
+}
+@media (max-width: 899px) {
+  .surface-story {
+    min-height: 460px;
+  }
+}
+
 .intro {
   position: fixed;
   inset: 0;
