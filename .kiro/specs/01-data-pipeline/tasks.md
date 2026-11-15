@@ -2,6 +2,26 @@
 
 Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Notebooks are thin wrappers created in 1.19.
 
+> **Status note, 2026-11-15 (housekeeping).** The boxes below were never ticked because the pipeline was built as
+> one module, `pipeline/doppelgrund/real.py` (plus `caves.py`, `smap.py`, `earth/download.py`, `earth/modis.py`,
+> `earth/terrain.py`), not as the per-task files named here. `planetary/` and `qa/` are empty packages. Boxes stay
+> unticked where the named files and tests do not exist; where the work exists in `real.py` this table says so.
+>
+> | Task | Where it stands |
+> |---|---|
+> | 1.1 tiling | H3 res-4 land cells from `select_land_cells` (`fixtures/synthetic.py`, 81,772 cells); no `tiling.py`, no `hex_cells.parquet`, no tiling test |
+> | 1.2 EE auth | done (the stride-20 and stride-4 runs use it) |
+> | 1.3 batch runner | in `real.py` `earth_remote`: batches of 25, resume, shards, threads, split on timeout or memory limit; no `--dry-run`, no job-state file, no `ee_client.py`/`batch.py` |
+> | 1.4, 1.5, 1.6, 1.8 EE terrain, thermal, climate, mask | in `real.py` (normal and `--fast` modes); no `terrain_ee`/`thermal_ee` tests, plausibility ranges not logged |
+> | 1.4b slope cross-check | partial: Plan B ETOPO terrain (`earth/terrain.py`, 7 tests) and an old-vs-new Earth Engine comparison after the cos(latitude) fix; no `planetary/terrain.py slope_deg` and no analytic cross-check test |
+> | 1.6, 1.7 permafrost, GLiM | `real.py` `earth_local` (centre sampling); no `localzonal.py` zonal means; crosswalk is a proposal, `config/ontology_crosswalk.csv` unverified |
+> | 1.9 process tags | tag columns written by `real.py`; no `tags.py` and no test |
+> | 1.10 assemble Earth | `earth_table_real`; per-feature NaN fractions not logged here |
+> | 1.11-1.16 planetary | Fibonacci discs (3,000 per body), terrain, Diviner thermal, lithology in `real.py`; none of the named modules exist |
+> | 1.17 targets | `targets_real` builds 13 landmarks; `known_site_hexes.parquet` is not written (novelty uses `known_sites.csv` directly) |
+> | **1.18 QA report (Gate G1)** | **not built**: `qa/` is empty; a human has not reviewed maps of the real tables |
+> | 1.19 notebooks | existing notebooks are `01_datasets_features`, `02_harmonisation`, `03_ee_shard`, not the 01-03 named here |
+
 - [ ] 1.1 [S] H3 land tiling (Window H1–H3)
   - Files: `pipeline/doppelgrund/tiling.py`, `pipeline/tests/test_tiling.py`, `notebooks/01_tiling.ipynb` (minimal cell calling `build_hex_cells`)
   - Tests: antimeridian cell splits into valid parts with total area ≈ unsplit area (±1%); a known ocean cell has `land_frac == 0`; known desert cell `> 0.9`.
@@ -9,7 +29,7 @@ Legend: **[S]** Sonnet-class · **[C]** cheaper model · **[H]** human. Notebook
   - _Requirements: 1.1–1.3_
   - Depends on: 00/0.5
 
-- [ ] 1.2 [H] Earth Engine project and auth (Window H0–H1)
+- [x] 1.2 [H] Earth Engine project and auth (Window H0–H1)
   - Register/confirm the non-commercial Cloud project, run `earthengine authenticate` (local) or Colab auth, set `DOPPELGRUND_EE_PROJECT`.
   - Acceptance: `python -c "import ee; ee.Initialize(project='$DOPPELGRUND_EE_PROJECT'); print(ee.Number(1).getInfo())"` prints 1.
   - _Requirements: 8.1_
