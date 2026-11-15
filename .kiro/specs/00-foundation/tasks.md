@@ -62,6 +62,7 @@ Every task ends with `make verify-quick` passing (once the Makefile exists) and 
   - _Requirements: 2.4, 2.6_
 
 - [ ] 0.9 [C] CI and Pages deployment (Window H4–H5)
+  - Status 2026-11-15: CI (`.github/workflows/ci.yml`) exists and runs on push; it failed on a missing `requests` dependency (fixed, confirm the next run). The Pages deploy workflow was removed (`e6dadcd`); the site deploys from `main` on Vercel instead (https://doppel-grund.vercel.app/), so the Pages half of this task is superseded.
   - Files: `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`
   - Acceptance: push to a branch runs CI green on the synthetic sample; push to `main` publishes the app (synthetic banner visible once spec 03 task 3.4 lands).
   - _Requirements: 6.1–6.3_

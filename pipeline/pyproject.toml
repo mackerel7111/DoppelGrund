@@ -22,6 +22,7 @@ dependencies = [
     "pyproj==3.8.0",
     "Pillow==13.0.0",
     "pyyaml==6.0.3",
+    "requests==2.34.2",  # real.py / earth.download fetch datasets with it; CI failed without it
 ]
 
 [project.optional-dependencies]
