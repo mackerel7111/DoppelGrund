@@ -263,8 +263,9 @@ TRANSIENT = ("too many", "429", "quota", "internal error", "unavailable", "deadl
 
 
 def reduce_with_retry(fn, hexes, tries=5, sleep=time.sleep, log=print):
-    """Call ``fn(hexes)`` (a DataFrame indexed by h3). On "Computation timed out" split the hexes in
-    half and run each half; on a transient error (quota, 429, internal, reset) wait and retry.
+    """Call ``fn(hexes)`` (a DataFrame indexed by h3). On "Computation timed out" or "User memory limit
+    exceeded" split the hexes in half and run each half; on a transient error (quota, 429, internal,
+    reset) wait and retry.
 
     A single hex that still times out is raised: nothing smaller is left to try.
     """
@@ -273,7 +274,7 @@ def reduce_with_retry(fn, hexes, tries=5, sleep=time.sleep, log=print):
             return fn(hexes)
         except Exception as e:  # the ee exceptions are plain EEException subclasses of Exception
             msg = str(e).lower()
-            if "timed out" in msg and len(hexes) > 1:
+            if ("timed out" in msg or "memory limit" in msg) and len(hexes) > 1:
                 half = len(hexes) // 2
                 log(f"  timed out on {len(hexes)} hexes: retrying as {half} + {len(hexes) - half}")
                 return pd.concat(
@@ -320,15 +321,11 @@ def earth_remote(cells, batch=25):
     ky = ee.Kernel.fixed(3, 3, [[-1, -2, -1], [0, 0, 0], [1, 2, 1]], normalize=False)
     # z is on a lat/lon grid whose pixel is SCALE_M at the equator, so the east-west ground
     # spacing is SCALE_M * cos(lat). The 0.05 floor matches disc_terrain (|lat| > 87 deg).
-    # Reprojected to z's grid so the latitude is per pixel.
-    coslat = (
-        ee.Image.pixelLonLat()
-        .select("latitude")
-        .multiply(np.pi / 180)
-        .cos()
-        .max(0.05)
-        .reproject(z.projection())
-    )
+    coslat = ee.Image.pixelLonLat().select("latitude").multiply(np.pi / 180).cos().max(0.05)
+    # Non-FAST: z is fixed at SCALE_M, so put the latitude on the same grid. FAST: z is the raw 30 m
+    # DEM, and reprojecting to it would force 30 m evaluation ("User memory limit exceeded").
+    if not FAST:
+        coslat = coslat.reproject(z.projection())
     gx = z.convolve(kx).divide(coslat.multiply(8 * SCALE_M))
     gy = z.convolve(ky).divide(8 * SCALE_M)
     slope = gx.hypot(gy).atan().multiply(180 / np.pi).rename("slope")

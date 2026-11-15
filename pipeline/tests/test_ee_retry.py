@@ -65,3 +65,15 @@ def test_transient_errors_give_up_after_the_last_try_and_other_errors_are_not_re
     with pytest.raises(ValueError):
         reduce_with_retry(bad, ["1"], sleep=lambda s: None, log=lambda m: None)
     assert len(calls) == 1
+
+
+def test_a_memory_limit_error_splits_the_batch_too() -> None:
+    def fn(hexes: list[str]) -> pd.DataFrame:
+        if len(hexes) > 2:
+            raise RuntimeError("User memory limit exceeded.")
+        return frame(hexes)
+
+    out = reduce_with_retry(
+        fn, [str(i) for i in range(6)], sleep=lambda s: None, log=lambda m: None
+    )
+    assert len(out) == 6
