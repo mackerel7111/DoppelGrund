@@ -7,26 +7,33 @@ import { applyTransforms } from '../src/engine/transforms';
 import { FEATURE_GROUPS, type GroupWeights, type WorkerResponse } from '../src/data/types';
 import { EngineHost } from '../src/workers/engine.worker';
 
-const BAL: GroupWeights = { terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25 };
+const BAL: GroupWeights = {
+  terrain: 0.25,
+  thermal: 0.25,
+  cold_ice: 0.25,
+  composition: 0.25,
+  subsurface: 0,
+};
+const F = FEATURE_GROUPS.length;
 const FEATS = FEATURE_GROUPS.map((group) => ({ group }));
 
 function inputs(n: number): ScoreInputs {
   const rnd = mulberry32(7);
-  const raw = Float64Array.from({ length: n * 10 }, () => rnd() * 10);
+  const raw = Float64Array.from({ length: n * F }, () => rnd() * 10);
   const { wNum, wLith } = featureWeights(BAL, FEATS);
   return {
     Xe: applyTransforms(
       raw,
-      10,
+      F,
       FEATURE_GROUPS.map(() => 'none'),
     ),
     Le: Float32Array.from({ length: n * 6 }, (_, i) => (i % 6 === i % 2 ? 1 : 0)),
     flags: new Uint8Array(n),
     n,
-    xt: new Float64Array(10).fill(5),
+    xt: new Float64Array(F).fill(5),
     lt: Float32Array.from([1, 0, 0, 0, 0, 0]),
-    median: new Float64Array(10),
-    s: new Float64Array(10).fill(2),
+    median: new Float64Array(F),
+    s: new Float64Array(F).fill(2),
     groupOfFeature: groupIndex(FEATS),
     wNum,
     wLith,
@@ -72,7 +79,7 @@ describe('prng', () => {
   it('Dirichlet samples sum to 1 and keep zero-alpha components at 0 (property)', () => {
     fc.assert(
       fc.property(
-        fc.array(fc.double({ min: 0, max: 60, noNaN: true }), { minLength: 4, maxLength: 4 }),
+        fc.array(fc.double({ min: 0, max: 60, noNaN: true }), { minLength: 5, maxLength: 5 }),
         fc.integer(),
         (al, seed) => {
           fc.pre(al.some((a) => a > 1e-3));
@@ -142,7 +149,7 @@ describe('worker stability handler', () => {
       groupOfFeature: inp.groupOfFeature,
       C: inp.C,
     } as unknown as NonNullable<EngineHost['prepared']>;
-    const target = { features: Array(10).fill(5), lith: [1, 0, 0, 0, 0, 0] };
+    const target = { features: Array(F).fill(5), lith: [1, 0, 0, 0, 0, 0] };
     const first = host.handle({ type: 'stability', reqId: 1, target, weights: BAL, draws: 50 });
     await new Promise((r) => setTimeout(r, 5));
     const second = host.handle({ type: 'stability', reqId: 2, target, weights: BAL, draws: 3 });

@@ -2,8 +2,8 @@
 // Python (doppelgrund/scoring.py) is the reference; this port computes in float64 and returns float32.
 import { GROUP_IDS, type FeatureMeta, type GroupWeights } from '../data/types';
 
-export const N_GROUPS = 4;
-export const COMPOSITION = 3; // group index of the lithology feature
+export const N_GROUPS = GROUP_IDS.length; // 5
+export const COMPOSITION = GROUP_IDS.indexOf('composition'); // group index of the lithology feature
 
 export interface ScoreInputs {
   Xe: Float64Array; // N×F transformed Earth features
@@ -23,7 +23,7 @@ export interface ScoreInputs {
 export interface ScoreOutputs {
   S: Float32Array;
   coverage: Float32Array;
-  groups: Float32Array; // N×4 in GROUP_IDS order
+  groups: Float32Array; // N×N_GROUPS in GROUP_IDS order
 }
 
 /** C3 weight rule: w_f = W_group / n_group; lithology counts as one composition feature. */
@@ -31,13 +31,13 @@ export function featureWeights(
   weights: GroupWeights,
   features: readonly Pick<FeatureMeta, 'group'>[],
 ): { wNum: Float64Array; wLith: number } {
-  const count: Record<string, number> = { terrain: 0, thermal: 0, cold_ice: 0, composition: 1 };
+  const count = Object.fromEntries(GROUP_IDS.map((g) => [g, g === 'composition' ? 1 : 0]));
   for (const f of features) count[f.group] += 1;
   const wNum = Float64Array.from(features, (f) => weights[f.group] / count[f.group]);
   return { wNum, wLith: weights.composition / count.composition };
 }
 
-/** Group index (0..2) of each numeric feature. */
+/** Group index (into GROUP_IDS) of each numeric feature. */
 export function groupIndex(features: readonly Pick<FeatureMeta, 'group'>[]): Uint8Array {
   return Uint8Array.from(features, (f) => GROUP_IDS.indexOf(f.group));
 }

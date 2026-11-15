@@ -7,12 +7,12 @@ import type { Bundle, DiscGrid } from '../src/data/types';
 import { DEFAULT_LENSES, useSession } from '../src/stores/session';
 import { effectiveWeights, groupAvailability } from '../src/stores/selectors';
 
-// 2 discs: terrain varies, thermal all NaN, frac_below_0C NaN, aridity constant 0, lith valid.
+// 2 discs: terrain varies, thermal all NaN, frac_below_0C NaN, aridity constant 0, no cave catalogue (NaN), lith valid.
 function marsLikeGrid(): DiscGrid {
-  const features = new Float32Array(20).fill(NaN);
+  const features = new Float32Array(22).fill(NaN);
   features[0] = 1;
-  features[10] = 2; // slope_p50_deg varies
-  for (const i of [0, 10]) features[i + 9] = 0; // aridity_index (last column) constant
+  features[11] = 2; // slope_p50_deg varies
+  for (const i of [0, 11]) features[i + 9] = 0; // aridity_index constant
   const lith = new Float32Array([1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]);
   return { n: 2, features, lith, latlon: new Float32Array(4) } as unknown as DiscGrid;
 }
@@ -24,13 +24,14 @@ describe('group availability', () => {
       thermal: false,
       cold_ice: false,
       composition: true,
+      subsurface: false, // no catalogue on this body
     });
     expect(groupAvailability(undefined).thermal).toBe(true);
   });
 
   it('renormalises over available groups', () => {
     const w = effectiveWeights(DEFAULT_LENSES.balanced, groupAvailability(marsLikeGrid()));
-    expect(w).toEqual({ terrain: 0.5, thermal: 0, cold_ice: 0, composition: 0.5 });
+    expect(w).toEqual({ terrain: 0.5, thermal: 0, cold_ice: 0, composition: 0.5, subsurface: 0 });
   });
 
   it('disables the cold_volatiles pill on Mars only', async () => {

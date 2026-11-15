@@ -4,7 +4,7 @@ inclusion: always
 # Product: Global Analogue Discovery Engine
 
 ## One line
-Pick a landmark on the Moon or Mars. DoppelGrund scores every land hexagon on Earth (H3 resolution 4, ~85,000 cells) against it, shows the best Earth match **per dimension** (terrain, thermal, cold/ice, composition) plus best overall, flags places nobody has studied, and states plainly where each analogy fails.
+Pick a landmark on the Moon or Mars. DoppelGrund scores every land hexagon on Earth (H3 resolution 4, ~85,000 cells) against it, shows the best Earth match **per dimension** (terrain, thermal, cold/ice, composition, subsurface) plus best overall, flags places nobody has studied, and states plainly where each analogy fails.
 
 ## Challenge
 NASA Space Apps 2026, "Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars". Hackathon: 14-15 November 2026. Building may start before the event (orchestrator decision, 2026-10-30).
@@ -17,7 +17,7 @@ NASA Space Apps 2026, "Identify Earth Locations that Analog the Permanent Moon B
 | Different analogues for different characteristics | One match card per dimension; optional mission lenses |
 | Think beyond visual similarity | Physical, unit-bearing features only, never pixels |
 | Processes as well as places | Process tags (volcanic, periglacial, evaporitic) |
-| Caves, lava tubes, subsurface | Curated layers, presented as priors, never detections |
+| Caves, lava tubes, subsurface | Scored feature `pit_cave_density_per_1000km2` (catalogued pits/caves per area, group `subsurface`) plus curated overlay layers. It is a prior from catalogues, never a detection; NaN where no survey covers the area. Never present karst caves as structural lava-tube analogues. |
 | Earth's limits (gravity, vacuum, radiation) | Never scored, always shown in the divergence panel |
 | Consider scale | Stage-2 refinement of top hits (stretch) |
 | Maps, similarity metrics, ML | Interactive 2D/3D app, tolerance-kernel scoring, classical unsupervised ML |

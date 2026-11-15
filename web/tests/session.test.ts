@@ -51,13 +51,14 @@ describe('renormalise', () => {
   it('scales the other weights proportionally', () => {
     const w = renormalise(balanced, 'terrain', 0.4);
     expect(w.terrain).toBeCloseTo(0.4);
-    expect(w.thermal).toBeCloseTo(0.2);
+    expect(w.thermal).toBeCloseTo((0.6 * 0.225) / 0.775); // others keep their ratios
+    expect(w.subsurface).toBeCloseTo((0.6 * 0.1) / 0.775);
     expect(sum(w)).toBeCloseTo(1, 12);
   });
 
   it('setting one weight to 1 zeroes the others', () => {
     const w = renormalise(balanced, 'cold_ice', 1);
-    expect(w).toEqual({ terrain: 0, thermal: 0, cold_ice: 1, composition: 0 });
+    expect(w).toEqual({ terrain: 0, thermal: 0, cold_ice: 1, composition: 0, subsurface: 0 });
   });
 
   it('setting one weight to 0 spreads its share over the others', () => {
@@ -69,8 +70,12 @@ describe('renormalise', () => {
   });
 
   it('recovers from all-other-zero weights by splitting equally', () => {
-    const w = renormalise({ terrain: 1, thermal: 0, cold_ice: 0, composition: 0 }, 'terrain', 0.4);
-    expect(w.thermal).toBeCloseTo(0.2);
+    const w = renormalise(
+      { terrain: 1, thermal: 0, cold_ice: 0, composition: 0, subsurface: 0 },
+      'terrain',
+      0.4,
+    );
+    expect(w.thermal).toBeCloseTo(0.15); // 0.6 split equally over the other four groups
     expect(sum(w)).toBeCloseTo(1, 12);
   });
 
@@ -82,6 +87,7 @@ describe('renormalise', () => {
         thermal: (1 - a) / 2,
         cold_ice: b / 2,
         composition: (1 - b) / 2,
+        subsurface: 0,
       }));
     fc.assert(
       fc.property(

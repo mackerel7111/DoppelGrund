@@ -182,7 +182,7 @@ watchEffect(
       <span class="bar" :style="{ background: legendGradient() }" />
       <span class="num meta">{{ meta.domain[1] }}{{ meta.unit === 'km' ? ' km' : '' }}</span>
       <span class="swatch" /><span class="meta">not compared (vegetated or too little data)</span>
-      <span class="ring" /><span class="meta">matches 1–5</span>
+      <span class="ring" /><span class="meta">matches 1–6</span>
     </div>
     <div class="layers-row">
       <LayerToggles />

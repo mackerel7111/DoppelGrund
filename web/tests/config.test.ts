@@ -29,10 +29,34 @@ export function validManifest(): Record<string, unknown> {
       Array.from({ length: 6 }, (_, j) => (i === j ? 1 : 0)),
     ),
     lenses: {
-      balanced: { terrain: 0.25, thermal: 0.25, cold_ice: 0.25, composition: 0.25 },
-      landing_mobility: { terrain: 0.7, thermal: 0.15, cold_ice: 0, composition: 0.15 },
-      cold_volatiles: { terrain: 0.15, thermal: 0.3, cold_ice: 0.45, composition: 0.1 },
-      geology_minerals: { terrain: 0.2, thermal: 0.1, cold_ice: 0.1, composition: 0.6 },
+      balanced: {
+        terrain: 0.225,
+        thermal: 0.225,
+        cold_ice: 0.225,
+        composition: 0.225,
+        subsurface: 0.1,
+      },
+      landing_mobility: {
+        terrain: 0.7,
+        thermal: 0.15,
+        cold_ice: 0,
+        composition: 0.15,
+        subsurface: 0,
+      },
+      cold_volatiles: {
+        terrain: 0.15,
+        thermal: 0.3,
+        cold_ice: 0.45,
+        composition: 0.1,
+        subsurface: 0,
+      },
+      geology_minerals: {
+        terrain: 0.2,
+        thermal: 0.1,
+        cold_ice: 0.1,
+        composition: 0.55,
+        subsurface: 0.05,
+      },
     },
     params: {
       seed: 1,
@@ -113,9 +137,9 @@ describe('validateManifest', () => {
 describe('checkArrayLength', () => {
   it('accepts matching lengths and rejects wrong n_hex vs array length', () => {
     const m = validateManifest(validManifest());
-    expect(() => checkArrayLength(m, 'features', 30)).not.toThrow();
+    expect(() => checkArrayLength(m, 'features', 33)).not.toThrow();
     expect(() => checkArrayLength(m, 'flags', 3)).not.toThrow();
-    expect(() => checkArrayLength(m, 'features', 29)).toThrow(ManifestError);
+    expect(() => checkArrayLength(m, 'features', 32)).toThrow(ManifestError);
     expect(() => checkArrayLength(m, 'h3', 4)).toThrow(/earth_h3\.txt has 4 elements/);
   });
 });

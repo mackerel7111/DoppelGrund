@@ -40,7 +40,7 @@ def test_valid_profiles_load() -> None:
     lens_ids = {"balanced", "landing_mobility", "cold_volatiles", "geology_minerals"}
     assert set(prof.lenses) == lens_ids
     assert prof.params["coverage_floor"] == 0.6
-    assert [f.transform for f in prof.features].count("log1p") == 2
+    assert [f.transform for f in prof.features].count("log1p") == 3
 
 
 def test_wrong_feature_order(tmp_path: Path) -> None:
@@ -87,10 +87,12 @@ def test_missing_param(tmp_path: Path) -> None:
 
 def test_feature_weights_balanced() -> None:
     w_num, w_lith = load_profiles().feature_weights("balanced")
-    np.testing.assert_allclose(w_num[:4], 0.0625)
-    np.testing.assert_allclose(w_num[4:7], 0.25 / 3)
-    np.testing.assert_allclose(w_num[7:10], 0.25 / 3)
-    assert w_lith == pytest.approx(0.25)
+    assert w_num.shape == (11,)
+    np.testing.assert_allclose(w_num[:4], 0.225 / 4)
+    np.testing.assert_allclose(w_num[4:7], 0.225 / 3)
+    np.testing.assert_allclose(w_num[7:10], 0.225 / 3)
+    assert w_num[10] == pytest.approx(0.10)  # subsurface: one feature, n_group = 1
+    assert w_lith == pytest.approx(0.225)
     assert w_num.sum() + w_lith == pytest.approx(1.0)
 
 
@@ -98,6 +100,7 @@ def test_feature_weights_custom_and_zero_group() -> None:
     prof = load_profiles()
     w_num, w_lith = prof.feature_weights("landing_mobility")
     np.testing.assert_allclose(w_num[7:10], 0.0)
+    assert w_num[10] == 0.0
     with pytest.raises(ConfigError):
         prof.feature_weights({"terrain": 1.0})
 

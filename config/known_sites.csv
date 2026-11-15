@@ -1,1 +1,19 @@
 site_id,name,lat,lon,target_body,documented_target_id,dimension,reference_url,well_known
+haughton_crater,"Haughton impact crater, Devon Island",75.38333,-89.66667,mars,,cold_ice,https://en.wikipedia.org/wiki/Haughton_impact_crater,true
+mcmurdo_dry_valleys,McMurdo Dry Valleys,-77.46667,162.51667,mars,,cold_ice,https://en.wikipedia.org/wiki/McMurdo_Dry_Valleys,true
+beacon_valley,"Beacon Valley, McMurdo Dry Valleys",-77.81667,160.65,mars,,cold_ice,https://en.wikipedia.org/wiki/Beacon_Valley,true
+atacama_yungay,"Yungay station, Atacama Desert",-24.0825,-69.98517,mars,,cold_ice,https://astrobiology.nasa.gov/news/nasa-tests-life-detection-drill-in-the-atacama-desert/,true
+bockfjorden_svalbard,"Bockfjorden volcanic area, Svalbard (AMASE)",79.469,13.3287,mars,,composition,https://astrobiology.nasa.gov/nai/annual-reports/2009/ciw/project-6-application-of-laboratory-experimentation-to-flight-instrument-testing/index.html,false
+mdrs_utah,"Mars Desert Research Station, Utah",38.40646,-110.7919,mars,,terrain,https://en.wikipedia.org/wiki/Mars_Desert_Research_Station,false
+hi_seas,"HI-SEAS habitat, Mauna Loa",19.60238,-155.48719,mars,,terrain,https://en.wikipedia.org/wiki/HI-SEAS,true
+lake_salda,"Lake Salda, Turkey",37.55,29.68333,mars,jezero,composition,https://en.wikipedia.org/wiki/Lake_Salda,false
+teide_np,"Teide National Park, Tenerife",28.263,-16.616,mars,,composition,https://en.wikipedia.org/wiki/Teide_National_Park,false
+askja,"Askja, Iceland",65.033,-16.783,moon,,terrain,https://en.wikipedia.org/wiki/Askja,true
+mauna_kea_isru,Mauna Kea (ISRU field tests),19.82056,-155.46806,moon,,composition,https://ntrs.nasa.gov/citations/20140008708,true
+kilauea,"Kilauea, Hawaii",19.4211,-155.28676,moon,,terrain,https://en.wikipedia.org/wiki/K%C4%ABlauea,true
+meteor_crater,"Meteor Crater, Arizona",35.02806,-111.02333,moon,,terrain,https://en.wikipedia.org/wiki/Meteor_Crater,false
+nordlinger_ries,"Nordlinger Ries, Germany",48.88333,10.56667,moon,,terrain,https://en.wikipedia.org/wiki/N%C3%B6rdlinger_Ries,false
+sudbury_basin,"Sudbury Basin, Ontario",46.6,-81.18333,moon,,composition,https://en.wikipedia.org/wiki/Sudbury_Basin,false
+craters_of_the_moon,"Craters of the Moon, Idaho",43.46167,-113.56271,moon,,terrain,https://en.wikipedia.org/wiki/Craters_of_the_Moon_National_Monument_and_Preserve,false
+lonar_lake,"Lonar Lake, India",19.975,76.5075,moon,,composition,https://en.wikipedia.org/wiki/Lonar_Lake,false
+lanzarote_pangaea,"Lanzarote (ESA PANGAEA)",29.035,-13.635,moon,,terrain,https://www.esa.int/Science_Exploration/Human_and_Robotic_Exploration/CAVES_and_Pangaea/What_is_Pangaea,false

@@ -39,7 +39,7 @@ describe('loadBundle (committed sample bundle)', () => {
     expect(n).toBeGreaterThan(0);
     expect(n).toBeLessThanOrEqual(500);
     expect(b.h3).toHaveLength(n);
-    expect(b.features).toHaveLength(n * 10);
+    expect(b.features).toHaveLength(n * 11);
     expect(b.lith).toHaveLength(n * 6);
     expect(b.latlng).toHaveLength(n * 2);
     expect(b.novelty).toHaveLength(n * 2);
@@ -105,6 +105,6 @@ describe('auxiliary loaders', () => {
   it('rejects targets with wrong feature counts', () => {
     expect(() =>
       parseTargets([{ id: 'x', body: 'moon', features: [1, 2], lith: [0, 0, 0, 0, 0, 1] }]),
-    ).toThrow(/features must have 10/);
+    ).toThrow(/features must have 11/);
   });
 });

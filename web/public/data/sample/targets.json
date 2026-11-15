@@ -6,16 +6,17 @@
   "lat": -88.520588,
   "lon": 5.784386,
   "features": [
-   4.342995643615723,
-   8.969339370727539,
-   284.7031555175781,
-   0.7104669809341431,
-   125.29330444335938,
-   28.15631675720215,
+   4.736191272735596,
+   8.47732925415039,
+   274.5653381347656,
+   0.6842539310455322,
+   126.64683532714844,
+   39.425968170166016,
    null,
-   0.9928150773048401,
+   0.9924859404563904,
    null,
-   0.0
+   0.0,
+   null
   ],
   "lith": [
    0.0,
@@ -29,7 +30,8 @@
   "notes": "Synthetic target generated for development; not a real landmark.",
   "coverage_notes": [
    "annual_range_K: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)",
+   "pit_cave_density_per_1000km2: not measured (synthetic)"
   ]
  },
  {
@@ -39,16 +41,17 @@
   "lat": -85.091982,
   "lon": 38.245566,
   "features": [
-   11.740793228149414,
-   33.343421936035156,
-   100.23664855957031,
-   0.21728047728538513,
-   139.02862548828125,
-   72.50921630859375,
+   2.7379748821258545,
+   6.328341484069824,
+   282.58636474609375,
+   0.8174683451652527,
+   141.94647216796875,
+   68.18599700927734,
    null,
-   0.988690197467804,
+   0.9875493049621582,
    null,
-   0.0
+   0.0,
+   null
   ],
   "lith": [
    0.0,
@@ -62,7 +65,8 @@
   "notes": "Synthetic target generated for development; not a real landmark.",
   "coverage_notes": [
    "annual_range_K: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)",
+   "pit_cave_density_per_1000km2: not measured (synthetic)"
   ]
  },
  {
@@ -72,16 +76,17 @@
   "lat": 10.272696,
   "lon": 29.56531,
   "features": [
-   6.881709575653076,
-   11.767184257507324,
-   35.5531005859375,
-   0.5412193536758423,
-   258.7163391113281,
-   248.3514404296875,
+   7.08188009262085,
+   13.342995643615723,
+   316.8760681152344,
+   0.5278746485710144,
+   253.33843994140625,
    null,
-   0.6180128455162048,
    null,
-   0.0
+   0.6593469381332397,
+   null,
+   0.0,
+   0.5
   ],
   "lith": [
    0.0,
@@ -94,6 +99,7 @@
   "cluster": 2,
   "notes": "Synthetic target generated for development; not a real landmark.",
   "coverage_notes": [
+   "diurnal_range_K: not measured (synthetic)",
    "annual_range_K: not measured (synthetic)",
    "permafrost_prob: not measured (synthetic)"
   ]
@@ -105,16 +111,17 @@
   "lat": -40.015887,
   "lon": -120.869381,
   "features": [
-   0.4813075065612793,
-   1.2970460653305054,
-   64.70259094238281,
-   0.9679128527641296,
-   232.48291015625,
-   222.0664520263672,
+   1.2715719938278198,
+   2.287616729736328,
+   185.8419952392578,
+   0.915228545665741,
+   236.1593475341797,
+   239.23985290527344,
    null,
-   0.7950387001037598,
+   0.7743470072746277,
    null,
-   0.0
+   0.0,
+   null
   ],
   "lith": [
    1.0,
@@ -128,7 +135,8 @@
   "notes": "Synthetic target generated for development; not a real landmark.",
   "coverage_notes": [
    "annual_range_K: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)",
+   "pit_cave_density_per_1000km2: not measured (synthetic)"
   ]
  },
  {
@@ -138,16 +146,17 @@
   "lat": 17.998976,
   "lon": 78.043556,
   "features": [
-   1.1826528310775757,
-   2.8030269145965576,
-   281.9057922363281,
-   0.9211564660072327,
+   2.7477188110351562,
+   4.9316325187683105,
+   89.93451690673828,
+   0.8168187737464905,
    null,
    null,
    null,
    null,
    null,
-   0.0
+   0.0,
+   null
   ],
   "lith": [
    1.0,
@@ -164,7 +173,8 @@
    "diurnal_range_K: not measured (synthetic)",
    "annual_range_K: not measured (synthetic)",
    "frac_below_0C: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)",
+   "pit_cave_density_per_1000km2: not measured (synthetic)"
   ]
  },
  {
@@ -174,22 +184,23 @@
   "lat": -6.526726,
   "lon": 137.965964,
   "features": [
-   0.7921837568283081,
-   2.02184796333313,
-   54.33051681518555,
-   0.9471877217292786,
+   0.8659369945526123,
+   1.9011422395706177,
+   202.9002685546875,
+   0.9422708749771118,
    null,
    null,
    null,
    null,
    null,
-   0.0
+   0.0,
+   null
   ],
   "lith": [
    0.0,
-   0.0,
-   0.0,
    1.0,
+   0.0,
+   0.0,
    0.0,
    0.0
   ],
@@ -200,7 +211,8 @@
    "diurnal_range_K: not measured (synthetic)",
    "annual_range_K: not measured (synthetic)",
    "frac_below_0C: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)",
+   "pit_cave_density_per_1000km2: not measured (synthetic)"
   ]
  },
  {
@@ -210,16 +222,17 @@
   "lat": 78.051292,
   "lon": -99.75155,
   "features": [
-   2.3259496688842773,
-   3.819976568222046,
-   128.9256591796875,
-   0.8449366688728333,
+   8.031594276428223,
+   15.3991060256958,
+   405.85150146484375,
+   0.4645603597164154,
    null,
    null,
    null,
    null,
    null,
-   0.0
+   0.0,
+   null
   ],
   "lith": [
    0.0,
@@ -236,7 +249,8 @@
    "diurnal_range_K: not measured (synthetic)",
    "annual_range_K: not measured (synthetic)",
    "frac_below_0C: not measured (synthetic)",
-   "permafrost_prob: not measured (synthetic)"
+   "permafrost_prob: not measured (synthetic)",
+   "pit_cave_density_per_1000km2: not measured (synthetic)"
   ]
  }
 ]

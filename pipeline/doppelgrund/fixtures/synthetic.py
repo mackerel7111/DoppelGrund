@@ -5,7 +5,7 @@ ids prefixed ``synthetic_`` and are never written into ``config/``. Real data re
 
 CLI::
 
-    python -m doppelgrund.fixtures.synthetic --bundle web/public/data --interim data/interim/synthetic
+    python -m doppelgrund.fixtures.synthetic --bundle DIR --interim DIR --coverage land
 """
 
 from __future__ import annotations
@@ -28,12 +28,15 @@ from shapely.geometry import shape
 from shapely.ops import unary_union
 
 from doppelgrund.config import EXPECTED_FEATURES, EXPECTED_LITH, REPO, Profiles, load_profiles
+from doppelgrund.export.bundle import null_list as _null_list
+from doppelgrund.export.bundle import write_bundle
+from doppelgrund.export.index_map import rasterise_index as index_map  # noqa: F401 (re-export)
+from doppelgrund.export.index_map import unwrap as _unwrap
 
 logger = logging.getLogger(__name__)
 
 # Fixed so that output bytes are identical across runs (R4.4).
 SYNTHETIC_CREATED_UTC = "2026-01-01T00:00:00Z"
-INDEX_W, INDEX_H = 4096, 2048
 TEXTURE_W, TEXTURE_H = 2048, 1024
 SAMPLE_N_HEX = 500
 LAND_GEOJSON = REPO / "config/ne_land.geojson"  # Natural Earth 1:110m land, public domain
@@ -216,6 +219,10 @@ def earth_table(
     below0 = 1.0 / (1.0 + np.exp(-(273.15 - lst) / 8.0))
     perma = np.where(lat > 45.0, np.clip((lat - 45.0) / 30.0 + rng.normal(0, 0.1, n), 0, 1), np.nan)
     aridity = np.exp(rng.uniform(math.log(0.02), math.log(3.0), n))
+    # catalogued pits/caves per 1000 km2: only surveyed hexes (~8%) carry a value, NaN elsewhere
+    surveyed = rng.random(n) < 0.08
+    has_cave = rng.random(n) < np.where(regime == "volcanic", 0.7, 0.2)
+    cave = np.where(surveyed, np.where(has_cave, rng.lognormal(math.log(0.6), 0.7, n), 0.0), np.nan)
     if smooth:
         z = [_smooth_field(lat, lng, rng) for _ in range(14)]
         p50 = np.clip(2.5 * np.exp(0.8 * z[0]), 0.05, 60.0)
@@ -252,6 +259,7 @@ def earth_table(
         "frac_below_0C": below0,
         "permafrost_prob": perma,
         "aridity_index": aridity,
+        "pit_cave_density_per_1000km2": cave,
     }
     df = pd.DataFrame({"h3": list(cells)})
     for name in EXPECTED_FEATURES:
@@ -294,7 +302,15 @@ def disc_table(body: str, rng: np.random.Generator, n: int = N_DISCS) -> pd.Data
     lat, lon = fibonacci_lattice(n)
     alat = np.abs(lat)
     nan = np.full(n, np.nan)
+    cave = nan  # Mars: no catalogue, NaN
     if body == "moon":
+        # LROC-style pit catalogue: only discs in the surveyed part (~15%) carry a value
+        surveyed = rng.random(n) < 0.15
+        cave = np.where(
+            surveyed,
+            np.where(rng.random(n) < 0.25, rng.lognormal(math.log(0.4), 0.7, n), 0.0),
+            np.nan,
+        )
         mare = (rng.random(n) < 0.3) & (alat < 60)
         p50 = np.clip(rng.lognormal(np.log(np.where(mare, 2.0, 5.0)), 0.6), 0.1, 45)
         lst = np.clip(250.0 - 130.0 * (alat / 90.0) ** 4 + rng.normal(0, 8, n), 60, 330)
@@ -323,6 +339,7 @@ def disc_table(body: str, rng: np.random.Generator, n: int = N_DISCS) -> pd.Data
         "frac_below_0C": thermal[3],
         "permafrost_prob": nan,
         "aridity_index": np.zeros(n),  # 0.0 by definition (profiles.yaml assumption)
+        "pit_cave_density_per_1000km2": cave,
     }
     df = pd.DataFrame({"disc_id": np.arange(n, dtype=np.int32), "lat": lat, "lon": lon})
     for name in EXPECTED_FEATURES:
@@ -348,6 +365,9 @@ def targets_table(moon: pd.DataFrame, mars: pd.DataFrame) -> pd.DataFrame:
         row["lat"], row["lon"] = float(disc["lat"]), float(disc["lon"])
         for col in list(EXPECTED_FEATURES) + LITH_COLS:
             row[col] = np.float32(disc[col])
+        if tid == "synthetic_moon_mare_c":
+            # a pit-bearing landmark, so the subsurface card path is exercised in the demo
+            row["pit_cave_density_per_1000km2"] = np.float32(0.5)
         rows.append(row)
     df = pd.DataFrame(rows)
     for col in list(EXPECTED_FEATURES) + LITH_COLS:
@@ -412,7 +432,8 @@ def make_synthetic(
     known = _points(rng, lat, lng, min(60, max(5, n_hex // 300)), "site", "known site")
     known["well_known"] = np.arange(len(known)) % 4 == 0
     known["dimension"] = [
-        ("terrain", "thermal", "cold_ice", "composition")[i % 4] for i in range(len(known))
+        ("terrain", "thermal", "cold_ice", "composition", "subsurface")[i % 5]
+        for i in range(len(known))
     ]
     volc = earth["tag_volcanic"].to_numpy()
     out = {
@@ -457,32 +478,6 @@ def flags(earth: pd.DataFrame, known: pd.DataFrame) -> np.ndarray:
     return f
 
 
-def _unwrap(lngs: list[float]) -> list[float]:
-    if max(lngs) - min(lngs) > 180.0:
-        return [x + 360.0 if x < 0 else x for x in lngs]
-    return lngs
-
-
-def index_map(cells: Sequence[str]) -> Image.Image:
-    """Rasterise cells onto a 4096x2048 equirectangular RGB image; value = row + 1 (C6)."""
-    img = Image.new("RGB", (INDEX_W, INDEX_H), (0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    sx, sy = INDEX_W / 360.0, INDEX_H / 180.0
-    for row, cell in enumerate(cells):
-        v = row + 1
-        colour = ((v >> 16) & 255, (v >> 8) & 255, v & 255)
-        boundary = h3.cell_to_boundary(cell)
-        lats = [p[0] for p in boundary]
-        lngs = _unwrap([p[1] for p in boundary])
-        shifts = [0.0, -360.0] if max(lngs) > 180.0 else [0.0]
-        for shift in shifts:
-            pts = [
-                ((x + shift + 180.0) * sx, (90.0 - y) * sy) for x, y in zip(lngs, lats, strict=True)
-            ]
-            draw.polygon(pts, fill=colour)
-    return img
-
-
 def _texture(body: str) -> Image.Image:  # placeholder when config/textures/<body>.jpg is absent
     grey = {"earth": 46, "moon": 120, "mars": 110}[body]
     tint = {"earth": (0, 4, 10), "moon": (0, 0, 0), "mars": (25, 0, -15)}[body]
@@ -503,16 +498,6 @@ def _jpeg_bytes(img: Image.Image) -> bytes:
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=85, optimize=False)
     return buf.getvalue()
-
-
-def _png_bytes(img: Image.Image) -> bytes:
-    buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=False, compress_level=6)
-    return buf.getvalue()
-
-
-def _null_list(values: Any) -> list[float | None]:
-    return [None if not np.isfinite(v) else float(v) for v in np.asarray(values, np.float64)]
 
 
 def _points_geojson(df: pd.DataFrame, extra: Sequence[str] = (), body: str = "earth") -> dict:
@@ -569,10 +554,6 @@ def _write(path: Path, data: bytes, overwrite: bool, written: list[Path]) -> Non
     written.append(path)
 
 
-def _json_bytes(obj: Any) -> bytes:
-    return (json.dumps(obj, indent=1, allow_nan=False, ensure_ascii=False) + "\n").encode("utf-8")
-
-
 # --------------------------------------------------------------------------------------------
 # Writers
 # --------------------------------------------------------------------------------------------
@@ -607,8 +588,9 @@ def write_synthetic_bundle(
 ) -> list[Path]:
     """Write a complete C6 bundle with ``"synthetic": true``.
 
-    Uses its own minimal writer (``doppelgrund.export.bundle`` does not exist yet). When ``sample`` is
-    true a ≤ 500-hex copy (always patches) is also written to ``out_dir/sample`` for CI.
+    Written by ``doppelgrund.export.bundle.write_bundle`` (which also validates it). When
+    ``sample`` is true a ≤ 500-hex copy (always patches) is also written to ``out_dir/sample``
+    for CI.
     ``coverage="land"`` covers all land (see ``make_synthetic``).
     """
     out_dir = Path(out_dir)
@@ -619,29 +601,21 @@ def write_synthetic_bundle(
     targets = tables["targets"]
     cells = earth["h3"].tolist()
     scaler = fit_scaler([earth, moon, mars], prof)
-    written: list[Path] = []
-
-    def arr(df: pd.DataFrame, cols: Sequence[str]) -> bytes:
-        return np.ascontiguousarray(df[list(cols)].to_numpy(np.float32)).astype("<f4").tobytes()
-
-    _write(out_dir / "earth_h3.txt", ("\n".join(cells) + "\n").encode(), overwrite, written)
-    _write(out_dir / "earth_features.f32", arr(earth, EXPECTED_FEATURES), overwrite, written)
-    _write(out_dir / "earth_lith.f32", arr(earth, LITH_COLS), overwrite, written)
-    _write(out_dir / "earth_latlng.f32", arr(earth, ["lat", "lng"]), overwrite, written)
     nov = novelty(earth, tables["known_sites"], rng)
-    _write(out_dir / "earth_novelty.f32", nov.astype("<f4").tobytes(), overwrite, written)
     regimes = _regime_of(earth["lat"].to_numpy(), earth["lng"].to_numpy())
     cluster = np.array([{"desert": 0, "volcanic": 1, "polar": 2}[r] for r in regimes], np.int16)
     cluster = np.where(
         rng.random(len(cluster)) < 0.1, -1, cluster * 2 + (rng.random(len(cluster)) < 0.5)
     ).astype("<i2")
-    _write(out_dir / "earth_cluster.i16", cluster.tobytes(), overwrite, written)
     fl = flags(earth, tables["known_sites"])
-    _write(out_dir / "earth_flags.u8", fl.tobytes(), overwrite, written)
-    for body, df in (("moon", moon), ("mars", mars)):
-        _write(out_dir / f"{body}_features.f32", arr(df, EXPECTED_FEATURES), overwrite, written)
-        _write(out_dir / f"{body}_lith.f32", arr(df, LITH_COLS), overwrite, written)
-        _write(out_dir / f"{body}_latlon.f32", arr(df, ["lat", "lon"]), overwrite, written)
+    discs = {
+        body: (
+            df[list(EXPECTED_FEATURES)].to_numpy(np.float32),
+            df[LITH_COLS].to_numpy(np.float32),
+            df[["lat", "lon"]].to_numpy(np.float32),
+        )
+        for body, df in (("moon", moon), ("mars", mars))
+    }
 
     tjson = []
     for i, t in targets.iterrows():
@@ -661,26 +635,19 @@ def write_synthetic_bundle(
                 "coverage_notes": [f"{n}: not measured (synthetic)" for n in missing],
             }
         )
-    _write(out_dir / "targets.json", _json_bytes(tjson), overwrite, written)
 
     k = int(prof.params["stability"]["store_top_k"])
     draws = int(prof.params["stability"]["draws"])
-    for t in tjson:
-        for lens in prof.lenses:
-            st = {
-                "target": t["id"],
-                "lens": lens,
-                "draws": draws,
-                "rows": _stability_rows(rng, len(cells), min(k, len(cells) // 3)),
-            }
-            _write(
-                out_dir / "stability" / f"{t['id']}__{lens}.json",
-                _json_bytes(st),
-                overwrite,
-                written,
-            )
-
-    _write(out_dir / "earth_index_4096x2048.png", _png_bytes(index_map(cells)), overwrite, written)
+    stability = [
+        {
+            "target": t["id"],
+            "lens": lens,
+            "draws": draws,
+            "rows": _stability_rows(rng, len(cells), min(k, len(cells) // 3)),
+        }
+        for t in tjson
+        for lens in prof.lenses
+    ]
     layers = {
         "land": _real_land_geojson() if coverage == "land" else _land_geojson(cells),
         "known_sites": _points_geojson(tables["known_sites"], ("well_known", "dimension")),
@@ -689,58 +656,35 @@ def write_synthetic_bundle(
         "sarawak_caves": _points_geojson(tables["sarawak_caves"]),
         "lunar_pits": _points_geojson(tables["lunar_pits"], body="moon"),
     }
-    for name, gj in layers.items():
-        _write(out_dir / "layers" / f"{name}.geojson", _json_bytes(gj), overwrite, written)
+    textures = {}
     for body in ("earth", "moon", "mars"):
         real = TEXTURE_DIR / f"{body}.jpg"
-        data = real.read_bytes() if real.is_file() else _jpeg_bytes(_texture(body))
-        _write(out_dir / "textures" / f"{body}.jpg", data, overwrite, written)
-
-    files = {
-        "h3": "earth_h3.txt",
-        "features": "earth_features.f32",
-        "lith": "earth_lith.f32",
-        "latlng": "earth_latlng.f32",
-        "novelty": "earth_novelty.f32",
-        "cluster": "earth_cluster.i16",
-        "flags": "earth_flags.u8",
-        "targets": "targets.json",
-        "index_map": "earth_index_4096x2048.png",
-    }
-    for body in ("moon", "mars"):
-        files[f"{body}_features"] = f"{body}_features.f32"
-        files[f"{body}_lith"] = f"{body}_lith.f32"
-        files[f"{body}_latlon"] = f"{body}_latlon.f32"
-    features_meta = [
-        {
-            "name": f.name,
-            "group": f.group,
-            "unit": f.unit,
-            "transform": f.transform,
-            "median": sc["median"],
-            "s": sc["s"],
-        }
-        for f, sc in zip(prof.features, scaler, strict=True)
-    ]
-    manifest = {
-        "contract": "doppelgrund-bundle/1",
-        "created_utc": SYNTHETIC_CREATED_UTC,
-        "synthetic": True,
-        "h3_res": 4,
-        "n_hex": len(cells),
-        "features": features_meta,
-        "lith_classes": list(prof.lith_classes),
-        "compat_matrix": prof.compat_matrix.tolist(),
-        "lenses": prof.lenses,
-        "params": prof.params,
-        "files": files,
-        "sources": [
+        textures[body] = real.read_bytes() if real.is_file() else _jpeg_bytes(_texture(body))
+    written = write_bundle(
+        out_dir,
+        prof=prof,
+        scaler=scaler,
+        cells=cells,
+        earth_features=earth[list(EXPECTED_FEATURES)].to_numpy(np.float32),
+        earth_lith=earth[LITH_COLS].to_numpy(np.float32),
+        earth_latlng=earth[["lat", "lng"]].to_numpy(np.float32),
+        novelty=nov,
+        cluster=cluster,
+        flags=fl,
+        discs=discs,
+        targets=tjson,
+        stability=stability,
+        layers=layers,
+        textures=textures,
+        sources=[
             {"feature": name, "body": b, "dataset": "synthetic", "version": f"seed {seed}"}
             for name in [*(f.name for f in prof.features), "lith"]
             for b in ("earth", "moon", "mars")
         ],
-    }
-    _write(out_dir / "manifest.json", _json_bytes(manifest), overwrite, written)
+        synthetic=True,
+        created_utc=SYNTHETIC_CREATED_UTC,
+        overwrite=overwrite,
+    )
     if sample and n_hex > SAMPLE_N_HEX:
         written += write_synthetic_bundle(
             out_dir / "sample", seed, SAMPLE_N_HEX, overwrite, sample=False
@@ -751,7 +695,9 @@ def write_synthetic_bundle(
 
 def main(argv: Sequence[str] | None = None) -> int:
     """CLI: ``--bundle DIR --interim DIR --seed N --n-hex N``."""
-    parser = argparse.ArgumentParser(description="Write a synthetic DoppelGrund bundle and interim tables")
+    parser = argparse.ArgumentParser(
+        description="Write a synthetic DoppelGrund bundle and interim tables"
+    )
     parser.add_argument("--bundle", type=Path, help="web bundle directory (C6)")
     parser.add_argument("--interim", type=Path, help="interim Parquet directory (C2)")
     parser.add_argument("--seed", type=int, default=None, help="default: profiles params.seed")

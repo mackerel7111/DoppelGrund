@@ -1,0 +1,107 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Surtshellir",
+    "source": "config/earth_lava_tubes.csv; coordinates: Wikipedia (tag source:dewiki; no citation)",
+    "kind": "lava_tube",
+    "country": "Iceland",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -20.72771,
+     64.7842
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Raufarholshellir",
+    "source": "config/earth_lava_tubes.csv; coordinates: Wikipedia (no location source cited)",
+    "kind": "lava_tube",
+    "country": "Iceland",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -21.4008,
+     63.9397
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Vidgelmir",
+    "source": "config/earth_lava_tubes.csv; coordinates: Wikipedia",
+    "kind": "lava_tube",
+    "country": "Iceland",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -20.8017,
+     64.75028
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Cueva del Viento",
+    "source": "config/earth_lava_tubes.csv; coordinates: Wikipedia (needs-more-citations tag)",
+    "kind": "lava_tube",
+    "country": "Spain (Tenerife)",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -16.72222,
+     28.34667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Manjanggul",
+    "source": "config/earth_lava_tubes.csv; coordinates: Wikipedia",
+    "kind": "lava_tube",
+    "country": "South Korea (Jeju)",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     126.7701,
+     33.5282
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Lava River Cave",
+    "source": "config/earth_lava_tubes.csv; coordinates: Wikipedia",
+    "kind": "lava_tube",
+    "country": "USA (Oregon)",
+    "verified": false
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -121.36892,
+     43.8954
+    ]
+   }
+  }
+ ]
+}

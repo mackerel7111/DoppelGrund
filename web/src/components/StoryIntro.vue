@@ -297,8 +297,10 @@ img {
   right: 0;
   margin-top: var(--s2);
   text-align: center;
-  color: var(--text-muted);
-  opacity: 0;
+  font-size: var(--fs-card);
+  font-weight: 500;
+  color: var(--text);
+  opacity: 0.85;
   transition: opacity var(--dur) var(--ease);
 }
 .world:hover .name,
@@ -406,40 +408,46 @@ img {
   left: 50%;
   transform: translateX(-50%);
   display: grid;
-  width: min(640px, 90vw);
+  width: min(680px, 92vw);
   pointer-events: none;
 }
 .caption p {
   grid-area: 1 / 1;
   justify-self: center;
   margin: 0;
-  padding: var(--s2) var(--s4);
-  background: rgba(4, 6, 11, 0.72);
+  padding: var(--s3) var(--s5);
+  background: rgba(12, 17, 28, 0.92);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-card);
+  color: var(--text);
   text-align: center;
   text-wrap: pretty;
-  font-size: var(--fs-section);
-  line-height: 1.35;
+  font-size: clamp(18px, 2.4vw, 24px);
+  line-height: 1.4;
 }
 .muted {
-  color: var(--text-muted);
+  color: #cbd5e6;
+  font-size: var(--fs-card);
 }
 .hint {
   position: absolute;
-  bottom: 40px;
+  bottom: 48px;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
-  padding: var(--s1) var(--s3);
-  background: rgba(4, 6, 11, 0.72);
+  padding: var(--s2) var(--s4);
+  background: rgba(12, 17, 28, 0.92);
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  color: var(--text-muted);
+  color: var(--text);
+  font-size: 15px;
   pointer-events: none;
 }
 .quiet {
   background: none;
   border: 0;
-  color: var(--text-muted);
+  color: #cbd5e6;
   min-height: 0;
   padding: var(--s2) var(--s3);
 }
@@ -447,7 +455,8 @@ img {
   color: var(--text);
 }
 .skip {
-  background: rgba(4, 6, 11, 0.72);
+  background: rgba(12, 17, 28, 0.92);
+  border: 1px solid var(--border);
   position: absolute;
   top: var(--s3);
   right: var(--s3);
@@ -461,12 +470,13 @@ img {
   display: flex;
   gap: var(--s2);
   padding: var(--s1) var(--s2);
-  background: rgba(4, 6, 11, 0.72);
+  background: rgba(12, 17, 28, 0.92);
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
 }
 .dots i {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--border);
 }

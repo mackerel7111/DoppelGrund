@@ -9,7 +9,13 @@ import type {
   WorkerResponse,
 } from '../data/types';
 import { eligibleMask, selectCards, topRows } from '../engine/cards';
-import { featureWeights, groupIndex, scoreAll, type ScoreInputs } from '../engine/scoring';
+import {
+  N_GROUPS,
+  featureWeights,
+  groupIndex,
+  scoreAll,
+  type ScoreInputs,
+} from '../engine/scoring';
 import { applyTransforms } from '../engine/transforms';
 import { StabilityAccumulator } from '../engine/stability';
 import { paint, sampleIndex } from '../globe/painter';
@@ -41,7 +47,7 @@ export function metricValues(
   if (colorBy === 'S') return { values: last.S, eligible: last.eligible };
   const g = GROUP_IDS.indexOf(colorBy);
   const values = new Float32Array(n);
-  for (let i = 0; i < n; i++) values[i] = last.groups[i * 4 + g];
+  for (let i = 0; i < n; i++) values[i] = last.groups[i * N_GROUPS + g];
   return { values, eligible: last.eligible };
 }
 import { TOP_N } from './protocol';

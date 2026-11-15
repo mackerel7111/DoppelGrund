@@ -12,6 +12,7 @@ import {
   rowInfo,
 } from '../stores/selectors';
 import { GROUP_IDS } from '../data/types';
+import { N_GROUPS } from '../engine/scoring';
 import { heatCss } from '../map/palette';
 import {
   CARD_TITLES,
@@ -48,7 +49,7 @@ const info = computed(() =>
 );
 const groupScores = computed(() =>
   GROUP_IDS.map((_, g) => {
-    const v = s.result?.groups[props.row * 4 + g];
+    const v = s.result?.groups[props.row * N_GROUPS + g];
     return v !== undefined && Number.isFinite(v) ? v : null;
   }),
 );

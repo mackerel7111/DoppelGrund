@@ -2,7 +2,7 @@
 // perturbed (Dirichlet weights around the lens, log-normal jitter on s_f). A statistic, not ML.
 import { GROUP_IDS, type GroupWeights, type StabilityParams } from '../data/types';
 import { mulberry32, normal, sampleDirichlet } from './prng';
-import { scoreAll, type ScoreInputs } from './scoring';
+import { COMPOSITION, N_GROUPS, scoreAll, type ScoreInputs } from './scoring';
 
 export interface StabilityRunParams extends StabilityParams {
   seed: number;
@@ -11,11 +11,11 @@ export interface StabilityRunParams extends StabilityParams {
 
 /** Per-feature group index used to rebuild weights from sampled group weights. */
 function weightsFor(inp: ScoreInputs, groups: Float64Array): { wNum: Float64Array; wLith: number } {
-  const count = new Float64Array(4);
+  const count = new Float64Array(N_GROUPS);
   for (let f = 0; f < inp.groupOfFeature.length; f++) count[inp.groupOfFeature[f]] += 1;
-  count[3] += 1; // lithology
+  count[COMPOSITION] += 1; // lithology
   const wNum = Float64Array.from(inp.groupOfFeature, (g) => groups[g] / count[g]);
-  return { wNum, wLith: groups[3] / count[3] };
+  return { wNum, wLith: groups[COMPOSITION] / count[COMPOSITION] };
 }
 
 /** Incremental runner so the worker can yield between draws (progress + cancellation). */
