@@ -18,6 +18,7 @@ import LayerToggles from './LayerToggles.vue';
 
 type PopoverId = 'target' | 'focus' | 'layers' | null;
 
+defineProps<{ tutorialActive?: boolean }>();
 const s = useSession();
 const openPopover = ref<PopoverId>(null);
 const navRef = ref<HTMLElement | null>(null);
@@ -158,7 +159,7 @@ onBeforeUnmount(() => {
         <button
           type="button"
           class="step-pill"
-          :class="{ open: openPopover === 'target' }"
+          :class="{ open: openPopover === 'target', 'tutorial-highlight': tutorialActive }"
           :aria-expanded="openPopover === 'target'"
           data-test="hud-step-target"
           @click="togglePopover('target')"
@@ -305,6 +306,17 @@ onBeforeUnmount(() => {
         <button type="button" :aria-pressed="s.view === '2d'" @click="s.setView('2d')">2D</button>
       </div>
       <button
+        v-if="!s.aboutOpen"
+        id="explorer-back"
+        type="button"
+        class="about-btn"
+        aria-label="Back to introduction"
+        :disabled="s.introOpen"
+        @click="s.introOpen = true"
+      >
+        ← Back
+      </button>
+      <button
         type="button"
         class="about-btn"
         :aria-pressed="s.aboutOpen"
@@ -359,6 +371,12 @@ onBeforeUnmount(() => {
   color: var(--accent-warn);
   background: rgba(242, 169, 59, 0.12);
   border: 1px solid rgba(242, 169, 59, 0.35);
+}
+
+.tutorial-highlight {
+  outline: 2px solid var(--accent-earth);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(79, 195, 247, 0.12);
 }
 
 .partial-btn {

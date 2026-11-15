@@ -7,6 +7,7 @@ import BottomMatchDock from './components/BottomMatchDock.vue';
 import SiteDetailsModal from './components/SiteDetailsModal.vue';
 import AboutDialog from './components/AboutDialog.vue';
 import StoryIntro from './components/StoryIntro.vue';
+import ExplorerTutorial from './components/ExplorerTutorial.vue';
 import { useSession } from './stores/session';
 import type { Body } from './data/types';
 
@@ -21,16 +22,27 @@ const nHex = computed(() => s.bundle?.manifest.n_hex ?? null);
 const debug = new URLSearchParams(window.location.search).has('debug');
 const detailsOpen = ref(false);
 
-function introWanted(): boolean {
-  if (new URLSearchParams(window.location.search).has('intro')) return true;
+// Always begin with the welcome page, including returning visits and refreshes.
+s.introOpen = true;
+function tutorialWanted(): boolean {
   try {
-    return localStorage.getItem('doppelgrund.introSeen') !== '1';
+    return localStorage.getItem('doppelgrund.tutorialSeen') !== '1';
   } catch {
     return true;
   }
 }
-s.introOpen = introWanted();
-
+const tutorialRequested = ref(tutorialWanted());
+const tutorialVisible = computed(
+  () => tutorialRequested.value && s.loading.phase === 'ready' && !s.introOpen && !s.aboutOpen,
+);
+function closeTutorial(): void {
+  tutorialRequested.value = false;
+  try {
+    localStorage.setItem('doppelgrund.tutorialSeen', '1');
+  } catch {
+    /* The tutorial remains one-time for this visit in private mode. */
+  }
+}
 // open on a result, not an empty globe: first landmark of the current body
 function selectFirstLandmark(): void {
   const first = s.bundle?.targets.find((t) => t.body === s.body);
@@ -38,11 +50,6 @@ function selectFirstLandmark(): void {
 }
 
 function onIntroDone(world: Body): void {
-  try {
-    localStorage.setItem('doppelgrund.introSeen', '1');
-  } catch {
-    /* private mode: the intro just shows again next time */
-  }
   s.introOpen = false;
   s.selectBody(world);
   selectFirstLandmark(); // no-op until the bundle is ready; the watch below covers that order
@@ -93,7 +100,7 @@ const progressPct = computed(() =>
 
 <template>
   <div class="app">
-    <AppHeader />
+    <AppHeader :tutorial-active="tutorialVisible" />
     <div v-if="s.notice" class="notice" role="status">
       {{ s.notice }}
       <button type="button" aria-label="Dismiss notice" @click="s.notice = null">✕</button>
@@ -140,6 +147,7 @@ const progressPct = computed(() =>
       />
     </template>
 
+    <ExplorerTutorial v-if="tutorialVisible" :body="s.body" @close="closeTutorial" />
     <Transition name="intro-out">
       <StoryIntro v-if="s.introOpen" @done="onIntroDone" />
     </Transition>

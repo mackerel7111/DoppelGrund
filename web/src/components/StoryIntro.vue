@@ -1,545 +1,483 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { Body } from '../data/types';
-
+import { narrationEnabled, speechEngine, storyteller } from '../content/narration';
 const emit = defineEmits<{ done: [world: Body] }>();
-
 const img = (name: string): string => `${import.meta.env.BASE_URL}story/${name}.webp`;
-const NAME: Record<Body, string> = { moon: 'Moon', mars: 'Mars' };
-const HINTS = ['Click the telescope', 'Pick a world', 'Click Doppel', 'Click Earth'];
-const CAPTIONS = [
-  'This is Doppel. He lives on Earth and dreams of space missions',
-  'The Moon and Mars. Doppel wants to explore both',
-  'Doppel is shy, and a little nervous',
-  'Earth has deserts, ice, lava fields and craters too',
-  'DoppelGrund compares every patch of land on Earth with a place on the Moon or Mars and finds the closest matches.',
-];
-
-// `?intro=<1-5>` starts at that scene and `&world=mars` presets the world (screenshots)
 const q = new URLSearchParams(window.location.search);
-const scene = ref(Math.min(5, Math.max(1, Number(q.get('intro')) || 1)));
-const world = ref<Body | null>(q.get('world') === 'mars' ? 'mars' : null);
-const w = (): Body => world.value ?? 'moon';
-const other = (): Body => (w() === 'moon' ? 'mars' : 'moon');
-
+// Old scene links still open the destination choice.
+const scene = ref(Number(q.get('intro')) > 1 ? 2 : 1);
+const world = ref<Body | null>(
+  q.get('world') === 'mars' ? 'mars' : q.get('world') === 'moon' ? 'moon' : null,
+);
 const root = ref<HTMLElement | null>(null);
-const hint = ref(false);
-let timer = 0;
+const heading = ref<HTMLElement | null>(null);
+const speech = speechEngine();
+const speechError = ref('');
+const titles = ['Let’s find another world on Earth.', 'Where shall we explore together?'];
+const captions = [
+  'I’m Doppel. Come with me to discover places on Earth that resemble the Moon and Mars.',
+  'Choose the Moon or Mars. Then we’ll find its closest matches on Earth.',
+];
+let utterance: SpeechSynthesisUtterance | null = null;
 let finished = false;
-let first = true;
-
-function finish(b: Body): void {
+let previousFocus: HTMLElement | null = null;
+function stopSpeech(): void {
+  if (!utterance) return;
+  utterance.onerror = null;
+  speech?.cancel();
+  utterance = null;
+}
+function narrate(): void {
+  stopSpeech();
+  speechError.value = '';
+  if (!speech || !narrationEnabled.value || finished) return;
+  try {
+    utterance = storyteller(`${titles[scene.value - 1]} ${captions[scene.value - 1]}`, speech);
+    utterance.onerror = () => {
+      speechError.value = 'You can follow the text or try narration again.';
+    };
+    speech.speak(utterance);
+  } catch {
+    speechError.value = 'Narration is unavailable. You can still follow the text.';
+  }
+}
+function finish(): void {
   if (finished) return;
   finished = true;
-  emit('done', b);
+  stopSpeech();
+  emit('done', world.value ?? 'moon');
 }
-function pick(b: Body): void {
-  world.value = b;
-  scene.value = 3;
-}
-function hop(ev: Event): void {
-  (ev.currentTarget as HTMLElement).classList.add('hop');
-  scene.value++;
+function next(): void {
+  if (scene.value === 1) scene.value = 2;
+  else if (world.value) finish();
 }
 function onKey(ev: KeyboardEvent): void {
-  if (ev.key === 'Escape') finish(w());
+  if (ev.key === 'Escape') {
+    ev.preventDefault();
+    finish();
+  }
+  if (ev.key !== 'Tab') return;
+  const controls = Array.from(
+    root.value?.querySelectorAll<HTMLElement>('button:not(:disabled)') ?? [],
+  );
+  const first = controls[0];
+  const last = controls.at(-1);
+  if (
+    ev.shiftKey &&
+    (document.activeElement === first || !controls.includes(document.activeElement as HTMLElement))
+  ) {
+    ev.preventDefault();
+    last?.focus();
+  } else if (!ev.shiftKey && document.activeElement === last) {
+    ev.preventDefault();
+    first?.focus();
+  }
 }
-
-watch(
-  scene,
-  async () => {
-    hint.value = false;
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => (hint.value = true), 4000);
-    await nextTick();
-    // first scene: focus the dialog itself (no ring); later scenes: the new target
-    const t = root.value?.querySelector<HTMLElement>('.scene:not(.fade-leave-active) [data-test]');
-    (first ? root.value : t)?.focus();
-    first = false;
-  },
-  { immediate: true },
-);
-onMounted(() => window.addEventListener('keydown', onKey));
+watch([scene, narrationEnabled], narrate);
+watch(scene, async () => {
+  await nextTick();
+  heading.value?.focus();
+});
+onMounted(() => {
+  previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  heading.value?.focus();
+  window.addEventListener('keydown', onKey);
+  narrate();
+});
 onBeforeUnmount(() => {
+  finished = true;
+  stopSpeech();
   window.removeEventListener('keydown', onKey);
-  window.clearTimeout(timer);
+  if (previousFocus?.isConnected) previousFocus.focus();
 });
 </script>
-
 <template>
-  <div ref="root" class="intro" tabindex="-1" role="dialog" aria-modal="true" aria-label="Intro">
-    <Transition name="fade">
-      <div v-if="scene === 1" key="1" class="scene">
-        <img class="bg" :src="img('space')" alt="" />
-        <div class="pair">
-          <button
-            type="button"
-            class="target telescope"
-            data-test="next"
-            aria-label="Look through the telescope"
-            @click="scene = 2"
-          >
-            <img :src="img('telescope')" alt="" draggable="false" />
-          </button>
-          <img class="doppel slide" :src="img('doppel')" alt="Doppel" draggable="false" />
-        </div>
+  <div
+    ref="root"
+    class="intro"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="intro-heading"
+    aria-describedby="intro-caption"
+  >
+    <img class="backdrop" :src="img('space')" alt="" />
+    <header class="intro-header">
+      <span class="brand">DoppelGrund</span>
+      <div class="header-actions">
+        <button
+          v-if="speech"
+          type="button"
+          class="quiet"
+          data-test="narration"
+          :aria-pressed="narrationEnabled"
+          @click="narrationEnabled = !narrationEnabled"
+        >
+          {{ narrationEnabled ? 'Mute narration' : 'Play narration' }}
+        </button>
+        <button type="button" class="quiet" data-test="skip" @click="finish">Skip intro</button>
       </div>
-
-      <div v-else-if="scene === 2" key="2" class="scene">
-        <div class="eyepiece">
-          <img class="bg" :src="img('space')" alt="" />
-          <div class="worlds">
-            <button
-              v-for="b in ['moon', 'mars'] as const"
-              :key="b"
-              type="button"
-              class="target world"
-              :data-test="b"
-              :aria-label="NAME[b]"
-              @click="pick(b)"
-            >
-              <img :src="img(b)" alt="" draggable="false" />
-              <span class="name">{{ NAME[b] }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div v-else-if="scene === 3" key="3" class="scene">
-        <img class="bg" :src="img(`${w()}-surface`)" alt="" />
-        <div class="stack low">
-          <p class="bubble">
-            {{
-              w() === 'moon'
-                ? 'Craters, dust, freezing nights. What if I get stuck?'
-                : 'Red dust, rocks, thin cold air. What if I get stuck?'
-            }}
-          </p>
-          <button
-            type="button"
-            class="target doppel-btn"
-            data-test="next"
-            aria-label="Doppel"
-            @click="hop"
-          >
-            <img :src="img('doppel-confused')" alt="" draggable="false" />
-          </button>
-        </div>
-      </div>
-
-      <div v-else-if="scene === 4" key="4" class="scene">
-        <img class="bg" :src="img('space')" alt="" />
-        <div class="stack mid">
-          <p class="bubble right">
-            I should practise at home first. Some place on Earth must feel like the
-            {{ NAME[w()] }}. But where?
-          </p>
-          <div class="row">
-            <button
-              type="button"
-              class="target earth"
-              data-test="next"
-              aria-label="Earth"
-              @click="scene = 5"
-            >
-              <img :src="img('earth')" alt="" draggable="false" />
-            </button>
-            <img class="doppel-side" :src="img('doppel')" alt="Doppel" draggable="false" />
-          </div>
-        </div>
-      </div>
-
-      <div v-else key="5" class="scene">
-        <img class="bg" :src="img('space')" alt="" />
-        <div class="stack mid">
-          <div class="row compare">
-            <img :src="img(w())" alt="" draggable="false" />
-            <span class="approx" aria-hidden="true">≈</span>
-            <img :src="img('earth')" alt="" draggable="false" />
-          </div>
-          <img class="doppel-small" :src="img('doppel')" alt="Doppel" draggable="false" />
-          <button type="button" class="primary" data-test="go" @click="finish(w())">
-            Find {{ NAME[w()] }} practice grounds
-          </button>
-          <button type="button" class="quiet" data-test="other" @click="finish(other())">
-            {{ NAME[other()] }} instead
-          </button>
-        </div>
-      </div>
-    </Transition>
-
-    <div class="caption" aria-live="polite">
-      <Transition name="rise">
-        <p :key="scene">
-          {{ CAPTIONS[scene - 1] }}
-          <template v-if="scene === 5">
-            <br />
-            <span class="muted">Doppel's practice grounds</span>
-          </template>
+    </header>
+    <main class="story" :class="{ choosing: scene === 2 }">
+      <div class="copy">
+        <p class="eyebrow">
+          {{ scene === 1 ? 'An invitation from Doppel' : 'Through Doppel’s eyes' }}
         </p>
-      </Transition>
-    </div>
-
-    <Transition name="fade">
-      <p v-if="hint && scene < 5" class="hint">{{ HINTS[scene - 1] }}</p>
-    </Transition>
-    <button type="button" class="quiet skip" data-test="skip" @click="finish(w())">
-      Skip intro
-    </button>
-    <div class="dots" aria-hidden="true">
-      <i v-for="n in 5" :key="n" :class="{ on: n === scene }" />
-    </div>
+        <h1 id="intro-heading" ref="heading" tabindex="-1">{{ titles[scene - 1] }}</h1>
+        <p id="intro-caption" class="caption">{{ captions[scene - 1] }}</p>
+        <p v-if="speechError" role="status">{{ speechError }}</p>
+      </div>
+      <div v-if="scene === 1" class="pair">
+        <img
+          class="doppel"
+          :src="img('doppel')"
+          alt="Doppel, your friendly rover guide"
+          draggable="false"
+        />
+        <button
+          type="button"
+          class="target telescope"
+          data-test="next"
+          aria-label="Look through the telescope"
+          @click="next"
+        >
+          <img :src="img('telescope')" alt="" draggable="false" /><span class="callout"
+            >Click the telescope ↗</span
+          >
+        </button>
+      </div>
+      <div v-else class="worlds" role="group" aria-label="Choose our destination">
+        <button
+          v-for="b in ['moon', 'mars'] as const"
+          :key="b"
+          type="button"
+          class="target world"
+          :data-test="b"
+          :aria-pressed="world === b"
+          @click="world = b"
+        >
+          <img :src="img(b)" alt="" draggable="false" />
+          <span class="world-name">{{ b === 'moon' ? 'The Moon' : 'Mars' }}</span>
+          <span class="world-description">{{
+            b === 'moon' ? 'Craters & lunar plains' : 'Red deserts & ancient valleys'
+          }}</span>
+          <span v-if="world === b" class="selected">✓ Our destination</span>
+        </button>
+      </div>
+    </main>
+    <footer class="navigation" :class="{ opening: scene === 1 }">
+      <button
+        type="button"
+        class="back"
+        data-test="back"
+        :disabled="scene === 1"
+        @click="scene = 1"
+      >
+        ← Back
+      </button>
+      <p class="instruction">
+        {{ scene === 1 ? 'Click the telescope to begin' : 'Choose the Moon or Mars' }}
+      </p>
+      <button
+        v-if="scene === 2"
+        type="button"
+        class="primary"
+        data-test="go"
+        :disabled="!world"
+        @click="next"
+      >
+        Find Earth matches →
+      </button>
+    </footer>
   </div>
 </template>
-
 <style scoped>
 .intro {
   position: fixed;
   inset: 0;
   z-index: 100;
-  overflow: hidden;
-  background: var(--bg);
-  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  isolation: isolate;
+  background: #080f1c;
+  color: #f6f0e5;
   pointer-events: auto;
-  outline: none;
 }
-.scene {
+.backdrop {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.intro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 clamp(20px, 4vw, 72px);
+  padding: 16px 0;
+  border-bottom: 1px solid #ffffff26;
+}
+.brand {
+  font-size: 22px;
+  font-weight: 700;
+}
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+button {
+  min-height: 44px;
+  font-size: 16px;
+}
+.quiet {
+  border-color: transparent;
+  background: transparent;
+  padding: 10px 14px;
+}
+.quiet:hover {
+  background: #ffffff0d;
+}
+.story {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 40px;
+  padding: 40px clamp(20px, 6vw, 100px);
+}
+.copy {
+  max-width: 560px;
+}
+.eyebrow {
+  color: #a4d9ee;
+  font-size: 16px;
+  margin: 0 0 20px;
+}
+h1 {
+  font-size: clamp(34px, 4.2vw, 64px);
+  line-height: 1.12;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  outline: none;
+}
+.caption {
+  color: #d4dce5;
+  font-size: clamp(18px, 1.6vw, 24px);
+  line-height: 1.6;
+  margin: 24px 0 0;
 }
 img {
   display: block;
   max-width: 100%;
   user-select: none;
 }
-.bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
 }
-
-/* buttons that wrap an image: no chrome, quiet hover and focus */
+.doppel {
+  width: 44%;
+  padding-bottom: 16px;
+}
 .target {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 18px;
   padding: 0;
-  background: none;
-  border: 0;
-  border-radius: var(--radius-card);
-  min-height: 0;
-  cursor: pointer;
+  color: inherit;
 }
 .target:hover img {
   filter: brightness(1.12);
 }
-.target:focus-visible,
-.quiet:focus-visible,
-.primary:focus-visible {
-  outline: 2px solid var(--accent-earth);
-  outline-offset: 2px;
-}
-.target img {
-  width: 100%;
-}
-
-/* scene 1 */
-.pair {
-  --t: min(47vh, 42vw); /* telescope width; Doppel stands at about 60% of its height */
-  position: absolute;
-  left: 40%;
-  bottom: 76px;
-  width: max-content;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: flex-end;
-  gap: var(--s4);
-}
 .telescope {
-  flex: none;
-  width: var(--t);
+  width: 54%;
 }
-.doppel {
-  flex: none;
-  width: calc(var(--t) * 0.8);
+.callout {
+  display: block;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #9fdcf5;
+  border-radius: 999px;
+  background: #0d1b2c;
+  font-size: 18px;
+  color: #c0eaff;
 }
-.slide {
-  animation: slide-in 600ms var(--ease) both;
+.choosing {
+  grid-template-columns: 1fr;
+  gap: 24px;
+  text-align: center;
 }
-
-/* scene 2 */
-.eyepiece {
-  position: absolute;
-  left: 50%;
-  top: 54%;
-  width: min(90vw, 72vh);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  overflow: hidden;
+.choosing .copy {
+  max-width: 850px;
+  margin-inline: auto;
+}
+.choosing h1 {
+  font-size: clamp(30px, 3vw, 44px);
+}
+.choosing .caption {
+  margin-top: 12px;
+  font-size: 18px;
 }
 .worlds {
-  position: absolute;
-  inset: 0;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 6%;
+  align-items: stretch;
+  gap: clamp(24px, 6vw, 90px);
 }
 .world {
-  position: relative;
-  width: 38%;
-}
-.name {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: var(--s2);
-  text-align: center;
-  font-size: var(--fs-card);
-  font-weight: 500;
-  color: var(--text);
-  opacity: 0.85;
-  transition: opacity var(--dur) var(--ease);
-}
-.world:hover .name,
-.world:focus-visible .name {
-  opacity: 1;
-}
-
-/* scenes 3 to 5: bubble and figures */
-.stack {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s4);
-  width: min(560px, 92vw);
+  width: min(35vw, 280px);
+  padding: 12px;
+  gap: 10px;
 }
-.stack.low {
-  bottom: 76px;
+.world img {
+  width: min(100%, 230px);
+  aspect-ratio: 1;
+  object-fit: contain;
 }
-.stack.mid {
-  width: max-content;
-  max-width: 92vw;
-  top: 54%;
-  transform: translate(-50%, -50%);
+.world:hover,
+.world[aria-pressed='true'] {
+  border-color: #9fdcf5;
+  color: inherit;
+  background: #12233499;
 }
-.doppel-btn {
-  width: clamp(110px, 24vw, 200px);
+.world-name {
+  font-size: 26px;
+  font-weight: 650;
 }
-.row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: var(--s5);
-  width: 100%;
+.world-description {
+  font-size: 15px;
+  color: #cad3df;
 }
-.earth {
-  width: min(52vw, 40vh, 340px);
+.selected {
+  font-size: 14px;
+  color: #a4d9ee;
 }
-.doppel-side {
-  width: min(31vw, 23vh, 195px);
-}
-.compare {
+.navigation {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
   align-items: center;
-  gap: var(--s4);
+  padding: 22px clamp(20px, 4vw, 72px) max(22px, env(safe-area-inset-bottom));
+  background: #0a1322ed;
+  border-top: 1px solid #ffffff26;
 }
-.compare img {
-  width: min(28vw, 24vh, 220px);
+.opening {
+  grid-template-columns: 1fr auto 1fr;
 }
-.approx {
-  font-size: 32px;
-  color: var(--text-muted);
+.opening .back {
+  justify-self: start;
 }
-.doppel-small {
-  width: min(21vw, 16vh, 130px);
+.instruction {
+  text-align: center;
+  font-size: clamp(20px, 1.7vw, 26px);
+  margin: 0;
+}
+.back {
+  background: transparent;
+  border-color: #ffffff59;
+  border-radius: 999px;
+  padding: 12px 20px;
 }
 .primary {
-  background: var(--accent-earth);
-  color: var(--bg);
-  border: 0;
-  border-radius: var(--radius-control);
-  padding: var(--s3) var(--s5);
-  font-weight: 600;
-  min-height: 44px;
+  background: #a4d9ee;
+  color: #0a1829;
+  border-color: transparent;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-weight: 650;
 }
-.primary:hover {
-  filter: brightness(1.1);
+.primary:hover:not(:disabled) {
+  background: #c1ebfa;
 }
-
-.bubble {
-  position: relative;
-  margin: 0;
-  max-width: min(380px, 86vw);
-  text-wrap: pretty;
-  padding: var(--s3) var(--s4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: var(--text);
-  font-size: var(--fs-card);
-}
-.bubble::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: var(--tail, 50%);
-  width: 12px;
-  height: 12px;
-  margin: -7px 0 0 -6px;
-  background: var(--surface);
-  border: solid var(--border);
-  border-width: 0 1px 1px 0;
-  transform: rotate(45deg);
-}
-.bubble.right {
-  --tail: calc(100% - min(15.5vw, 11.5vh, 97px));
-  align-self: flex-end;
-}
-
-/* chrome shared by every scene */
-.caption {
-  position: absolute;
-  top: var(--s6);
-  left: 50%;
-  transform: translateX(-50%);
-  display: grid;
-  width: min(680px, 92vw);
-  pointer-events: none;
-}
-.caption p {
-  grid-area: 1 / 1;
-  justify-self: center;
-  margin: 0;
-  padding: var(--s3) var(--s5);
-  background: rgba(12, 17, 28, 0.92);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  border-radius: var(--radius-card);
-  color: var(--text);
-  text-align: center;
-  text-wrap: pretty;
-  font-size: clamp(18px, 2.4vw, 24px);
-  line-height: 1.4;
-}
-.muted {
-  color: #cbd5e6;
-  font-size: var(--fs-card);
-}
-.hint {
-  position: absolute;
-  bottom: 48px;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  padding: var(--s2) var(--s4);
-  background: rgba(12, 17, 28, 0.92);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  color: var(--text);
-  font-size: 15px;
-  pointer-events: none;
-}
-.quiet {
-  background: none;
-  border: 0;
-  color: #cbd5e6;
-  min-height: 0;
-  padding: var(--s2) var(--s3);
-}
-.quiet:hover {
-  color: var(--text);
-}
-.skip {
-  background: rgba(12, 17, 28, 0.92);
-  border: 1px solid var(--border);
-  position: absolute;
-  top: var(--s3);
-  right: var(--s3);
-  z-index: 1;
-}
-.dots {
-  position: absolute;
-  bottom: var(--s4);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: var(--s2);
-  padding: var(--s1) var(--s2);
-  background: rgba(12, 17, 28, 0.92);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-}
-.dots i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--border);
-}
-.dots i.on {
-  background: var(--text);
-}
-
-/* motion: opacity and transform only */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 400ms var(--ease);
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-.rise-enter-active {
-  transition:
-    opacity 400ms var(--ease),
-    transform 400ms var(--ease);
-}
-.rise-leave-active {
-  transition: opacity 200ms var(--ease);
-}
-.rise-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.rise-leave-to {
-  opacity: 0;
-}
-.hop {
-  animation: hop 200ms var(--ease);
-}
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(48px);
+@media (max-width: 899px) {
+  .story {
+    grid-template-columns: 1fr;
+    padding: 28px 24px;
+    gap: 28px;
   }
-}
-@keyframes hop {
-  50% {
-    transform: translateY(-8px);
-  }
-}
-@media (max-width: 600px) {
-  .caption {
-    top: 52px;
-  }
-  .caption p {
-    font-size: var(--fs-card);
+  .copy {
+    max-width: 680px;
   }
   .pair {
-    left: 50%;
+    max-width: 520px;
+    justify-self: center;
+  }
+  .worlds {
+    gap: 16px;
+  }
+  .world {
+    width: min(42vw, 260px);
+  }
+  .world img {
+    max-width: 180px;
+  }
+  .navigation {
+    gap: 16px;
+  }
+  .instruction {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .primary {
+    grid-column: 3;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .slide,
-  .hop {
-    animation: none;
+@media (max-width: 520px) {
+  .intro-header {
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .rise-enter-from {
-    transform: none;
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .quiet {
+    padding: 8px;
+    font-size: 14px;
+  }
+  .world-name {
+    font-size: 23px;
+  }
+  .world-description {
+    font-size: 13px;
+  }
+  .callout {
+    font-size: 14px;
+    padding: 10px;
+  }
+  .navigation {
+    padding: 18px 16px max(18px, env(safe-area-inset-bottom));
+  }
+  .back,
+  .primary {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+@media (max-height: 650px) and (min-width: 900px) {
+  .story {
+    padding-block: 20px;
+    gap: 16px;
+  }
+  .choosing h1 {
+    font-size: 34px;
+  }
+  .world img {
+    max-width: 150px;
+  }
+  .eyebrow {
+    margin-bottom: 12px;
   }
 }
 </style>
