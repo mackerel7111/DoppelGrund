@@ -47,3 +47,16 @@ def regime_mask(
 def restrict(S: np.ndarray, mask: np.ndarray | None) -> np.ndarray:
     """Scores with rows outside the regime set to NaN (ineligible); ``None`` = global ranking."""
     return S if mask is None else np.where(mask, S, np.nan)
+
+
+REGIME_BOOST = 1000.0  # S is 0-100, so any in-regime row outranks every out-of-regime row
+
+
+def regime_first(S: np.ndarray, mask: np.ndarray | None) -> np.ndarray:
+    """Global ordering with the regime's rows ahead of the rest (each group best-first by S).
+
+    Unlike ``restrict`` the denominator stays the whole eligible pool, so recall@k and percentile
+    rank are comparable with a global ranking: a site outside the regime is ranked behind the
+    regime, not counted as a miss, and a small regime cannot make recall@k trivially 1. ``None`` =
+    global ranking."""
+    return S if mask is None else np.where(mask, S + REGIME_BOOST, S)
